@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { EventModal } from "./components/EventModal";
 import { PolicyConfirmModal } from "./components/PolicyConfirmModal";
 import { ResultOverlay } from "./components/ResultOverlay";
+import { RoomBanner } from "./components/RoomBanner";
 import { ModeTabs } from "./components/ModeTabs";
 import { NationHeader } from "./components/NationHeader";
 import { RightRail } from "./components/RightRail";
@@ -15,14 +16,15 @@ import { statLabels } from "./data/stats";
 import { realCountries } from "./data/realCountries";
 import type { RealCountry } from "./data/realCountries";
 import { policies } from "./data/policies";
+import { rooms } from "./data/rooms";
 import { CountrySelectScreen } from "./screens/CountrySelectScreen";
+import { HomeScreen } from "./screens/HomeScreen";
 import { IntroScreen } from "./screens/IntroScreen";
 import { MapScreen } from "./screens/MapScreen";
 import { MarketScreen } from "./screens/MarketScreen";
 import { NewsScreen } from "./screens/NewsScreen";
 import { PoliciesScreen } from "./screens/PoliciesScreen";
 import { RankingScreen } from "./screens/RankingScreen";
-import { StatusScreen } from "./screens/StatusScreen";
 import type {
   ActionResult,
   Company,
@@ -784,9 +786,18 @@ export default function App() {
 
       <div className="app-frame">
         <StatusSidebar stats={stats} />
-        <section className="command-center">
+        <section className={`command-center room-${mode}`}>
+          {mode !== "status" && <RoomBanner room={rooms[mode]} />}
           {mode === "status" && (
-            <StatusScreen nation={nation} stats={stats} year={year} month={month} />
+            <HomeScreen
+              nation={nation}
+              leaderName={playerProfile.name}
+              stats={stats}
+              crisisLevel={crisisLevel}
+              year={year}
+              month={month}
+              onNavigate={setMode}
+            />
           )}
           {mode === "policies" && (
             <PoliciesScreen

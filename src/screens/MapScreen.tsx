@@ -75,9 +75,39 @@ export function MapScreen({
         {/* 選択中の国の情報 */}
         <div className="panel">
           <div className="section-title">
-            <span>選択中の国</span>
+            <span>首脳会談室</span>
             <strong>{selectedNation.relationStatus}</strong>
           </div>
+
+          {/* 首脳会談シーン（友好度で空気が変わる） */}
+          {(() => {
+            const r = selectedNation.relation;
+            const tier = r >= 90 ? "ally" : r >= 65 ? "warm" : r >= 45 ? "normal" : r >= 30 ? "cool" : "cold";
+            const mood =
+              tier === "ally" ? { icon: "🤝", text: "固い握手。共同記者会見へ", face: "😊" } :
+              tier === "warm" ? { icon: "🤝", text: "握手を交わす和やかな空気", face: "🙂" } :
+              tier === "normal" ? { icon: "💬", text: "着席して落ち着いた会談", face: "😐" } :
+              tier === "cool" ? { icon: "🪑", text: "やや距離のある実務会談", face: "😶" } :
+              { icon: "🧊", text: "握手なし。相手は警戒している", face: "😠" };
+            return (
+              <div className={`summit-scene tier-${tier}`}>
+                <div className="summit-side">
+                  <div className="summit-figure self">🧑‍💼</div>
+                  <span>{playerNationName}</span>
+                </div>
+                <div className="summit-center">
+                  <span className="summit-mood-icon">{mood.icon}</span>
+                  <span className="summit-mood-text">{mood.text}</span>
+                  <span className="summit-relation">友好度 {r}</span>
+                </div>
+                <div className="summit-side">
+                  <div className="summit-figure">{mood.face}</div>
+                  <span>{selectedNation.name}</span>
+                </div>
+              </div>
+            );
+          })()}
+
           <CountryDetailCard country={selectedNation} />
 
           {latestResult && latestResult.affectedNation === selectedNation.name && (

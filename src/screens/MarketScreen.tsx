@@ -6,11 +6,32 @@ type MarketScreenProps = {
 };
 
 export function MarketScreen({ companies, marketIndex }: MarketScreenProps) {
+  // 速報テロップ用に値動きを文字列化
+  const ticker = companies.map((c) => {
+    const ch = c.price - c.previousPrice;
+    const pct = c.previousPrice > 0 ? (ch / c.previousPrice) * 100 : 0;
+    return `${c.name} ${ch >= 0 ? "▲" : "▼"}${Math.abs(ch)}(${pct >= 0 ? "+" : ""}${pct.toFixed(1)}%)`;
+  });
+
   return (
     <section className="screen-layout">
       <div className="panel wide-panel">
+        {/* 取引所の大型ボード */}
+        <div className="exchange-board">
+          <div className="exchange-index">
+            <span>国内株価指数</span>
+            <strong>{marketIndex.toLocaleString()}</strong>
+          </div>
+          <div className="exchange-ticker">
+            <div className="exchange-ticker-track">
+              {[...ticker, ...ticker].map((t, i) => (
+                <span key={i} className="exchange-ticker-item">{t}</span>
+              ))}
+            </div>
+          </div>
+        </div>
         <div className="section-title">
-          <span>株式市場画面</span>
+          <span>証券取引所 / 個別銘柄</span>
           <strong>市場指数 {marketIndex}</strong>
         </div>
         <div className="stock-board">
