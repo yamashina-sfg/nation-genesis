@@ -1,8 +1,7 @@
 import { CountryDetailCard } from "../components/CountryDetailCard";
 import { WorldMap } from "../components/WorldMap";
+import { diplomacyActions } from "../data/diplomacy";
 import type { AINation, ActionResult } from "../types/game";
-
-type DiplomacyAction = "trade" | "alliance" | "sanction" | "talks";
 
 type MapScreenProps = {
   playerNationName: string;
@@ -11,15 +10,17 @@ type MapScreenProps = {
   selectedNationId: string;
   latestResult?: ActionResult;
   onSelectNation: (id: string) => void;
-  onDiplomacy: (action: DiplomacyAction) => void;
+  onDiplomacy: (actionId: string) => void;
 };
 
-const actionMeta: { id: DiplomacyAction; label: string; hint: string; emoji: string }[] = [
-  { id: "trade", label: "貿易協定", hint: "GDP・物流に追い風 / 輸入依存リスク", emoji: "🤝" },
-  { id: "talks", label: "首脳会談", hint: "信頼を安く積む / 即効性は低い", emoji: "🏛️" },
-  { id: "alliance", label: "同盟交渉", hint: "抑止力が上昇 / 非同盟国が警戒", emoji: "⚔️" },
-  { id: "sanction", label: "経済制裁", hint: "圧力をかける / 貿易と信用が痛む", emoji: "🚫" },
-];
+/** 友好度の段階ラベル */
+function relationTier(relation: number): string {
+  if (relation >= 90) return "同盟級（90+）";
+  if (relation >= 70) return "緊密（70-89）";
+  if (relation >= 50) return "良好（50-69）";
+  if (relation >= 30) return "実務（30-49）";
+  return "希薄（0-29）";
+}
 
 export function MapScreen({
   playerNationName,
@@ -99,30 +100,36 @@ export function MapScreen({
           )}
         </div>
 
-        {/* 外交アクション */}
+        {/* 外交アクション（友好度で段階解放） */}
         <div className="panel">
           <div className="section-title">
             <span>外交アクション</span>
-            <strong>{selectedNation.name}</strong>
+            <strong>友好度 {selectedNation.relation} ・ {relationTier(selectedNation.relation)}</strong>
           </div>
-          <p style={{ fontSize: "0.82rem", color: "var(--text-muted)", marginBottom: 14 }}>
-            {selectedNation.name}に対して外交行動を実行します。結果はニュースと右パネルに記録されます。
+          <p style={{ fontSize: "0.82rem", color: "var(--text-muted)", marginBottom: 12 }}>
+            {selectedNation.name}との関係が深まるほど、できる外交が増えます。
+            関係を積み重ねて、最終的には同盟を目指しましょう。
           </p>
-          <div style={{ display: "grid", gap: 10 }}>
-            {actionMeta.map((action) => (
-              <button
-                key={action.id}
-                type="button"
-                className={`diplo-action ${action.id}`}
-                onClick={() => onDiplomacy(action.id)}
-                title={action.hint}
-              >
-                <strong>
-                  {action.emoji} {action.label}
-                </strong>
-                <small>{action.hint}</small>
-              </button>
-            ))}
+          <div style={{ display: "grid", gap: 8 }}>
+            {diplomacyActions.map((action) => {
+              const locked = selectedNation.relation < action.minRelation;
+              return (
+                <button
+                  key={action.id}
+                  type="button"
+                  className={`diplo-action ${action.id} ${locked ? "locked" : ""}`}
+                  onClick={() => !locked && onDiplomacy(action.id)}
+                  disabled={locked}
+                  title={locked ? `友好度 ${action.minRelation} で解放` : action.hint}
+                >
+                  <strong>
+                    {action.emoji} {action.label}
+                    {locked && <span className="diplo-lock">🔒 友好度{action.minRelation}〜</span>}
+                  </strong>
+                  <small>{action.hint}</small>
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>

@@ -8,8 +8,9 @@ type ModeTab = {
 const tabs: ModeTab[] = [
   { id: "status", label: "国家" },
   { id: "policies", label: "政策" },
-  { id: "map", label: "地図" },
+  { id: "map", label: "外交" },
   { id: "market", label: "市場" },
+  { id: "ranking", label: "順位" },
   { id: "news", label: "ニュース" },
 ];
 

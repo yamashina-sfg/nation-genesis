@@ -1,20 +1,27 @@
 import { useMemo, useState } from "react";
 import { EventModal } from "./components/EventModal";
+import { PolicyConfirmModal } from "./components/PolicyConfirmModal";
+import { ResultOverlay } from "./components/ResultOverlay";
 import { ModeTabs } from "./components/ModeTabs";
 import { NationHeader } from "./components/NationHeader";
 import { RightRail } from "./components/RightRail";
 import { StatusSidebar } from "./components/StatusSidebar";
 import { characters } from "./data/characters";
 import { initialCompanies } from "./data/companies";
+import { diplomacyActions } from "./data/diplomacy";
 import { choiceEvents, passiveEvents } from "./data/events";
+import { getProfession } from "./data/professions";
+import { statLabels } from "./data/stats";
 import { realCountries } from "./data/realCountries";
 import type { RealCountry } from "./data/realCountries";
 import { policies } from "./data/policies";
 import { CountrySelectScreen } from "./screens/CountrySelectScreen";
+import { IntroScreen } from "./screens/IntroScreen";
 import { MapScreen } from "./screens/MapScreen";
 import { MarketScreen } from "./screens/MarketScreen";
 import { NewsScreen } from "./screens/NewsScreen";
 import { PoliciesScreen } from "./screens/PoliciesScreen";
+import { RankingScreen } from "./screens/RankingScreen";
 import { StatusScreen } from "./screens/StatusScreen";
 import type {
   ActionResult,
@@ -27,10 +34,13 @@ import type {
   NationStats,
   NewsItem,
   PlayerNation,
+  PlayerProfile,
+  Policy,
   StatDelta,
   StatKey,
 } from "./types/game";
 import { applyEffect, clamp, round1 } from "./utils/gameMath";
+import { predictStockMoves } from "./utils/predict";
 
 /** realCountries → Country 変換 (外交対象として使用) */
 function realToCountry(rc: RealCountry, playerRelation: number): Country {
@@ -114,7 +124,11 @@ function makeComment(characterId: string, text: string): CharacterComment {
 }
 
 export default function App() {
+  /** ゲーム開始フロー: 主人公プロフィール → 国選択 → プレイ */
+  const [playerProfile, setPlayerProfile] = useState<PlayerProfile | null>(null);
   const [selectedRealCountry, setSelectedRealCountry] = useState<RealCountry | null>(null);
+  /** 政策確認モーダルで保留中の政策 */
+  const [pendingPolicy, setPendingPolicy] = useState<Policy | null>(null);
   const [mode, setMode] = useState<GameMode>("status");
   const [nation, setNation] = useState<PlayerNation>({
     name: "日本",
@@ -151,6 +165,8 @@ export default function App() {
   const [speakerId, setSpeakerId] = useState("finance");
   /** 現在表示中の選択型イベント */
   const [pendingEvent, setPendingEvent] = useState<GameEvent | null>(null);
+  /** 実行結果オーバーレイ */
+  const [showResultOverlay, setShowResultOverlay] = useState(false);
   /** ターン処理中に積まれたパッシブ効果 (イベント選択後に合算) */
   const [pendingTurnData, setPendingTurnData] = useState<{
     policyNames: string;
@@ -181,6 +197,8 @@ export default function App() {
 
   /** 国選択画面でプレイヤーが国を選んだ際の処理 */
   function handleCountrySelect(country: RealCountry) {
+    const profession = playerProfile ? getProfession(playerProfile.professionId) : getProfession("office");
+    const leaderName = playerProfile?.name ?? "新大統領";
     setSelectedRealCountry(country);
     setNation({
       name: country.name,
@@ -188,28 +206,33 @@ export default function App() {
       flagPrimary: country.flagPrimary,
       flagAccent: country.flagAccent,
     });
-    setStats(country.initialStats);
+    // 初期ステータスに前職ボーナスを加算
+    const startStats = applyEffect(country.initialStats, profession.statBonus);
+    setStats(startStats);
     const diplomacyNations = buildDiplomacyNations(country);
     setNations(diplomacyNations);
     setSelectedNationId(diplomacyNations[0]?.id ?? "china");
     setMode("status");
     setLatestResult({
-      title: `${country.name} 政権発足`,
-      body: `${country.name}の指導者として国家運営を開始します。${country.description}`,
-      deltas: [],
+      title: `${country.name} 政権発足 — ${leaderName}大統領`,
+      body: `${profession.label}のあなたが、${country.name}の大統領に就任しました。「${profession.speech}」 ${country.description}`,
+      deltas: (Object.entries(profession.statBonus) as [StatKey, number][]).map(([key, amount]) => ({
+        key, amount: amount ?? 0, reason: `${profession.label}としての経験が活きています。`,
+      })),
       benefits: country.specialTraits,
-      drawbacks: ["外交関係の構築が急務です。"],
+      drawbacks: ["財政赤字・物価高・外交問題が山積みです。"],
       comments: [
-        makeComment("finance", `初期GDP: ${country.initialStats.gdp}、予算: ${country.initialStats.budget}。財政基盤を確認してください。`),
+        makeComment("finance", `初期GDP ${Math.round(startStats.gdp)}、予算 ${Math.round(startStats.budget)}。まずは財政基盤を確認しましょう。`),
+        makeComment("citizen", `${leaderName}大統領、私たちの暮らしをよろしくお願いします。`),
       ],
     });
     setNews([{
-      title: `${country.name}に新政権発足`,
-      body: `${country.name}の新たな指導者が就任しました。${country.description}`,
+      title: `${leaderName}氏が${country.name}大統領に就任`,
+      body: `${profession.label}出身の${leaderName}氏が、混乱する${country.name}の新大統領に選ばれました。財政・物価・外交と課題は山積みですが、国民は新しいリーダーに期待を寄せています。`,
       category: "政治",
-      reason: "国家選択により政権が発足したため。",
+      reason: "一般市民だったプレイヤーが大統領に就任したため。",
       comments: [
-        makeComment("press", `${country.name}の新政権に世界が注目しています。`),
+        makeComment("press", `${leaderName}新政権に世界が注目しています。最初の一手は何になるのでしょうか。`),
       ],
     }]);
   }
@@ -232,139 +255,201 @@ export default function App() {
     });
   }
 
-  function handleDiplomacy(action: "trade" | "alliance" | "sanction" | "talks") {
-    const selectedNation = nations.find((item) => item.id === selectedNationId) ?? nations[0];
-    const relationDeltas = { trade: 10, alliance: 12, sanction: -18, talks: 6 };
-    const labels = { trade: "貿易協定", alliance: "同盟交渉", sanction: "経済制裁", talks: "首脳会談" };
-    const resultByAction: Record<typeof action, ActionResult> = {
-      trade: {
-        title: `${selectedNation.name}との貿易協定を締結`,
-        affectedNation: selectedNation.name,
-        body: `${selectedNation.resource}と${selectedNation.exports[0]}を活用した物流が拡大しました。輸出企業と港湾業は追い風を受けますが、${selectedNation.imports[0]}への依存が高まり、国内産業から不満も出ています。`,
-        deltas: [
-          { key: "gdp", amount: 35, reason: `${selectedNation.exports[0]}との取引が増え、物流と輸出が伸びたため。` },
-          { key: "trust", amount: 5, reason: "通商ルールを共有し、周辺国から予測可能な相手と見られたため。" },
-          { key: "approval", amount: -2, reason: "輸入競争で国内製造業が圧迫される懸念が出たため。" },
-        ],
-        benefits: ["輸出と港湾物流が拡大", "外交信用が上昇", "BluePort Logisticsに追い風"],
-        drawbacks: ["輸入依存が上昇", "国内製造業の不満が増加"],
-        comments: [
-          makeComment("foreign", `${selectedNation.name}との関係は改善しました。ただし、輸入依存が高まりすぎると将来的な交渉力が下がります。`),
-          makeComment("finance", "短期的にはGDPにプラスです。国内産業への補助金も検討すべきです。"),
-        ],
-      },
-      talks: {
-        title: `${selectedNation.name}と首脳会談を実施`,
-        affectedNation: selectedNation.name,
-        body: `首都${selectedNation.capital}との直接対話により、誤解が減り関係改善の余地が広がりました。大きな経済効果はまだありませんが、将来の協定の土台になります。`,
-        deltas: [
-          { key: "trust", amount: 4, reason: "共同声明により外交的な予測可能性が高まったため。" },
-          { key: "approval", amount: 1, reason: "緊張緩和を評価する世論が増えたため。" },
-          { key: "budget", amount: -2, reason: "代表団派遣と共同会議の費用が発生したため。" },
-        ],
-        benefits: ["緊張緩和", "次の貿易・安全保障交渉が進めやすい"],
-        drawbacks: ["短期の経済効果は小さい", "外交費用が発生"],
-        comments: [
-          makeComment("foreign", "会談は地味ですが、危機の前に信頼を積むもっとも安い保険です。"),
-          makeComment("press", "成果文書の中身が薄いと世論はすぐ冷めます。次の一手が重要です。"),
-        ],
-      },
-      alliance: {
-        title: `${selectedNation.name}と同盟交渉を開始`,
-        affectedNation: selectedNation.name,
-        body: `${selectedNation.name}との安全保障協力により抑止力が増しました。一方で、対立国からは陣営化と受け止められ、周辺外交には緊張も生まれています。`,
-        deltas: [
-          { key: "military", amount: 7, reason: "共同訓練と情報共有により防衛能力が上がったため。" },
-          { key: "trust", amount: 2, reason: "同盟国からの信用が増えたため。" },
-          { key: "budget", amount: -8, reason: "共同演習と装備標準化の費用が発生したため。" },
-        ],
-        benefits: ["抑止力が上昇", "安全保障協力が強化"],
-        drawbacks: ["防衛費が増加", "非同盟国から警戒される"],
-        comments: [
-          makeComment("defense", "抑止力は上がりました。ただし軍事協力は、同時に周辺国へのメッセージにもなります。"),
-          makeComment("foreign", "同盟の言葉は重いです。経済関係とのバランスを取る必要があります。"),
-        ],
-      },
-      sanction: {
-        title: `${selectedNation.name}へ経済制裁を発動`,
-        affectedNation: selectedNation.name,
-        body: `${selectedNation.name}への制裁で政治的な圧力をかけました。しかし貿易量が落ち、企業収益と外交信用にも痛みが出ています。`,
-        deltas: [
-          { key: "trust", amount: -6, reason: "強硬措置により中立国が距離を置いたため。" },
-          { key: "gdp", amount: -18, reason: "対象国との貿易と物流が縮小したため。" },
-          { key: "approval", amount: 2, reason: "強い姿勢を評価する支持層が反応したため。" },
-        ],
-        benefits: ["政治的圧力を明確化", "強硬姿勢を支持する層が反応"],
-        drawbacks: ["貿易縮小", "外交信用低下", "市場心理の悪化"],
-        comments: [
-          makeComment("foreign", "制裁は交渉カードですが、長引けばこちらの信用も削ります。出口戦略が必要です。"),
-          makeComment("business", "物流企業と輸出企業には逆風です。代替市場を早く探す必要があります。"),
-        ],
-      },
-    };
-    const result = resultByAction[action];
+  /** 政策の合計効果を前職ボーナス込みで計算 */
+  function policyEffectWithProfession(policy: Policy): Partial<NationStats> {
+    const profession = playerProfile ? getProfession(playerProfile.professionId) : getProfession("office");
+    const mult = profession.policyBonus[policy.id] ?? profession.policyBonus[policy.field] ?? 1;
+    const merged = mergeEffects([policy.short, policy.long]);
+    if (mult === 1) return merged;
+    const boosted: Partial<NationStats> = {};
+    for (const key of Object.keys(merged) as StatKey[]) {
+      const v = merged[key] ?? 0;
+      // プラス効果だけを強める（マイナスのコストは据え置き）
+      boosted[key] = v > 0 ? round1(v * mult) : v;
+    }
+    return boosted;
+  }
 
-    setNations((current) =>
-      current.map((item) =>
-        item.id === selectedNationId
-          ? {
-              ...item,
-              relation: clamp(item.relation + relationDeltas[action], 0, 100),
-              relationStatus:
-                clamp(item.relation + relationDeltas[action], 0, 100) >= 65
-                  ? "協調"
-                  : clamp(item.relation + relationDeltas[action], 0, 100) >= 45
-                    ? "実務関係"
-                    : "緊張",
-            }
-          : item,
-      ),
-    );
-    setStats((current) => applyEffect(current, effectFromDeltas(result.deltas)));
-    setLatestResult(result);
-    setSpeakerId(result.comments[0]?.characterId ?? "foreign");
+  /** 政策を即時実行する（確認モーダルで「実行する」を押した後） */
+  function executePolicy(policy: Policy) {
+    const profession = playerProfile ? getProfession(playerProfile.professionId) : getProfession("office");
+    const mult = profession.policyBonus[policy.id] ?? profession.policyBonus[policy.field] ?? 1;
+    const effect = policyEffectWithProfession(policy);
+    const deltas: StatDelta[] = (Object.entries(effect) as [StatKey, number][])
+      .filter(([, v]) => Math.abs(v) >= 0.1)
+      .map(([key, amount]) => ({
+        key,
+        amount: amount ?? 0,
+        reason:
+          key === "budget" && (amount ?? 0) < 0
+            ? `${policy.name}の財源として予算を支出したため。`
+            : key === "approval"
+              ? `${policy.name}への国民の評価が支持率に表れたため。`
+              : key === "gdp"
+                ? `${policy.name}が消費・投資・生産を動かしたため。`
+                : `${policy.name}の効果が${statLabels[key]}に反映されたため。`,
+      }));
+
+    setStats((current) => applyEffect(current, effect));
+
+    // 株価を更新（前職ボーナスで起業家は株式への影響大）
+    const stockMult = profession.id === "founder" ? 1.4 : 1;
     setCompanies((current) =>
       current.map((company) => {
-        let direct = 0;
-        let reason = "";
-        if (action === "trade" && company.id === "logistics") {
-          direct = 38;
-          reason = `${selectedNation.name}との貿易協定で取扱貨物の増加が見込まれ、物流に資金が向かった。`;
-        } else if (action === "sanction" && company.id === "logistics") {
-          direct = -32;
-          reason = `${selectedNation.name}への制裁で貿易量の縮小が懸念され、物流株が売られた。`;
-        } else if (action === "alliance" && company.id === "energy") {
-          direct = 12;
-          reason = "安全保障協力でエネルギー供給網の安定期待が高まった。";
-        } else if (action === "trade" && company.id === "auto") {
-          direct = -10;
-          reason = "安価な輸入競合が増えるとの見方から自動車株は軟調。";
-        } else if (action === "sanction" && company.id === "energy") {
-          direct = 8;
-          reason = "制裁で供給不安が意識され、エネルギー価格上昇期待から買われた。";
+        let score = 0;
+        for (const key of Object.keys(effect) as StatKey[]) {
+          score += (effect[key] ?? 0) * (company.bias[key] ?? 0);
+        }
+        const move = Math.round(score * 5 * stockMult);
+        let reason: string | undefined;
+        if (Math.abs(move) >= 3) {
+          reason = move > 0
+            ? `${policy.name}が追い風となり、${company.name}は買われた。`
+            : `${policy.name}が逆風となり、${company.name}は売られた。`;
         }
         return {
           ...company,
           previousPrice: company.price,
-          price: Math.max(120, company.price + direct),
-          changeReason: reason || undefined,
+          price: Math.max(120, company.price + move),
+          changeReason: reason,
         };
       }),
     );
+
+    // ニュース記事を生成
+    const positives = deltas.filter((d) => d.amount > 0).map((d) => statLabels[d.key]);
+    const negatives = deltas.filter((d) => d.amount < 0).map((d) => statLabels[d.key]);
+    const bonusNote = mult > 1 ? `${profession.label}の手腕で効果が高まりました。` : "";
+    const newsBody =
+      `政府は「${policy.name}」を実行しました。${policy.summary} ` +
+      (positives.length ? `これにより${positives.join("・")}が改善しました。` : "") +
+      (negatives.length ? `一方で${negatives.join("・")}には負担がかかっています。` : "") +
+      bonusNote;
+
+    const result: ActionResult = {
+      title: policy.newsHeadline,
+      body: newsBody,
+      deltas,
+      benefits: deltas.filter((d) => d.amount > 0).map((d) => `${statLabels[d.key]}が改善`),
+      drawbacks: deltas.filter((d) => d.amount < 0).map((d) => `${statLabels[d.key]}に負担`),
+      comments: [
+        makeComment(policy.voices[0]?.characterId ?? "finance", policy.voices[0]?.text ?? "政策を実行しました。"),
+        makeComment("press", `${policy.newsHeadline}。市民の反応はニュース欄で追えます。`),
+      ],
+    };
+
+    setLatestResult(result);
+    setSpeakerId(policy.voices[0]?.characterId ?? "finance");
+    setNews((current) => [
+      {
+        title: policy.newsHeadline,
+        body: newsBody,
+        category: "政治" as const,
+        deltas,
+        reason: `${policy.name}を実行した直接の結果。`,
+        comments: result.comments,
+      },
+      ...current,
+    ].slice(0, 12));
+
+    setPendingPolicy(null);
+    setShowResultOverlay(true);
+  }
+
+  /** 友好度で段階解放された外交アクションを実行 (actionId は diplomacy.ts) */
+  function handleDiplomacy(actionId: string) {
+    const selectedNation = nations.find((item) => item.id === selectedNationId) ?? nations[0];
+    const action = diplomacyActions.find((a) => a.id === actionId);
+    if (!action) return;
+    // 友好度が足りない（万一）なら何もしない
+    if (selectedNation.relation < action.minRelation) return;
+
+    const newRelation = clamp(selectedNation.relation + action.relationDelta, 0, 100);
+    const newStatus = newRelation >= 65 ? "協調" : newRelation >= 45 ? "実務関係" : "緊張";
+
+    const deltas: StatDelta[] = (Object.entries(action.effect) as [StatKey, number][])
+      .filter(([, v]) => Math.abs(v) >= 0.1)
+      .map(([key, amount]) => ({
+        key,
+        amount: amount ?? 0,
+        reason:
+          key === "gdp" && (amount ?? 0) > 0 ? `${selectedNation.name}との取引拡大でGDPが伸びたため。`
+          : key === "trust" ? action.reason
+          : key === "military" ? `${selectedNation.name}との安全保障協力で防衛力が高まったため。`
+          : key === "budget" ? "外交・協力にかかる費用が発生したため。"
+          : key === "gdp" ? `${selectedNation.name}との関係悪化で貿易が縮小したため。`
+          : `${action.label}の影響が${statLabels[key]}に反映されたため。`,
+      }));
+
+    const result: ActionResult = {
+      title: `${selectedNation.name}と「${action.label}」を実施`,
+      affectedNation: selectedNation.name,
+      body:
+        `${selectedNation.name}に対して${action.label}を行いました。${action.reason} ` +
+        `相手国の反応：${action.reaction} ` +
+        `両国の友好度は ${selectedNation.relation} → ${newRelation} に変化しました。`,
+      deltas,
+      benefits: deltas.filter((d) => d.amount > 0).map((d) => `${statLabels[d.key]}が改善`),
+      drawbacks: deltas.filter((d) => d.amount < 0).map((d) => `${statLabels[d.key]}に負担`),
+      comments: [
+        makeComment("foreign", `${selectedNation.name}との関係を${action.relationDelta >= 0 ? "前進" : "見直し"}させました。${action.reaction}`),
+        makeComment(
+          action.effect.military ? "defense" : action.effect.gdp ? "business" : "press",
+          action.effect.military
+            ? "安全保障協力は周辺国へのメッセージにもなります。バランスが重要です。"
+            : action.effect.gdp
+              ? "経済への波及は市場が織り込みます。次の一手で勢いを保ちましょう。"
+              : "外交は積み重ねです。今回の一歩が次の選択肢を開きます。",
+        ),
+      ],
+    };
+
+    setNations((current) =>
+      current.map((item) =>
+        item.id === selectedNationId
+          ? { ...item, relation: newRelation, relationStatus: newStatus }
+          : item,
+      ),
+    );
+    setStats((current) => applyEffect(current, effectFromDeltas(deltas)));
+    setLatestResult(result);
+    setSpeakerId(result.comments[0]?.characterId ?? "foreign");
+
+    // 株価への波及（貿易・制裁は物流とエネルギーに直撃）
+    setCompanies((current) =>
+      current.map((company) => {
+        let move = 0;
+        let reason = "";
+        if (action.id === "trade" && company.id === "logistics") {
+          move = 38; reason = `${selectedNation.name}との貿易協定で取扱貨物増を見込み、物流が買われた。`;
+        } else if (action.id === "sanction" && company.id === "logistics") {
+          move = -30; reason = `${selectedNation.name}への制裁で貿易縮小が懸念され、物流が売られた。`;
+        } else if (action.id === "sanction" && company.id === "energy") {
+          move = 10; reason = "制裁で供給不安が意識され、エネルギーが買われた。";
+        } else if ((action.id === "tech" || action.id === "alliance") && company.id === "ai") {
+          move = 22; reason = `${selectedNation.name}との${action.label}で技術連携期待が高まった。`;
+        }
+        return move !== 0
+          ? { ...company, previousPrice: company.price, price: Math.max(120, company.price + move), changeReason: reason }
+          : { ...company, changeReason: undefined };
+      }),
+    );
+
     setNews((current) =>
       [
         {
-          title: `${selectedNation.name}: ${labels[action]}`,
+          title: `${selectedNation.name}と${action.label}`,
           body: result.body,
           category: "外交" as const,
           affectedNation: selectedNation.name,
-          deltas: result.deltas,
-          reason: "選択した相手国との外交行動が、貿易量・信用・安全保障コストを同時に動かしたため。",
+          deltas,
+          reason: action.reason,
           comments: result.comments,
         },
         ...current,
-      ].slice(0, 9),
+      ].slice(0, 12),
     );
+    setShowResultOverlay(true);
   }
 
   function handleRateAction(direction: "hike" | "cut") {
@@ -468,6 +553,8 @@ export default function App() {
         ...current,
       ].slice(0, 9),
     );
+    // 金利アクション結果オーバーレイを表示
+    setShowResultOverlay(true);
   }
 
   /** ターン共通: 統計・株価・ニュースを更新して画面を news へ */
@@ -578,40 +665,60 @@ export default function App() {
         reason: "プレイヤーが選択したイベント対応の直接効果。",
       });
     }
-    setNews((current) => [...newsItems, ...current].slice(0, 12));
+    // 株価指数ニュース（景気と金利から市場の方向を判断）
+    const gdpMove = finalStats.gdp - stats.gdp;
+    if (Math.abs(gdpMove) >= 6 || Math.abs(rate - 2.5) >= 1.5) {
+      const up = gdpMove >= 0 && rate < 4;
+      newsItems.push(
+        up
+          ? {
+              title: "国内株価指数が上昇、資産効果に期待",
+              body: "景気の改善期待から国内株価指数が上昇しました。株を持つ家庭や年金の資産が増え、消費マインドの上向きが期待されています。",
+              category: "市場" as const,
+              reason: "景気指標の改善が投資家心理を強気にしたため。",
+            }
+          : {
+              title: "国内株価指数が下落、投資家心理が悪化",
+              body: "景気減速や金利上昇への警戒から国内株価指数が下落しました。企業の資金調達が難しくなり、消費マインドの冷え込みが懸念されています。",
+              category: "市場" as const,
+              reason: "景気の鈍化や高金利が投資家心理を弱気にしたため。",
+            },
+      );
+    }
+    setNews((current) => [...newsItems, ...current].slice(0, 14));
     setLatestResult(turnResult);
     setSpeakerId(turnResult.comments[0]?.characterId ?? "finance");
     if (month === 12) { setYear((c) => c + 1); setMonth(1); } else { setMonth((c) => c + 1); }
     setMode("news");
     setPendingEvent(null);
     setPendingTurnData(null);
+    // 結果オーバーレイを表示
+    setShowResultOverlay(true);
   }
 
   function advanceTurn() {
-    const chosenPolicies = policies.filter((policy) => selectedPolicyIds.includes(policy.id));
-    const shortEffect = mergeEffects(chosenPolicies.map((policy) => policy.short));
-    const longEffect = mergeEffects(chosenPolicies.map((policy) => policy.long));
-    const passiveIdx = (month + year) % passiveEvents.length;
-    const passiveEvent = passiveEvents[passiveIdx];
-    const baseStats = [shortEffect, longEffect, getRateEffect(rate), passiveEvent.effect].reduce<NationStats>(
+    // 政策は即時実行モデルになったので、ターン進行は「時間が経つ＝世界が動く」処理。
+    // 毎ターン、世界イベント／市民イベントが一定確率で発生する。
+    const roll = (month * 7 + year * 13) % passiveEvents.length;
+    const passiveEvent = passiveEvents[roll];
+    const baseStats = [getRateEffect(rate), passiveEvent.effect].reduce<NationStats>(
       (next, effect) => applyEffect(next, effect),
       stats,
     );
-    const policyNames = chosenPolicies.map((policy) => policy.name).join("・") || "大きな政策変更なし";
     const passiveDeltas = (Object.entries(passiveEvent.effect) as [StatKey, number][])
       .filter(([, v]) => v !== 0)
-      .map(([key, amount]) => ({ key, amount: amount ?? 0, reason: "月次イベントの直接効果。" }));
+      .map(([key, amount]) => ({ key, amount: amount ?? 0, reason: `${passiveEvent.title}の直接の影響。` }));
     const passiveForTurn = { title: passiveEvent.title, body: passiveEvent.body, category: passiveEvent.category, deltas: passiveDeltas };
 
-    // 3ターンに1回は選択型イベントを発動
+    // 3ターンに1回は選択型イベント（プレイヤーの決断を求める）を発動
     const shouldFireChoiceEvent = (month + year) % 3 === 0;
     if (shouldFireChoiceEvent && choiceEvents.length > 0) {
       const choiceEvent = choiceEvents[(month * year) % choiceEvents.length];
-      setPendingTurnData({ policyNames, passiveEvent: passiveForTurn, baseStats });
+      setPendingTurnData({ policyNames: "今月の国政運営", passiveEvent: passiveForTurn, baseStats });
       setPendingEvent(choiceEvent);
     } else {
       const finalStats = applyEffect(baseStats, baseStats.budget < 20 ? { approval: -2, trust: -2 } : {});
-      commitTurn(finalStats, policyNames, passiveForTurn);
+      commitTurn(finalStats, "今月の国政運営", passiveForTurn);
     }
   }
 
@@ -627,16 +734,41 @@ export default function App() {
     commitTurn(finalStats, policyNames, passiveEvent, pendingEvent?.title, choiceDeltas);
   }
 
-  // 国未選択なら国選択画面を表示
+  // ① 主人公プロフィール未設定 → 導入ストーリー画面
+  if (!playerProfile) {
+    return <IntroScreen onComplete={setPlayerProfile} />;
+  }
+  // ② 国未選択 → 国選択画面
   if (!selectedRealCountry) {
     return <CountrySelectScreen onSelect={handleCountrySelect} />;
   }
 
+  const predictedPolicyEffect = pendingPolicy ? policyEffectWithProfession(pendingPolicy) : {};
+
   return (
     <main className="game-shell">
+      {/* 政策確認モーダル（賛成/反対 → 実行/やめる） */}
+      {pendingPolicy && (
+        <PolicyConfirmModal
+          policy={pendingPolicy}
+          predictedEffect={predictedPolicyEffect}
+          predictedStocks={predictStockMoves(predictedPolicyEffect, companies)}
+          onExecute={() => executePolicy(pendingPolicy)}
+          onCancel={() => setPendingPolicy(null)}
+        />
+      )}
       {/* 選択型イベントのポップアップ */}
       {pendingEvent && (
         <EventModal event={pendingEvent} onChoice={handleEventChoice} />
+      )}
+      {/* 実行結果オーバーレイ */}
+      {showResultOverlay && latestResult && !pendingEvent && !pendingPolicy && (
+        <ResultOverlay
+          result={latestResult}
+          year={year}
+          month={month}
+          onClose={() => setShowResultOverlay(false)}
+        />
       )}
       <NationHeader
         nation={nation}
@@ -660,10 +792,9 @@ export default function App() {
             <PoliciesScreen
               policies={policies}
               rate={rate}
-              selectedPolicyIds={selectedPolicyIds}
               onRateChange={setRate}
               onRateAction={handleRateAction}
-              onTogglePolicy={togglePolicy}
+              onRequestPolicy={setPendingPolicy}
               onAdvanceTurn={advanceTurn}
             />
           )}
@@ -680,6 +811,14 @@ export default function App() {
           )}
           {mode === "market" && (
             <MarketScreen companies={companies} marketIndex={marketIndex} />
+          )}
+          {mode === "ranking" && (
+            <RankingScreen
+              playerName={nation.name}
+              playerStats={stats}
+              marketIndex={marketIndex}
+              playerCountryId={selectedRealCountry.id}
+            />
           )}
           {mode === "news" && <NewsScreen news={news} />}
         </section>

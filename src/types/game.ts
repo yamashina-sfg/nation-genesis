@@ -12,15 +12,61 @@ export type StatKey =
 
 export type NationStats = Record<StatKey, number>;
 
-export type GameMode = "status" | "policies" | "map" | "market" | "news";
+export type GameMode = "status" | "policies" | "map" | "market" | "news" | "ranking";
+
+/** 政策に対する関係者コメント (賛成/反対) */
+export type StakeholderVoice = {
+  characterId: string;
+  stance: "support" | "oppose" | "neutral";
+  text: string;
+};
 
 export type Policy = {
   id: string;
   name: string;
   field: string;
+  /** やさしい一言説明 */
+  summary: string;
   short: Partial<NationStats>;
   long: Partial<NationStats>;
   lesson: string;
+  /** 政策実行前に表示する関係者の声 */
+  voices: StakeholderVoice[];
+  /** 実行後のニュース見出しテンプレ */
+  newsHeadline: string;
+};
+
+/** プレイヤーの前職 */
+export type Profession = {
+  id: string;
+  label: string;
+  blurb: string;
+  /** 前職フレーバー (大統領就任演説風) */
+  speech: string;
+  /** 政策効果倍率 (policyId または field をキーに) */
+  policyBonus: Partial<Record<string, number>>;
+  /** 初期ステータス補正 */
+  statBonus: Partial<NationStats>;
+};
+
+/** プレイヤーのプロフィール */
+export type PlayerProfile = {
+  name: string;
+  professionId: string;
+};
+
+/** ランキング軸 */
+export type RankingAxis = {
+  key: StatKey | "marketIndex";
+  label: string;
+  note: string;
+};
+
+/** ランキング1行 */
+export type RankingEntry = {
+  name: string;
+  value: number;
+  isPlayer: boolean;
 };
 
 export type Company = {
