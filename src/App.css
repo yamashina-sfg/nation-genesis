@@ -603,12 +603,20 @@ p {
   box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.5);
 }
 
+/* 比率固定はpadding-bottom方式で（Safari含め全ブラウザで確実に効く） */
+.world-map-canvas {
+  position: relative;
+  width: 100%;
+  height: 0;
+  padding-bottom: 37.8%; /* 378 / 1000 = 世界地図の高さ比 */
+  overflow: hidden;
+}
 .world-map-svg {
+  position: absolute;
+  inset: 0;
   display: block;
   width: 100%;
-  height: auto;
-  /* 世界地図(等距円筒)の縦横比に固定。歪み防止のため1箇所で管理 */
-  aspect-ratio: 1000 / 378;
+  height: 100%;
 }
 
 .map-country {
@@ -4163,4 +4171,10 @@ p {
   color: var(--text-muted);
   font-size: 0.66rem;
   margin-top: 1px;
+}
+
+.world-map-canvas .map-loading {
+  position: absolute;
+  inset: 0;
+  min-height: 0;
 }

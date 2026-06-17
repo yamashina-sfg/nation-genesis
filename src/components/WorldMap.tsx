@@ -118,6 +118,7 @@ export function WorldMap({
 
   return (
     <div className="world-map">
+      <div className="world-map-canvas">
       {!geo && (
         <div className="map-loading">
           <span>地図データを読み込み中...</span>
@@ -288,6 +289,7 @@ export function WorldMap({
           )}
         </svg>
       )}
+      </div>
 
       <div className="map-compass">
         <span className="map-compass-title">{playerNationName}</span>
