@@ -96,17 +96,18 @@ function StatIcon({ statKey }: { statKey: StatKey }) {
   }
 }
 
-const resources: { key: StatKey; label: string }[] = [
-  { key: "approval", label: "支持率" },
-  { key: "happiness", label: "幸福度" },
-  { key: "gdp", label: "GDP" },
-  { key: "budget", label: "予算" },
-  { key: "military", label: "軍事力" },
-  { key: "technology", label: "技術力" },
-  { key: "trust", label: "外交" },
-  { key: "environment", label: "環境" },
-  { key: "unemployment", label: "失業率" },
-  { key: "inflation", label: "インフレ" },
+// ラベルはやさしい言葉。正式名称はホバー(title)で確認できる。
+const resources: { key: StatKey; label: string; full: string }[] = [
+  { key: "approval", label: "支持", full: "支持率" },
+  { key: "happiness", label: "暮らし", full: "幸福度" },
+  { key: "gdp", label: "豊かさ", full: "GDP（国内総生産）" },
+  { key: "budget", label: "国の財布", full: "国家予算" },
+  { key: "military", label: "守り", full: "軍事力" },
+  { key: "technology", label: "技術", full: "技術力" },
+  { key: "trust", label: "外交", full: "外交信用" },
+  { key: "environment", label: "環境", full: "環境評価" },
+  { key: "unemployment", label: "仕事", full: "失業率（低いほど良い）" },
+  { key: "inflation", label: "物価", full: "インフレ率" },
 ];
 
 export function NationHeader({
@@ -171,12 +172,12 @@ export function NationHeader({
 
       {/* リソースバー — SVGアイコン */}
       <div className="resource-bar">
-        {resources.map(({ key, label }) => {
+        {resources.map(({ key, label, full }) => {
           const val = stats[key];
           const isHighBad = key === "unemployment" || key === "inflation";
           const warn = isHighBad ? val > 7 : val < 30;
           return (
-            <div key={key} className={`resource-item ${warn ? "warn" : ""}`}>
+            <div key={key} className={`resource-item ${warn ? "warn" : ""}`} title={full}>
               <span className={`resource-icon-svg ${warn ? "warn-icon" : ""}`}>
                 <StatIcon statKey={key} />
               </span>

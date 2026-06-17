@@ -75,6 +75,8 @@ type HomeScreenProps = {
   nation: PlayerNation;
   leaderName: string;
   professionLabel: string;
+  playerTitle: string;
+  achievementCount: number;
   stats: NationStats;
   crisisLevel: string;
   year: number;
@@ -107,6 +109,8 @@ export function HomeScreen({
   nation,
   leaderName,
   professionLabel,
+  playerTitle,
+  achievementCount,
   stats,
   crisisLevel,
   year,
@@ -159,8 +163,12 @@ export function HomeScreen({
               style={{ background: `linear-gradient(135deg, ${nation.flagPrimary} 0 45%, #f4f1e8 45% 55%, ${nation.flagAccent} 55% 100%)` }}
             />
             <div className="hub-profile-text">
-              <span className="hub-profile-role">{professionLabel}出身の大統領</span>
+              <span className="hub-profile-role">
+                <span className="hub-title-badge">称号「{playerTitle}」</span>
+                {achievementCount > 0 && <span className="hub-achv-count">🏅{achievementCount}</span>}
+              </span>
               <strong className="hub-profile-name">{leaderName}</strong>
+              <span className="hub-profile-sub">{professionLabel}出身の大統領</span>
               <div className="hub-profile-stats">
                 <span className="hub-approval">支持率 <b>{Math.round(stats.approval)}</b></span>
                 <span className="hub-date">{year}年{month}月</span>

@@ -4097,3 +4097,77 @@ p {
   .hub-profile-name { white-space: nowrap; }
   .hub-profile-role { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 46vw; }
 }
+
+/* ===== 結果オーバーレイ：出来事として見せる ===== */
+.ro-happenings { display: grid; gap: 8px; }
+.ro-happening {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 11px 14px;
+  border-radius: 10px;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  border-left: 3px solid transparent;
+}
+.ro-happening.pos { background: rgba(76,175,125,0.12); border-left-color: var(--green); color: #d7f0e2; }
+.ro-happening.neg { background: rgba(224,92,92,0.12); border-left-color: var(--red); color: #f3d6d6; }
+.ro-happening-dot { font-size: 0.8rem; margin-top: 2px; }
+.ro-happening.pos .ro-happening-dot { color: #7dd8a6; }
+.ro-happening.neg .ro-happening-dot { color: #f09090; }
+
+.ro-numbers { cursor: default; }
+.ro-numbers > summary {
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+.ro-numbers > summary::-webkit-details-marker { display: none; }
+.ro-numbers > summary::before { content: "▸ "; color: var(--gold); }
+.ro-numbers[open] > summary::before { content: "▾ "; }
+.ro-delta-name small { color: var(--text-muted); font-size: 0.66rem; }
+
+/* ===== 実績トースト ===== */
+.achv-toast {
+  position: fixed;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  border-radius: 14px;
+  border: 2px solid var(--gold);
+  background: linear-gradient(135deg, #2a2410, #16304a);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.5), 0 0 26px rgba(212,168,67,0.4);
+  cursor: pointer;
+  animation: achv-pop 0.4s cubic-bezier(.2,1.4,.4,1);
+}
+@keyframes achv-pop {
+  from { transform: translateX(-50%) translateY(-20px) scale(0.9); opacity: 0; }
+  to { transform: translateX(-50%); opacity: 1; }
+}
+.achv-toast-icon { font-size: 2rem; line-height: 1; }
+.achv-toast-text { display: grid; }
+.achv-toast-label { color: var(--gold-light); font-weight: 900; font-size: 0.95rem; }
+.achv-toast-text small { color: var(--text); font-size: 0.76rem; }
+
+/* ===== ホーム：称号バッジ ===== */
+.hub-title-badge {
+  color: var(--gold-light);
+  font-weight: 800;
+  font-size: 0.74rem;
+}
+.hub-achv-count {
+  margin-left: 6px;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+.hub-profile-sub {
+  display: block;
+  color: var(--text-muted);
+  font-size: 0.66rem;
+  margin-top: 1px;
+}

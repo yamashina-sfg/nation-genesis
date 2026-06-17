@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { EventModal } from "./components/EventModal";
 import { PolicyConfirmModal } from "./components/PolicyConfirmModal";
 import { ResultOverlay } from "./components/ResultOverlay";
@@ -7,6 +7,8 @@ import { ModeTabs } from "./components/ModeTabs";
 import { NationHeader } from "./components/NationHeader";
 import { RightRail } from "./components/RightRail";
 import { StatusSidebar } from "./components/StatusSidebar";
+import { newlyUnlocked, currentTitle } from "./data/achievements";
+import type { Achievement } from "./data/achievements";
 import { characters } from "./data/characters";
 import { initialCompanies } from "./data/companies";
 import { diplomacyActions } from "./data/diplomacy";
@@ -158,6 +160,12 @@ export default function App() {
     return buildDiplomacyNations(japan)[0]?.id ?? "china";
   });
   const [speakerId, setSpeakerId] = useState("finance");
+  /** 実績・称号 */
+  const [unlockedAchv, setUnlockedAchv] = useState<string[]>([]);
+  const [achvToast, setAchvToast] = useState<Achievement | null>(null);
+  const [policyCount, setPolicyCount] = useState(0);
+  const [diploCount, setDiploCount] = useState(0);
+  const [allianceCount, setAllianceCount] = useState(0);
   /** 現在表示中の選択型イベント */
   const [pendingEvent, setPendingEvent] = useState<GameEvent | null>(null);
   /** 実行結果オーバーレイ */
@@ -241,6 +249,22 @@ export default function App() {
     stats.budget < 0 || stats.approval < 30 || stats.inflation > 9
       ? "警戒"
       : "安定";
+
+  // 在任月数
+  const turnsElapsed = (year - 2028) * 12 + (month - 1);
+  const playerTitle = currentTitle(unlockedAchv);
+
+  // 実績の解除チェック（状態が変わるたびに評価）
+  useEffect(() => {
+    if (!selectedRealCountry) return;
+    const ctx = { stats, turns: turnsElapsed, policies: policyCount, diplomacy: diploCount, alliances: allianceCount };
+    const fresh = newlyUnlocked(ctx, unlockedAchv);
+    if (fresh.length > 0) {
+      setUnlockedAchv((prev) => [...prev, ...fresh.map((a) => a.id)]);
+      setAchvToast(fresh[0]);
+      setTimeout(() => setAchvToast(null), 3600);
+    }
+  }, [stats, turnsElapsed, policyCount, diploCount, allianceCount, selectedRealCountry, unlockedAchv]);
 
   function togglePolicy(id: string) {
     setSelectedPolicyIds((current) => {
@@ -349,6 +373,7 @@ export default function App() {
 
     setPendingPolicy(null);
     setShowResultOverlay(true);
+    setPolicyCount((c) => c + 1);
   }
 
   /** 友好度で段階解放された外交アクションを実行 (actionId は diplomacy.ts) */
@@ -445,6 +470,8 @@ export default function App() {
       ].slice(0, 12),
     );
     setShowResultOverlay(true);
+    setDiploCount((c) => c + 1);
+    if (action.id === "alliance") setAllianceCount((c) => c + 1);
   }
 
   function handleRateAction(direction: "hike" | "cut") {
@@ -767,6 +794,16 @@ export default function App() {
           onClose={() => setShowResultOverlay(false)}
         />
       )}
+      {/* 実績解除トースト */}
+      {achvToast && (
+        <div className="achv-toast" onClick={() => setAchvToast(null)}>
+          <span className="achv-toast-icon">{achvToast.icon}</span>
+          <div className="achv-toast-text">
+            <span className="achv-toast-label">実績解除！ 称号「{achvToast.title}」</span>
+            <small>{achvToast.desc}</small>
+          </div>
+        </div>
+      )}
       {!isHome && (
         <NationHeader
           nation={nation}
@@ -790,6 +827,8 @@ export default function App() {
               nation={nation}
               leaderName={playerProfile.name}
               professionLabel={getProfession(playerProfile.professionId).label}
+              playerTitle={playerTitle}
+              achievementCount={unlockedAchv.length}
               stats={stats}
               crisisLevel={crisisLevel}
               year={year}

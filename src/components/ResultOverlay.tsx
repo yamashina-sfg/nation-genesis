@@ -1,4 +1,5 @@
-import { statLabels } from "../data/stats";
+import { statLabels, statEasy } from "../data/stats";
+import { deltaEvent } from "../utils/flavor";
 import type { ActionResult, StatKey } from "../types/game";
 
 type ResultOverlayProps = {
@@ -39,10 +40,28 @@ export function ResultOverlay({ result, year, month, onClose }: ResultOverlayPro
           <p className="ro-body">{result.body}</p>
         </div>
 
-        {/* 数値変化 */}
+        {/* いま国で起きていること（出来事として体感） */}
         {result.deltas.length > 0 && (
           <div className="ro-section">
-            <p className="ro-section-label">国家指標の変化</p>
+            <p className="ro-section-label">国でいま起きていること</p>
+            <div className="ro-happenings">
+              {result.deltas.map((delta) => {
+                const pos = delta.amount > 0;
+                return (
+                  <div key={`ev-${delta.key}`} className={`ro-happening ${pos ? "pos" : "neg"}`}>
+                    <span className="ro-happening-dot">{pos ? "▲" : "▼"}</span>
+                    <span>{deltaEvent(delta.key, delta.amount)}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* くわしい数字（指標の変化）— 裏側の数値 */}
+        {result.deltas.length > 0 && (
+          <details className="ro-section ro-numbers">
+            <summary className="ro-section-label">くわしい数字を見る（上級者向け）</summary>
             <div className="ro-deltas">
               {result.deltas.map((delta) => {
                 const pos = delta.amount > 0;
@@ -51,7 +70,7 @@ export function ResultOverlay({ result, year, month, onClose }: ResultOverlayPro
                   <div key={`${delta.key}-${delta.reason}`} className={`ro-delta ${pos ? "pos" : "neg"}`}>
                     <div className="ro-delta-head">
                       <span className="ro-delta-icon">{icon}</span>
-                      <span className="ro-delta-name">{statLabels[delta.key]}</span>
+                      <span className="ro-delta-name">{statEasy[delta.key]}<small>（{statLabels[delta.key]}）</small></span>
                       <span className="ro-delta-amount">
                         {pos ? "+" : ""}{delta.amount}
                       </span>
@@ -61,7 +80,7 @@ export function ResultOverlay({ result, year, month, onClose }: ResultOverlayPro
                 );
               })}
             </div>
-          </div>
+          </details>
         )}
 
         {/* メリット・デメリット */}
