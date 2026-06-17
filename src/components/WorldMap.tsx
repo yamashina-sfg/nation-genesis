@@ -291,7 +291,7 @@ export function WorldMap({
 
       <div className="map-compass">
         <span className="map-compass-title">{playerNationName}</span>
-        <span className="map-compass-sub">アジア地図 — 国をクリックして外交</span>
+        <span className="map-compass-sub">世界地図 — 国をクリックして外交</span>
       </div>
     </div>
   );
