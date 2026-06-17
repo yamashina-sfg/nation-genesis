@@ -31,31 +31,30 @@ type Hotspot = {
   id: string;
   label: string;
   sub: string;
+  icon: string;
   /** どの画面へ。"next" はターン進行 */
   target: GameMode | "next";
-  /** 背景画像上の矩形(中心x,y / 幅w / 高さh、すべて%)。画像に合わせて微調整可 */
+  /** 背景画像上のマーカー位置(中心x,y、%)。画像に合わせて微調整可 */
   x: number;
   y: number;
-  w: number;
-  h: number;
 };
 
 /**
- * 執務室の家具に重ねる透明ホットスポット。
- * president-office.png（1536×1024・UI無しのクリーンな執務室）のレイアウトに合わせた座標。
- * x,y は中心、w,h は大きさ（すべて%）。画像に合わせて微調整できます。
+ * 執務室の家具に置く「見えるボタン（マーカー）」。
+ * president-office.png（1536×1024・UI無しのクリーンな執務室）に合わせた座標。
+ * x,y はマーカーの中心位置（%）。画像に合わせて微調整できます。
  */
 const hotspots: Hotspot[] = [
   // 中央の執務机 → 政策（閣議室）
-  { id: "desk", label: "執務机", sub: "政策・閣議室", target: "policies", x: 49, y: 55, w: 30, h: 15 },
+  { id: "desk", label: "執務机", sub: "政策", icon: "🗂️", target: "policies", x: 49, y: 60 },
   // 机の上の黒い電話 → 外交（首脳会談）
-  { id: "phone", label: "電話", sub: "外交・首脳会談", target: "map", x: 57, y: 50, w: 8, h: 6 },
+  { id: "phone", label: "電話", sub: "外交", icon: "☎️", target: "map", x: 60, y: 50 },
   // 左壁の額縁（絵画）→ ニュース（記者会見）
-  { id: "tv", label: "絵画スクリーン", sub: "記者会見・ニュース", target: "news", x: 9, y: 29, w: 13, h: 17 },
+  { id: "tv", label: "ニュース", sub: "記者会見", icon: "📺", target: "news", x: 9, y: 30 },
   // 右上の本棚 → 市場（証券取引所）
-  { id: "shelf", label: "本棚", sub: "証券取引所・市場", target: "market", x: 91, y: 29, w: 11, h: 18 },
+  { id: "shelf", label: "市場", sub: "証券取引所", icon: "📈", target: "market", x: 91, y: 30 },
   // 右の地球儀／キャビネット → 世界ランキング
-  { id: "globe", label: "地球儀", sub: "世界の順位", target: "ranking", x: 86, y: 52, w: 12, h: 12 },
+  { id: "globe", label: "順位", sub: "世界ランキング", icon: "🌐", target: "ranking", x: 86, y: 53 },
 ];
 
 export function HomeScreen({
@@ -120,22 +119,18 @@ export function HomeScreen({
           </button>
         </div>
 
-        {/* 画像のボタン・家具に重ねる透明ホットスポット */}
+        {/* 家具の上に置く見えるボタン（マーカー） */}
         {hotspots.map((h) => (
           <button
             key={h.id}
             type="button"
-            className={`room-hotspot hotspot-${h.id}`}
-            style={{
-              left: `${h.x}%`,
-              top: `${h.y}%`,
-              width: `${h.w}%`,
-              height: `${h.h}%`,
-            }}
+            className={`room-marker marker-${h.id}`}
+            style={{ left: `${h.x}%`, top: `${h.y}%` }}
             onClick={() => go(h.target)}
             aria-label={`${h.label}（${h.sub}）`}
           >
-            <span className="room-hotspot-label">
+            <span className="room-marker-icon">{h.icon}</span>
+            <span className="room-marker-text">
               <b>{h.label}</b>
               <small>{h.sub}</small>
             </span>
