@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 320" role="img" aria-label="国民代表">
+  <rect width="240" height="320" rx="18" fill="#172916"/>
+  <path d="M30 296c14-65 48-96 90-96s76 31 90 96" fill="#86c76f"/>
+  <circle cx="120" cy="108" r="52" fill="#e0b88a"/>
+  <path d="M69 92c19-45 91-54 111 7-23-10-43-9-64 0-22 9-31 5-47-7Z" fill="#3d3b27"/>
+  <path d="M79 216h82l-18 80H97Z" fill="#dbe8d0"/>
+  <path d="M76 218h88v78H76Z" fill="#86c76f"/>
+  <path d="M84 238h72" stroke="#f4efe4" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="81" cy="250" r="9" fill="#f4efe4"/>
+  <circle cx="159" cy="250" r="9" fill="#f4efe4"/>
+  <path d="M93 141c19 15 35 15 54 0" fill="none" stroke="#6f3d31" stroke-width="6" stroke-linecap="round"/>
+  <rect x="48" y="266" width="144" height="32" rx="8" fill="#0b1115" opacity=".86"/>
+  <text x="120" y="288" fill="#f4efe4" font-size="18" text-anchor="middle" font-family="sans-serif">国民代表</text>
+</svg>

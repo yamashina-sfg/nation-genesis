@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 320" role="img" aria-label="国家元首">
+  <rect width="240" height="320" rx="18" fill="#17252d"/>
+  <path d="M32 296c12-62 47-93 88-93s76 31 88 93" fill="#f1c45b"/>
+  <circle cx="120" cy="110" r="54" fill="#f6cf83"/>
+  <path d="M63 103c15-52 89-72 117-15 5 11 7 26 5 38-26-11-55-28-84-17-16 6-27 13-38-6Z" fill="#33414d"/>
+  <path d="M79 214h82l-24 76h-34Z" fill="#f4efe4"/>
+  <path d="M75 228c19 18 72 18 90 0" fill="none" stroke="#9b6f28" stroke-width="8" stroke-linecap="round"/>
+</svg>

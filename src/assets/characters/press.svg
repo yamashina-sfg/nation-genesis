@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 320" role="img" aria-label="記者">
+  <rect width="240" height="320" rx="18" fill="#241a32"/>
+  <path d="M28 296c15-66 49-96 92-96s77 30 92 96" fill="#b891df"/>
+  <circle cx="120" cy="107" r="52" fill="#dcb28f"/>
+  <path d="M65 95c12-48 81-76 115-19 10 18 9 37 2 52-29-32-82-37-117-33Z" fill="#342943"/>
+  <path d="M77 216h86l-18 80H95Z" fill="#f4efe4"/>
+  <path d="M76 218h88v78H76Z" fill="#4c3a64"/>
+  <rect x="85" y="232" width="70" height="42" rx="4" fill="#f4efe4"/>
+  <path d="M94 244h52M94 256h35" stroke="#241a32" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="164" cy="230" r="12" fill="#b891df"/>
+  <path d="M160 238l-18 28" stroke="#b891df" stroke-width="5" stroke-linecap="round"/>
+  <rect x="81" y="122" width="78" height="10" rx="5" fill="#221a27"/>
+  <rect x="48" y="266" width="144" height="32" rx="8" fill="#0b1115" opacity=".86"/>
+  <text x="120" y="288" fill="#f4efe4" font-size="20" text-anchor="middle" font-family="sans-serif">記者</text>
+</svg>

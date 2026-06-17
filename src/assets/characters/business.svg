@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 320" role="img" aria-label="経済界代表">
+  <rect width="240" height="320" rx="18" fill="#2b2115"/>
+  <path d="M29 296c13-65 48-95 91-95s78 30 91 95" fill="#dca35a"/>
+  <circle cx="120" cy="106" r="52" fill="#d6a879"/>
+  <path d="M66 91c17-44 86-67 113-11 6 12 8 25 5 39-33-28-78-31-118-28Z" fill="#3d3126"/>
+  <path d="M79 214h82l-18 82h-46Z" fill="#20252b"/>
+  <path d="M97 222h46l-23 38Z" fill="#f4efe4"/>
+  <path d="M76 214h88v82H76Z" fill="#1f252b"/>
+  <path d="M99 216h42l-21 54Z" fill="#dca35a"/>
+  <rect x="74" y="248" width="92" height="26" rx="5" fill="#0f1419"/>
+  <path d="M86 264h20l12-13 15 9 18-20" fill="none" stroke="#7bd18c" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="48" y="266" width="144" height="32" rx="8" fill="#0b1115" opacity=".86"/>
+  <text x="120" y="288" fill="#f4efe4" font-size="16" text-anchor="middle" font-family="sans-serif">経済界代表</text>
+</svg>

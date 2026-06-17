@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" role="img" aria-label="架空地中海マップ">
+  <defs>
+    <linearGradient id="sea" x1="0" x2="1" y1="0" y2="1">
+      <stop stop-color="#2f839b"/>
+      <stop offset=".55" stop-color="#23637a"/>
+      <stop offset="1" stop-color="#17465c"/>
+    </linearGradient>
+    <filter id="landShadow" x="-15%" y="-15%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="10" stdDeviation="9" flood-color="#000" flood-opacity=".28"/>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="760" fill="url(#sea)"/>
+  <path d="M0 0h1200v238c-91-11-148 20-224-13-66-29-114-61-195-31-77 28-133 41-211 9-84-34-155-58-251-31-110 31-214-14-319-38Z" fill="#a99f70" filter="url(#landShadow)"/>
+  <path d="M0 528c81-28 169-19 259 8 111 33 183 21 279-23 88-40 178-42 282 11 110 56 236 14 380 37v199H0Z" fill="#b17c59" filter="url(#landShadow)"/>
+
+  <path d="M0 86c74 14 147 33 223 67 66 30 155 26 244 14l-7 161c-122 36-241 24-376-13L0 291Z" fill="#c7b06f"/>
+  <path d="M467 167c95-13 151-51 236-4 48 27 100 33 163 9l6 166c-91 38-184 37-272 3-70-28-124-35-140-13Z" fill="#9fb069"/>
+  <path d="M866 172c67-25 135-6 205 24 45 19 86 17 129 9v173c-104 22-188 6-263-31-34-17-55-19-65-9Z" fill="#b7a06c"/>
+  <path d="M82 513c112 34 239 62 367 17l18 172H0V548Z" fill="#b98d5f"/>
+  <path d="M467 530c77-35 149-48 244-7 75 33 129 46 208 33l-37 204H467Z" fill="#ad7955"/>
+  <path d="M919 556c86-15 178-9 281 10v194H882Z" fill="#c09261"/>
+
+  <path d="M467 167l-7 161M866 172l6 166M467 530v172M919 556l-37 204" stroke="#2a2f26" stroke-width="5" stroke-dasharray="13 9" opacity=".8"/>
+  <path d="M0 375c117 27 217 59 356 30 123-25 194-30 306 11 112 41 215 34 337 2 72-19 135-18 201-4v84c-128-19-220-7-329 28-112 36-195 24-306-20-79-31-157-22-262 2-99 22-198 6-303-21Z" fill="#1b4f65" opacity=".72"/>
+
+  <path d="M140 416c136 26 238 8 367-8 108-13 151 49 270 43 95-5 163-51 282-31" fill="none" stroke="#e8d69f" stroke-width="5" stroke-opacity=".48"/>
+  <path d="M410 300c70 35 103 69 212 70 97 1 154-36 253-61" fill="none" stroke="#e8d69f" stroke-width="4" stroke-opacity=".28"/>
+  <path d="M214 642c96-42 198-64 330-38 111 22 190 61 313 28" fill="none" stroke="#e8d69f" stroke-width="4" stroke-opacity=".26"/>
+
+  <g fill="#0b1418" opacity=".88" font-family="sans-serif" font-weight="700">
+    <text x="122" y="273" font-size="27">イベリア連邦</text>
+    <text x="538" y="260" font-size="27">アドリア都市同盟</text>
+    <text x="914" y="287" font-size="27">レヴァント共和国</text>
+    <text x="285" y="646" font-size="27">アトラス王国</text>
+    <text x="557" y="447" font-size="28" fill="#f6e6ad">セレスティア共和国</text>
+  </g>
+</svg>

@@ -1,0 +1,68 @@
+import type { Policy } from "../types/game";
+
+export const policies: Policy[] = [
+  {
+    id: "tax-cut",
+    name: "減税",
+    field: "財政",
+    short: { approval: 5, happiness: 3, budget: -14, gdp: 9, inflation: 0.4 },
+    long: { unemployment: -0.4, budget: -5 },
+    lesson: "家計と企業を刺激する一方、財源は細る。",
+  },
+  {
+    id: "tax-hike",
+    name: "増税",
+    field: "財政",
+    short: { approval: -6, happiness: -3, budget: 18, inflation: -0.2 },
+    long: { gdp: -4, trust: 2 },
+    lesson: "財政は改善するが、短期の消費には重くのしかかる。",
+  },
+  {
+    id: "education",
+    name: "教育投資",
+    field: "社会",
+    short: { budget: -12, happiness: 2 },
+    long: { technology: 6, gdp: 8, unemployment: -0.3 },
+    lesson: "教育はすぐ効かないが、生産性と雇用の土台になる。",
+  },
+  {
+    id: "welfare",
+    name: "福祉拡大",
+    field: "社会",
+    short: { budget: -16, happiness: 7, approval: 4 },
+    long: { unemployment: -0.2, budget: -4 },
+    lesson: "生活不安を下げるが、継続財源が必要になる。",
+  },
+  {
+    id: "defense",
+    name: "防衛費増額",
+    field: "安全保障",
+    short: { budget: -13, military: 8, trust: -1 },
+    long: { technology: 2 },
+    lesson: "抑止力は高まるが、周辺国は警戒する。",
+  },
+  {
+    id: "immigration",
+    name: "移民受け入れ",
+    field: "人口",
+    short: { gdp: 7, unemployment: 0.3, approval: -2 },
+    long: { technology: 2, happiness: -1 },
+    lesson: "労働力は増えるが、統合政策がないと摩擦も起きる。",
+  },
+  {
+    id: "infrastructure",
+    name: "インフラ整備",
+    field: "投資",
+    short: { budget: -20, gdp: 10, unemployment: -0.5 },
+    long: { gdp: 12, happiness: 3, environment: -2 },
+    lesson: "公共投資は景気を支えるが、環境負荷も管理対象になる。",
+  },
+  {
+    id: "research",
+    name: "研究開発支援",
+    field: "産業",
+    short: { budget: -14, technology: 5 },
+    long: { gdp: 10, technology: 6 },
+    lesson: "イノベーション政策は企業価値と輸出競争力を押し上げる。",
+  },
+];

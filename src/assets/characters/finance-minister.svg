@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 320" role="img" aria-label="財務大臣">
+  <rect width="240" height="320" rx="18" fill="#10231f"/>
+  <path d="M30 296c14-66 48-95 90-95s76 29 90 95" fill="#5bbf9d"/>
+  <circle cx="120" cy="108" r="52" fill="#d9b98b"/>
+  <path d="M70 87c20-45 93-51 111 8-28-7-56-4-82 12-16 10-25 2-29-20Z" fill="#233532"/>
+  <path d="M87 216h66l-13 80h-40Z" fill="#f4efe4"/>
+  <path d="M76 210h88v86H76Z" fill="#26343a"/>
+  <path d="M105 210h30l-15 46Z" fill="#5bbf9d"/>
+  <rect x="76" y="226" width="88" height="8" fill="#d7c28b"/>
+  <path d="M88 108h24m16 0h24" stroke="#111820" stroke-width="5" stroke-linecap="round"/>
+  <path d="M112 108h16" stroke="#111820" stroke-width="3"/>
+  <circle cx="99" cy="112" r="5" fill="#17252d"/>
+  <circle cx="141" cy="112" r="5" fill="#17252d"/>
+  <rect x="48" y="266" width="144" height="32" rx="8" fill="#0b1115" opacity=".86"/>
+  <text x="120" y="288" fill="#f4efe4" font-size="18" text-anchor="middle" font-family="sans-serif">財務大臣</text>
+</svg>

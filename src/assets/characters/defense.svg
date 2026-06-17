@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 320" role="img" aria-label="防衛大臣">
+  <rect width="240" height="320" rx="18" fill="#2a161a"/>
+  <path d="M27 296c15-70 49-100 93-100s78 30 93 100" fill="#d56b72"/>
+  <circle cx="120" cy="104" r="50" fill="#e3ad8d"/>
+  <path d="M66 96c7-46 55-72 101-44 17 11 23 32 12 55-31-20-78-20-113-11Z" fill="#4b2630"/>
+  <path d="M74 222h92l-12 74H86Z" fill="#3d454a"/>
+  <path d="M70 204h100v92H70Z" fill="#384247"/>
+  <path d="M70 224h100" stroke="#d56b72" stroke-width="8"/>
+  <path d="M92 210h56M92 238h56" stroke="#f0ce84" stroke-width="5" stroke-linecap="round"/>
+  <path d="M84 62h72l18 34H66Z" fill="#2a3338"/>
+  <path d="M92 222h56" stroke="#f0ce84" stroke-width="8" stroke-linecap="round"/>
+  <rect x="48" y="266" width="144" height="32" rx="8" fill="#0b1115" opacity=".86"/>
+  <text x="120" y="288" fill="#f4efe4" font-size="18" text-anchor="middle" font-family="sans-serif">防衛大臣</text>
+</svg>
