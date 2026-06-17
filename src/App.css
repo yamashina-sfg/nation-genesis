@@ -3384,9 +3384,11 @@ p {
 }
 .office-hub {
   position: relative;
-  width: 100%;
-  max-width: calc((100vh - 56px) * 1.5); /* 3:2 を維持して高さに収める */
-  aspect-ratio: 3 / 2;
+  /* 画像の縦横比(--office-ar)を保ちつつ、画面に収める */
+  height: calc(100vh - 56px);
+  width: auto;
+  max-width: 100%;
+  aspect-ratio: var(--office-ar, 1.5);
   background-size: 100% 100%;
   background-position: center;
   background-repeat: no-repeat;
@@ -3597,44 +3599,23 @@ p {
   box-shadow: 0 10px 26px rgba(212,168,67,0.4);
 }
 
-/* スマホ用ドック（デスクトップでは隠す） */
-.hub-mobile-dock { display: none; }
-
 @media (max-width: 768px) {
-  /* スマホ：絶対配置ホットスポットは隠し、画像の上にアイコンドックを重ねる */
-  .hub-hotspot { display: none; }
-  .hub-mobile-dock {
-    position: absolute;
-    left: 0; right: 0; bottom: 70px;
-    z-index: 3;
-    display: flex;
-    justify-content: center;
-    gap: 8px;
-    padding: 8px;
-    flex-wrap: wrap;
+  .hub-profile { max-width: 58vw; padding: 7px 10px; }
+  .hub-profile-name { font-size: 0.9rem; }
+  .hub-flag { width: 38px; height: 26px; }
+  .hub-alerts { width: 42vw; }
+  .hub-alert small { max-width: 34vw; }
+  /* 下部は縦に積む：翌月へ → クイックメニューの順で中央寄せ */
+  .hub-location { display: none; }
+  .hub-next-turn {
+    left: 50%;
+    right: auto;
+    bottom: 50px;
+    transform: translateX(-50%);
+    padding: 9px 18px;
+    font-size: 0.84rem;
   }
-  .hub-dock-btn {
-    display: grid;
-    justify-items: center;
-    gap: 2px;
-    width: 62px;
-    padding: 8px 4px;
-    border-radius: 12px;
-    border: 1px solid var(--navy-border);
-    background: rgba(8,16,26,0.85);
-    backdrop-filter: blur(6px);
-    color: var(--text);
-    cursor: pointer;
-  }
-  .hub-dock-btn span { font-size: 1.5rem; line-height: 1; }
-  .hub-dock-btn small { font-size: 0.62rem; color: var(--text-muted); }
-  .hub-profile { max-width: 58vw; padding: 8px 10px; }
-  .hub-profile-name { font-size: 0.95rem; }
-  .hub-alerts { width: 40vw; }
-  .hub-alert small { max-width: 32vw; }
-  .hub-next-turn { bottom: 130px; right: 12px; padding: 10px 16px; font-size: 0.9rem; }
-  .hub-location { bottom: 130px; left: 12px; font-size: 0.72rem; }
-  .office-hub { min-height: calc(100vh - 52px); }
+  .hub-next-turn:hover { transform: translateX(-50%) translateY(-2px); }
 }
 
 /* ===================================================== */
@@ -3684,32 +3665,6 @@ p {
   transform: translateX(-50%) translateY(0);
 }
 
-/* モバイルドックをステージ下端に固定 */
-.office-stage .hub-mobile-dock {
-  position: absolute;
-  left: 0; right: 0; bottom: 64px;
-  z-index: 5;
-}
-
-@media (max-width: 768px) {
-  /* スマホ：ホットスポットは小さくなるのでドックを主操作に */
-  .room-hotspot-label { display: none; }
-  .office-stage { align-items: flex-start; padding-top: 8px; }
-  .hub-mobile-dock {
-    display: flex;
-    justify-content: center;
-    gap: 6px;
-    flex-wrap: wrap;
-    padding: 8px;
-  }
-  .hub-dock-btn.next {
-    background: linear-gradient(135deg, rgba(212,168,67,0.92), rgba(180,135,45,0.92));
-    color: #1a1404;
-    border-color: var(--gold);
-  }
-  .hub-dock-btn.next small { color: #1a1404; }
-}
-
 /* ===================================================== */
 /* 執務室の見えるボタン（マーカー）                        */
 /* ===================================================== */
@@ -3757,15 +3712,196 @@ p {
 .room-marker-text b { font-size: 0.86rem; color: #fff; }
 .room-marker-text small { font-size: 0.66rem; color: var(--gold-light); }
 
-/* 端のマーカーは見切れないように寄せる */
-.marker-tv { transform: translate(-10%, -50%); }
-.marker-tv:hover, .marker-tv:focus-visible { transform: translate(-10%, -50%) scale(1.08); }
-.marker-shelf { transform: translate(-90%, -50%); }
-.marker-shelf:hover, .marker-shelf:focus-visible { transform: translate(-90%, -50%) scale(1.08); }
-.marker-globe { transform: translate(-90%, -50%); }
-.marker-globe:hover, .marker-globe:focus-visible { transform: translate(-90%, -50%) scale(1.08); }
+/* 端のマーカーは見切れないように内側へ寄せる */
+.marker-tv, .marker-docs { transform: translate(-8%, -50%); }
+.marker-tv:hover, .marker-docs:hover,
+.marker-tv:focus-visible, .marker-docs:focus-visible { transform: translate(-8%, -50%) scale(1.08); }
+.marker-pc, .marker-globe { transform: translate(-92%, -50%); }
+.marker-pc:hover, .marker-globe:hover,
+.marker-pc:focus-visible, .marker-globe:focus-visible { transform: translate(-92%, -50%) scale(1.08); }
+
+/* スマホではマーカーをコンパクトに（縦長画像に合わせて表示は維持） */
+.room-marker.mobile {
+  padding: 4px 9px 4px 4px;
+  gap: 5px;
+}
+.room-marker.mobile .room-marker-icon { width: 26px; height: 26px; font-size: 0.95rem; }
+.room-marker.mobile .room-marker-text b { font-size: 0.72rem; }
+.room-marker.mobile .room-marker-text small { font-size: 0.56rem; }
+
+/* ===================================================== */
+/* 下部クイックメニュー / トースト                         */
+/* ===================================================== */
+.hub-quickbar {
+  position: absolute;
+  left: 50%;
+  bottom: 14px;
+  transform: translateX(-50%);
+  z-index: 4;
+  display: flex;
+  gap: 8px;
+  padding: 6px;
+  border-radius: 999px;
+  background: rgba(8, 14, 22, 0.78);
+  border: 1px solid var(--navy-border);
+  backdrop-filter: blur(6px);
+}
+.hub-quickbar button {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 14px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.hub-quickbar button:hover { background: rgba(212,168,67,0.18); color: var(--gold-light); }
+.hub-quickbar button span { font-size: 1rem; }
+
+.hub-toast {
+  position: absolute;
+  left: 50%;
+  bottom: 70px;
+  transform: translateX(-50%);
+  z-index: 6;
+  padding: 10px 20px;
+  border-radius: 999px;
+  background: rgba(76, 175, 125, 0.95);
+  color: #06140d;
+  font-weight: 800;
+  font-size: 0.86rem;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+  animation: toast-in 0.2s ease;
+}
+@keyframes toast-in { from { opacity: 0; transform: translateX(-50%) translateY(8px); } to { opacity: 1; transform: translateX(-50%); } }
+
+/* ===================================================== */
+/* ハブのモーダル（国民の声 / 本日の課題 / 設定）          */
+/* ===================================================== */
+.hub-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 920;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  background: rgba(5, 12, 22, 0.84);
+  backdrop-filter: blur(5px);
+  animation: fadeIn 0.2s ease;
+}
+.hub-modal {
+  width: min(560px, 100%);
+  max-height: 88vh;
+  overflow-y: auto;
+  border: 1px solid var(--navy-border);
+  border-radius: 16px;
+  background: linear-gradient(180deg, #1a3352 0%, #0f2035 100%);
+  box-shadow: 0 0 60px rgba(0,0,0,0.7);
+  animation: slideUp 0.25s ease;
+}
+.hub-modal-head {
+  position: relative;
+  padding: 20px 22px 16px;
+  border-bottom: 1px solid var(--navy-border);
+}
+.hub-modal-head h2 { margin: 0 0 4px; color: #fff; font-size: 1.3rem; }
+.hub-modal-head p { margin: 0; color: var(--text-muted); font-size: 0.82rem; }
+.hub-modal-close {
+  position: absolute;
+  top: 14px; right: 14px;
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  border: 1px solid var(--navy-border);
+  background: rgba(255,255,255,0.06);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+.hub-modal-close:hover { border-color: var(--gold); color: var(--gold-light); }
+.hub-modal-body { padding: 18px 22px 22px; }
+.hub-modal-note { margin: 14px 0 0; color: var(--text-muted); font-size: 0.76rem; line-height: 1.5; }
+
+/* 国民の声 */
+.dialogue-list { display: grid; gap: 12px; }
+.dialogue-voice {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px;
+  align-items: start;
+  padding: 12px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+}
+.dialogue-avatar { font-size: 1.8rem; line-height: 1; }
+.dialogue-who { color: var(--gold); font-size: 0.74rem; font-weight: 700; }
+.dialogue-voice p { margin: 3px 0 0; color: var(--text); font-size: 0.9rem; line-height: 1.6; }
+
+/* 本日の課題 */
+.agenda-list { display: grid; gap: 10px; }
+.agenda-item {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.04);
+  border-left: 3px solid var(--text-muted);
+}
+.agenda-item.pri-high { border-left-color: var(--red); background: rgba(224,92,92,0.08); }
+.agenda-rank {
+  display: grid; place-items: center;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: rgba(212,168,67,0.2);
+  color: var(--gold-light);
+  font-weight: 800;
+}
+.agenda-item strong { display: block; color: #fff; font-size: 0.95rem; }
+.agenda-item small { color: var(--text-muted); font-size: 0.78rem; }
+
+/* 設定 */
+.settings-list { display: grid; gap: 10px; }
+.settings-row {
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+}
+.settings-row strong { display: block; color: #fff; }
+.settings-row small { color: var(--text-muted); font-size: 0.78rem; }
+.settings-btn {
+  padding: 13px;
+  border-radius: 10px;
+  border: 1px solid var(--navy-border);
+  background: rgba(255,255,255,0.05);
+  color: var(--text);
+  font-weight: 700;
+  cursor: pointer;
+}
+.settings-btn:hover { border-color: var(--gold); color: var(--gold-light); }
+.settings-btn.danger { border-color: rgba(224,92,92,0.5); color: #f09090; }
+.settings-btn.danger:hover { background: rgba(224,92,92,0.12); }
 
 @media (max-width: 768px) {
-  /* スマホはドックで操作するのでマーカーは隠す */
-  .room-marker { display: none; }
+  .hub-quickbar {
+    bottom: 8px;
+    gap: 2px;
+    padding: 3px;
+    flex-wrap: nowrap;
+    max-width: 94%;
+  }
+  .hub-quickbar button {
+    padding: 6px 9px;
+    font-size: 0.68rem;
+    white-space: nowrap;
+    gap: 3px;
+  }
+  .hub-quickbar button span { font-size: 0.85rem; }
 }
