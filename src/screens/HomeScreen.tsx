@@ -41,24 +41,21 @@ type Hotspot = {
 };
 
 /**
- * 画像内の「描かれたボタン」「家具」に重ねる透明ホットスポット。
- * president-office.png（1536×1024）のレイアウトに合わせた座標。
+ * 執務室の家具に重ねる透明ホットスポット。
+ * president-office.png（1536×1024・UI無しのクリーンな執務室）のレイアウトに合わせた座標。
+ * x,y は中心、w,h は大きさ（すべて%）。画像に合わせて微調整できます。
  */
 const hotspots: Hotspot[] = [
   // 中央の執務机 → 政策（閣議室）
-  { id: "desk", label: "執務机", sub: "政策・閣議室", target: "policies", x: 50, y: 50, w: 26, h: 22 },
-  // 右メニューの「マップ」→ 外交・世界地図
-  { id: "map", label: "マップ", sub: "外交・世界地図", target: "map", x: 91.5, y: 40, w: 13, h: 12 },
-  // 右メニューの「スタッフ」→ 世界ランキング
-  { id: "ranking", label: "ランキング", sub: "世界の順位", target: "ranking", x: 91.5, y: 53, w: 13, h: 12 },
-  // 下バーの「経済」→ 証券取引所
-  { id: "market", label: "経済", sub: "証券取引所", target: "market", x: 18, y: 92, w: 12, h: 11 },
-  // 下バーの「ニュース」→ 記者会見室
-  { id: "news", label: "ニュース", sub: "記者会見室", target: "news", x: 6.5, y: 92, w: 12, h: 11 },
-  // 下バーの「国際関係」→ 外交
-  { id: "intl", label: "国際関係", sub: "外交", target: "map", x: 44, y: 92, w: 13, h: 11 },
-  // 右下の大きな「任務へ」→ 翌月へ進める
-  { id: "next", label: "翌月へ", sub: "時間を進める", target: "next", x: 85, y: 92, w: 27, h: 11 },
+  { id: "desk", label: "執務机", sub: "政策・閣議室", target: "policies", x: 49, y: 55, w: 30, h: 15 },
+  // 机の上の黒い電話 → 外交（首脳会談）
+  { id: "phone", label: "電話", sub: "外交・首脳会談", target: "map", x: 57, y: 50, w: 8, h: 6 },
+  // 左壁の額縁（絵画）→ ニュース（記者会見）
+  { id: "tv", label: "絵画スクリーン", sub: "記者会見・ニュース", target: "news", x: 9, y: 29, w: 13, h: 17 },
+  // 右上の本棚 → 市場（証券取引所）
+  { id: "shelf", label: "本棚", sub: "証券取引所・市場", target: "market", x: 91, y: 29, w: 11, h: 18 },
+  // 右の地球儀／キャビネット → 世界ランキング
+  { id: "globe", label: "地球儀", sub: "世界の順位", target: "ranking", x: 86, y: 52, w: 12, h: 12 },
 ];
 
 export function HomeScreen({
@@ -144,6 +141,14 @@ export function HomeScreen({
             </span>
           </button>
         ))}
+
+        {/* 場所ラベル */}
+        <div className="hub-location">🏛️ 大統領執務室 ・ 午前 8:00</div>
+
+        {/* 翌月へ進める */}
+        <button type="button" className="hub-next-turn" onClick={onNextTurn}>
+          ▶ 翌月へ進める
+        </button>
       </div>
 
       {/* スマホ用：画像の上に重ねるアイコン操作ドック */}
