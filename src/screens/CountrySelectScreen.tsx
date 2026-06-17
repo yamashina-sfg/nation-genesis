@@ -26,12 +26,18 @@ function inBounds(ring: number[][]): boolean {
 function coordsToPath(coords: number[][][]): string {
   return coords
     .filter(ring => inBounds(ring))
-    .map(ring =>
-      ring.map((pt, i) => {
+    .map(ring => {
+      let d = "";
+      let prevLon: number | null = null;
+      for (let i = 0; i < ring.length; i++) {
+        const pt = ring[i];
         const [x, y] = project(pt[0], pt[1]);
-        return `${i === 0 ? "M" : "L"}${x.toFixed(1)},${y.toFixed(1)}`;
-      }).join(" ") + " Z"
-    ).join(" ");
+        const jump = prevLon !== null && Math.abs(pt[0] - prevLon) > 180;
+        d += `${i === 0 || jump ? "M" : "L"}${x.toFixed(1)},${y.toFixed(1)} `;
+        prevLon = pt[0];
+      }
+      return d + "Z";
+    }).join(" ");
 }
 
 function featureToPath(feature: GeoFeature): string {

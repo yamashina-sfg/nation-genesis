@@ -55,12 +55,20 @@ function inBounds(ring: number[][]): boolean {
 function coordsToPath(coords: number[][][], w: number, h: number): string {
   return coords
     .filter(ring => inBounds(ring))
-    .map(ring =>
-      ring.map((pt, i) => {
+    .map(ring => {
+      let d = "";
+      let prevLon: number | null = null;
+      for (let i = 0; i < ring.length; i++) {
+        const pt = ring[i];
         const [x, y] = project(pt[0], pt[1], w, h);
-        return `${i === 0 ? "M" : "L"}${x.toFixed(2)},${y.toFixed(2)}`;
-      }).join(" ") + " Z"
-    ).join(" ");
+        // 日付変更線(経度180度)をまたぐと地図の端から端へ線が伸びてしまう。
+        // 経度のジャンプが大きい点では線をつながず、新しいサブパスにする。
+        const jump = prevLon !== null && Math.abs(pt[0] - prevLon) > 180;
+        d += `${i === 0 || jump ? "M" : "L"}${x.toFixed(2)},${y.toFixed(2)} `;
+        prevLon = pt[0];
+      }
+      return d + "Z";
+    }).join(" ");
 }
 
 function featureToPath(feature: GeoFeature, w: number, h: number): string {
