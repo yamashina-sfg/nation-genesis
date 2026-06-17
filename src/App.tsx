@@ -747,8 +747,10 @@ export default function App() {
 
   const predictedPolicyEffect = pendingPolicy ? policyEffectWithProfession(pendingPolicy) : {};
 
+  const isHome = mode === "status";
+
   return (
-    <main className="game-shell">
+    <main className={`game-shell ${isHome ? "home-active" : ""}`}>
       {/* 政策確認モーダル（賛成/反対 → 実行/やめる） */}
       {pendingPolicy && (
         <PolicyConfirmModal
@@ -772,31 +774,37 @@ export default function App() {
           onClose={() => setShowResultOverlay(false)}
         />
       )}
-      <NationHeader
-        nation={nation}
-        year={year}
-        month={month}
-        crisisLevel={crisisLevel}
-        marketIndex={marketIndex}
-        budget={stats.budget}
-        stats={stats}
-        onNationChange={setNation}
-        onNextTurn={advanceTurn}
-      />
+      {!isHome && (
+        <NationHeader
+          nation={nation}
+          year={year}
+          month={month}
+          crisisLevel={crisisLevel}
+          marketIndex={marketIndex}
+          budget={stats.budget}
+          stats={stats}
+          onNationChange={setNation}
+          onNextTurn={advanceTurn}
+        />
+      )}
 
       <div className="app-frame">
-        <StatusSidebar stats={stats} />
+        {!isHome && <StatusSidebar stats={stats} />}
         <section className={`command-center room-${mode}`}>
-          {mode !== "status" && <RoomBanner room={rooms[mode]} />}
+          {!isHome && <RoomBanner room={rooms[mode]} />}
           {mode === "status" && (
             <HomeScreen
               nation={nation}
               leaderName={playerProfile.name}
+              professionLabel={getProfession(playerProfile.professionId).label}
               stats={stats}
               crisisLevel={crisisLevel}
               year={year}
               month={month}
+              latestNewsTitle={news[0]?.title}
+              pendingCount={pendingEvent ? 1 : 0}
               onNavigate={setMode}
+              onNextTurn={advanceTurn}
             />
           )}
           {mode === "policies" && (
@@ -833,13 +841,15 @@ export default function App() {
           )}
           {mode === "news" && <NewsScreen news={news} />}
         </section>
-        <RightRail
-          characters={characters}
-          speakerId={speakerId}
-          latestResult={latestResult}
-          latestNews={news[0]}
-          onSpeakerChange={setSpeakerId}
-        />
+        {!isHome && (
+          <RightRail
+            characters={characters}
+            speakerId={speakerId}
+            latestResult={latestResult}
+            latestNews={news[0]}
+            onSpeakerChange={setSpeakerId}
+          />
+        )}
       </div>
       <ModeTabs mode={mode} onChange={setMode} />
     </main>
