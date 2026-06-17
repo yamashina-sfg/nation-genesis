@@ -3599,24 +3599,7 @@ p {
   box-shadow: 0 10px 26px rgba(212,168,67,0.4);
 }
 
-@media (max-width: 768px) {
-  .hub-profile { max-width: 58vw; padding: 7px 10px; }
-  .hub-profile-name { font-size: 0.9rem; }
-  .hub-flag { width: 38px; height: 26px; }
-  .hub-alerts { width: 42vw; }
-  .hub-alert small { max-width: 34vw; }
-  /* 下部は縦に積む：翌月へ → クイックメニューの順で中央寄せ */
-  .hub-location { display: none; }
-  .hub-next-turn {
-    left: 50%;
-    right: auto;
-    bottom: 50px;
-    transform: translateX(-50%);
-    padding: 9px 18px;
-    font-size: 0.84rem;
-  }
-  .hub-next-turn:hover { transform: translateX(-50%) translateY(-2px); }
-}
+/* （旧レイアウトのモバイル上書きは撤去。新レイアウトは末尾のメディアクエリで定義） */
 
 /* ===================================================== */
 /* 画像に重ねる矩形ホットスポット                          */
@@ -3904,4 +3887,213 @@ p {
     gap: 3px;
   }
   .hub-quickbar button span { font-size: 0.85rem; }
+}
+
+/* ===================================================== */
+/* ホームHUD 再構成（整列メニュー）                        */
+/* ===================================================== */
+
+/* 上部バー：プロフィール（左）＋通知（右） */
+.hub-topbar {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  z-index: 5;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  background: linear-gradient(180deg, rgba(4,10,18,0.55) 0%, rgba(4,10,18,0) 100%);
+  pointer-events: none;
+}
+.hub-topbar > * { pointer-events: auto; }
+
+/* プロフィール/通知を静的配置に上書き */
+.hub-profile {
+  position: static;
+  display: flex;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgba(8,16,26,0.72);
+  border: 1px solid var(--navy-border);
+  backdrop-filter: blur(6px);
+  max-width: 320px;
+}
+.hub-alerts {
+  position: static;
+  display: grid;
+  gap: 8px;
+  width: min(300px, 46%);
+}
+
+/* 整列メニュー（PC＝右の縦一列） */
+.hub-menu {
+  position: absolute;
+  top: 50%;
+  right: 16px;
+  transform: translateY(-50%);
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.hub-menu-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 184px;
+  padding: 9px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--navy-border);
+  background: rgba(8,16,26,0.74);
+  backdrop-filter: blur(6px);
+  color: #fff;
+  cursor: pointer;
+  text-align: left;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.35);
+  transition: transform 0.14s, border-color 0.14s, background 0.14s, box-shadow 0.14s;
+}
+.hub-menu-btn:hover,
+.hub-menu-btn:focus-visible {
+  transform: translateX(-4px);
+  border-color: var(--gold);
+  background: rgba(20,32,46,0.92);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.45), 0 0 16px rgba(212,168,67,0.3);
+  outline: none;
+}
+.hub-menu-btn:active { transform: scale(0.97); }
+.hub-menu-icon {
+  display: grid;
+  place-items: center;
+  width: 38px; height: 38px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  background: radial-gradient(circle at 50% 35%, rgba(212,168,67,0.45), rgba(212,168,67,0.1));
+  color: var(--gold-light);
+}
+.hub-menu-text { display: grid; line-height: 1.2; }
+.hub-menu-text b { font-size: 0.92rem; color: #fff; }
+.hub-menu-text small { font-size: 0.68rem; color: var(--text-muted); }
+
+/* 下部バー：翌月へ ＋ クイックメニュー（中央寄せで整列） */
+.hub-bottombar {
+  position: absolute;
+  left: 50%;
+  bottom: 14px;
+  transform: translateX(-50%);
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.hub-next-turn {
+  position: static;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 22px;
+  border-radius: 12px;
+  border: 2px solid var(--gold);
+  background: linear-gradient(135deg, rgba(212,168,67,0.95), rgba(180,135,45,0.95));
+  color: #1a1404;
+  font-weight: 900;
+  font-size: 0.98rem;
+  white-space: nowrap;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+  transition: transform 0.14s, box-shadow 0.14s;
+}
+.hub-next-turn span { white-space: nowrap; }
+.hub-quickbar button span { white-space: nowrap; }
+.hub-next-turn:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(212,168,67,0.4); }
+.hub-quickbar {
+  position: static;
+  transform: none;
+  display: flex;
+  gap: 4px;
+  padding: 5px;
+  border-radius: 12px;
+  background: rgba(8,16,26,0.74);
+  border: 1px solid var(--navy-border);
+  backdrop-filter: blur(6px);
+}
+.hub-quickbar button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--text);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.14s, color 0.14s;
+}
+.hub-quickbar button:hover { background: rgba(212,168,67,0.18); color: var(--gold-light); }
+.hub-quickbar button svg { color: var(--gold-light); }
+
+.hub-location {
+  position: absolute;
+  left: 16px; bottom: 18px;
+  z-index: 4;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: rgba(8,16,26,0.7);
+  border: 1px solid var(--navy-border);
+  color: var(--gold-light);
+  font-size: 0.74rem;
+  font-weight: 700;
+  backdrop-filter: blur(6px);
+}
+
+/* ===== スマホ：メニューは下のグリッドに整列 ===== */
+@media (max-width: 768px) {
+  .hub-topbar { padding: 8px 10px; }
+  .hub-profile { max-width: 56vw; padding: 7px 10px; }
+  .hub-profile-name { font-size: 0.9rem; }
+  .hub-flag { width: 36px; height: 24px; }
+  .hub-alerts { width: 40vw; }
+  .hub-alert.news small { max-width: 32vw; }
+
+  .hub-menu {
+    top: auto;
+    bottom: 110px;
+    left: 8px;
+    right: 8px;
+    transform: none;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+  }
+  .hub-menu-btn {
+    width: auto;
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px 4px;
+    text-align: center;
+  }
+  .hub-menu-btn:hover { transform: none; }
+  .hub-menu-icon { width: 30px; height: 30px; }
+  .hub-menu-text b { font-size: 0.7rem; }
+  .hub-menu-text small { display: none; }
+
+  /* 下部は縦に積む：翌月へ（全幅）→ クイックメニュー */
+  .hub-bottombar {
+    bottom: 8px;
+    gap: 6px;
+    width: calc(100% - 16px);
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .hub-next-turn { padding: 11px 14px; font-size: 0.9rem; }
+  .hub-quickbar { gap: 2px; padding: 3px; justify-content: center; }
+  .hub-quickbar button { padding: 8px 10px; font-size: 0.7rem; flex: 1; justify-content: center; }
+  .hub-location { display: none; }
+  /* プロフィールを1行に */
+  .hub-profile-name { white-space: nowrap; }
+  .hub-profile-role { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 46vw; }
 }

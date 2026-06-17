@@ -6,58 +6,70 @@ import type { GameMode, NationStats, PlayerNation } from "../types/game";
  * 大統領執務室の背景画像（PC版＆スマホ版）。
  * src/assets/president-office.png … PC・タブレット
  * src/assets/president-office.smartphone.png … スマホ
- * import.meta.glob で読み込み。無い場合は undefined になり、CSSフォールバック背景になる（ビルドは壊れない）。
+ * 無い場合は undefined になり、CSSフォールバック背景になる（ビルドは壊れない）。
  */
 const bgModules = import.meta.glob("../assets/president-office*.png", {
   eager: true,
   query: "?url",
   import: "default",
 });
-const pcBg = Object.entries(bgModules).find(([k]) => !k.includes("smartphone"))?.[1] as
-  | string
-  | undefined;
-const spBg = Object.entries(bgModules).find(([k]) => k.includes("smartphone"))?.[1] as
-  | string
-  | undefined;
+const pcBg = Object.entries(bgModules).find(([k]) => !k.includes("smartphone"))?.[1] as string | undefined;
+const spBg = Object.entries(bgModules).find(([k]) => k.includes("smartphone"))?.[1] as string | undefined;
 
-// 画像の縦横比（ホットスポットの位置合わせに使う）
-const PC_AR = 1536 / 1024; // 1.5（横長）
-const SP_AR = 853 / 1844; // 0.46（縦長）
+const PC_AR = 1536 / 1024;
+const SP_AR = 853 / 1844;
 
-type HotspotTarget = GameMode | "next" | "dialogue" | "agenda";
+type ActionTarget = GameMode | "dialogue" | "agenda";
 
-type Hotspot = {
+type HubAction = {
   id: string;
   label: string;
   sub: string;
-  icon: string;
-  target: HotspotTarget;
-  /** マーカーの中心位置（%）。背景画像に合わせて微調整できます */
-  x: number;
-  y: number;
+  target: ActionTarget;
 };
 
-/* ===== PC版（横長画像）のホットスポット位置 ===== */
-const desktopHotspots: Hotspot[] = [
-  { id: "desk", label: "執務机", sub: "政策", icon: "🗂️", target: "policies", x: 49, y: 60 },
-  { id: "phone", label: "電話", sub: "外交", icon: "☎️", target: "map", x: 60, y: 50 },
-  { id: "tv", label: "ニュース", sub: "記者会見", icon: "📺", target: "news", x: 9, y: 30 },
-  { id: "pc", label: "市場", sub: "証券取引所", icon: "📈", target: "market", x: 91, y: 30 },
-  { id: "globe", label: "世界地図", sub: "国際情勢", icon: "🌐", target: "map", x: 87, y: 52 },
-  { id: "sofa", label: "国民の声", sub: "国民との対話", icon: "🗣️", target: "dialogue", x: 16, y: 74 },
-  { id: "docs", label: "本日の課題", sub: "今日やること", icon: "📋", target: "agenda", x: 12, y: 47 },
+/** 執務室メニュー。整列して表示する（順番＝並び順） */
+const actions: HubAction[] = [
+  { id: "policies", label: "政策", sub: "閣議室", target: "policies" },
+  { id: "diplomacy", label: "外交", sub: "首脳会談", target: "map" },
+  { id: "market", label: "市場", sub: "証券取引所", target: "market" },
+  { id: "news", label: "ニュース", sub: "記者会見", target: "news" },
+  { id: "worldmap", label: "世界地図", sub: "国際情勢", target: "map" },
+  { id: "dialogue", label: "国民の声", sub: "対話する", target: "dialogue" },
+  { id: "agenda", label: "本日の課題", sub: "やること", target: "agenda" },
 ];
 
-/* ===== スマホ版（縦長画像）のホットスポット位置 ===== */
-const mobileHotspots: Hotspot[] = [
-  { id: "desk", label: "政策", sub: "閣議室", icon: "🗂️", target: "policies", x: 50, y: 50 },
-  { id: "phone", label: "外交", sub: "首脳会談", icon: "☎️", target: "map", x: 64, y: 44 },
-  { id: "tv", label: "ニュース", sub: "記者会見", icon: "📺", target: "news", x: 11, y: 24 },
-  { id: "pc", label: "市場", sub: "取引所", icon: "📈", target: "market", x: 88, y: 22 },
-  { id: "globe", label: "地図", sub: "国際情勢", icon: "🌐", target: "map", x: 88, y: 33 },
-  { id: "sofa", label: "国民の声", sub: "対話", icon: "🗣️", target: "dialogue", x: 22, y: 78 },
-  { id: "docs", label: "本日の課題", sub: "やること", icon: "📋", target: "agenda", x: 16, y: 40 },
-];
+/** 統一感のあるSVGアイコン（絵文字に依存しない） */
+function HubIcon({ id }: { id: string }) {
+  const c = "currentColor";
+  const common = { width: 22, height: 22, viewBox: "0 0 24 24", fill: "none", stroke: c, strokeWidth: 1.8, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
+  switch (id) {
+    case "policies": // 書類フォルダ
+      return (<svg {...common}><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z" /><path d="M3 11h18" /></svg>);
+    case "diplomacy": // 握手
+      return (<svg {...common}><path d="m11 17 2 2a1 1 0 0 0 3-3" /><path d="m14 14 2.5 2.5a1 1 0 0 0 3-3l-3.88-3.88a3 3 0 0 0-4.24 0l-.88.88a1 1 0 0 1-1.41 0l-.7-.7" /><path d="M5 8 2 11" /><path d="m22 11-3-3" /><path d="M7 18a1 1 0 0 0 1.4 0l.6-.6" /></svg>);
+    case "market": // 棒グラフ＋上昇
+      return (<svg {...common}><path d="M3 3v18h18" /><path d="m7 14 3-3 3 3 5-5" /><path d="M18 9h3v3" /></svg>);
+    case "news": // 放送/会見マイク
+      return (<svg {...common}><rect x="9" y="2" width="6" height="11" rx="3" /><path d="M5 10a7 7 0 0 0 14 0" /><path d="M12 17v4" /><path d="M8 21h8" /></svg>);
+    case "worldmap": // 地球
+      return (<svg {...common}><circle cx="12" cy="12" r="9" /><path d="M3 12h18" /><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18" /></svg>);
+    case "dialogue": // 吹き出し
+      return (<svg {...common}><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7A8.5 8.5 0 0 1 12.5 3 8.38 8.38 0 0 1 21 11.5Z" /></svg>);
+    case "agenda": // チェックリスト
+      return (<svg {...common}><path d="M9 5h11" /><path d="M9 12h11" /><path d="M9 19h11" /><path d="m4 5 1 1 2-2" /><path d="m4 12 1 1 2-2" /><path d="m4 19 1 1 2-2" /></svg>);
+    case "ranking":
+      return (<svg {...common}><path d="M8 21h8" /><path d="M12 17v4" /><path d="M7 4h10v5a5 5 0 0 1-10 0Z" /><path d="M17 5h3v2a3 3 0 0 1-3 3" /><path d="M7 5H4v2a3 3 0 0 0 3 3" /></svg>);
+    case "save":
+      return (<svg {...common}><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z" /><path d="M17 21v-8H7v8" /><path d="M7 3v5h8" /></svg>);
+    case "settings":
+      return (<svg {...common}><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-2.81 1.17V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 8 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 14H4a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 6 8.6l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 11 4.6V4a2 2 0 0 1 4 0v.09c0 .68.4 1.3 1 1.51" /></svg>);
+    case "turn":
+      return (<svg {...common}><polygon points="6 4 20 12 6 20 6 4" /></svg>);
+    default:
+      return null;
+  }
+}
 
 type HomeScreenProps = {
   nation: PlayerNation;
@@ -73,7 +85,6 @@ type HomeScreenProps = {
   onNextTurn: () => void;
 };
 
-/** 画面幅でスマホ判定（リサイズ・回転に追従） */
 function useIsMobile(breakpoint = 768) {
   const [isMobile, setIsMobile] = useState(
     typeof window !== "undefined" ? window.matchMedia(`(max-width:${breakpoint}px)`).matches : false,
@@ -83,11 +94,9 @@ function useIsMobile(breakpoint = 768) {
     const handler = () => setIsMobile(mq.matches);
     handler();
     mq.addEventListener("change", handler);
-    window.addEventListener("resize", handler);
     window.addEventListener("orientationchange", handler);
     return () => {
       mq.removeEventListener("change", handler);
-      window.removeEventListener("resize", handler);
       window.removeEventListener("orientationchange", handler);
     };
   }, [breakpoint]);
@@ -113,10 +122,8 @@ export function HomeScreen({
 
   const bg = isMobile ? spBg ?? pcBg : pcBg;
   const ar = isMobile && spBg ? SP_AR : PC_AR;
-  const hotspots = isMobile ? mobileHotspots : desktopHotspots;
 
-  function go(t: HotspotTarget) {
-    if (t === "next") return onNextTurn();
+  function go(t: ActionTarget) {
     if (t === "dialogue") return setModal("dialogue");
     if (t === "agenda") return setModal("agenda");
     return onNavigate(t);
@@ -132,113 +139,90 @@ export function HomeScreen({
     } catch {
       setToast("保存できませんでした");
     }
-    setTimeout(() => setToast(null), 2200);
+    setTimeout(() => setToast(null), 2000);
   }
 
-  // 国民の声（状態から生成）
   const citizenVoices = buildCitizenVoices(stats);
-  // 本日の課題（状態から生成）
   const agenda = buildAgenda(stats);
 
   return (
     <div className="office-stage">
       <div
         className={`office-hub ${bg ? "has-bg" : "no-bg"}`}
-        style={
-          {
-            backgroundImage: bg ? `url(${bg})` : undefined,
-            "--office-ar": String(ar),
-          } as CSSProperties
-        }
+        style={{ backgroundImage: bg ? `url(${bg})` : undefined, "--office-ar": String(ar) } as CSSProperties}
       >
-        {/* 左上：大統領プロフィール */}
-        <div className="hub-profile">
-          <div
-            className="hub-flag"
-            style={{
-              background: `linear-gradient(135deg, ${nation.flagPrimary} 0 45%, #f4f1e8 45% 55%, ${nation.flagAccent} 55% 100%)`,
-            }}
-          />
-          <div className="hub-profile-text">
-            <span className="hub-profile-role">{professionLabel}出身の大統領</span>
-            <strong className="hub-profile-name">{leaderName}</strong>
-            <div className="hub-profile-stats">
-              <span className="hub-approval">支持率 <b>{Math.round(stats.approval)}</b></span>
-              <span className="hub-date">{year}年{month}月</span>
-              <span className={`hub-crisis ${crisisLevel === "警戒" ? "danger" : "safe"}`}>
-                {crisisLevel === "警戒" ? "⚠ 警戒" : "✓ 安定"}
-              </span>
+        {/* 上部HUD：左にプロフィール、右に通知 */}
+        <div className="hub-topbar">
+          <div className="hub-profile">
+            <div
+              className="hub-flag"
+              style={{ background: `linear-gradient(135deg, ${nation.flagPrimary} 0 45%, #f4f1e8 45% 55%, ${nation.flagAccent} 55% 100%)` }}
+            />
+            <div className="hub-profile-text">
+              <span className="hub-profile-role">{professionLabel}出身の大統領</span>
+              <strong className="hub-profile-name">{leaderName}</strong>
+              <div className="hub-profile-stats">
+                <span className="hub-approval">支持率 <b>{Math.round(stats.approval)}</b></span>
+                <span className="hub-date">{year}年{month}月</span>
+                <span className={`hub-crisis ${crisisLevel === "警戒" ? "danger" : "safe"}`}>
+                  {crisisLevel === "警戒" ? "警戒" : "安定"}
+                </span>
+              </div>
             </div>
+          </div>
+
+          <div className="hub-alerts">
+            {pendingCount > 0 && (
+              <button type="button" className="hub-alert pending" onClick={() => onNavigate("policies")}>
+                <span className="hub-alert-badge">{pendingCount}</span>
+                <div><strong>未処理の案件</strong><small>決断を待っています</small></div>
+              </button>
+            )}
+            <button type="button" className="hub-alert news" onClick={() => onNavigate("news")}>
+              <span className="hub-alert-icon"><HubIcon id="news" /></span>
+              <div><strong>緊急ニュース</strong><small>{latestNewsTitle ?? "最新の動きはありません"}</small></div>
+            </button>
           </div>
         </div>
 
-        {/* 右上：未処理イベント＋緊急ニュース */}
-        <div className="hub-alerts">
-          {pendingCount > 0 && (
-            <button type="button" className="hub-alert pending" onClick={() => onNavigate("policies")}>
-              <span className="hub-alert-badge">{pendingCount}</span>
-              <div>
-                <strong>未処理の案件</strong>
-                <small>あなたの決断を待っています</small>
-              </div>
+        {/* 整列した執務メニュー（PC=右縦一列 / スマホ=下グリッド） */}
+        <nav className="hub-menu" aria-label="執務メニュー">
+          {actions.map((a) => (
+            <button key={a.id} type="button" className="hub-menu-btn" onClick={() => go(a.target)}>
+              <span className="hub-menu-icon"><HubIcon id={a.id} /></span>
+              <span className="hub-menu-text">
+                <b>{a.label}</b>
+                <small>{a.sub}</small>
+              </span>
             </button>
-          )}
-          <button type="button" className="hub-alert news" onClick={() => onNavigate("news")}>
-            <span className="hub-alert-icon">📰</span>
-            <div>
-              <strong>緊急ニュース</strong>
-              <small>{latestNewsTitle ?? "最新の動きはありません"}</small>
-            </div>
+          ))}
+        </nav>
+
+        {/* 下部バー：翌月へ ＋ クイックメニュー */}
+        <div className="hub-bottombar">
+          <button type="button" className="hub-next-turn" onClick={onNextTurn}>
+            <HubIcon id="turn" />
+            <span>翌月へ進める</span>
           </button>
+          <div className="hub-quickbar">
+            <button type="button" onClick={() => onNavigate("ranking")}><HubIcon id="ranking" /><span>順位</span></button>
+            <button type="button" onClick={handleSave}><HubIcon id="save" /><span>セーブ</span></button>
+            <button type="button" onClick={() => setModal("settings")}><HubIcon id="settings" /><span>設定</span></button>
+          </div>
         </div>
 
-        {/* 家具の上の見えるボタン（マーカー） */}
-        {hotspots.map((h) => (
-          <button
-            key={h.id}
-            type="button"
-            className={`room-marker marker-${h.id} ${isMobile ? "mobile" : ""}`}
-            style={{ left: `${h.x}%`, top: `${h.y}%` }}
-            onClick={() => go(h.target)}
-            aria-label={`${h.label}（${h.sub}）`}
-          >
-            <span className="room-marker-icon">{h.icon}</span>
-            <span className="room-marker-text">
-              <b>{h.label}</b>
-              <small>{h.sub}</small>
-            </span>
-          </button>
-        ))}
-
-        {/* 場所ラベル */}
-        <div className="hub-location">🏛️ 大統領執務室 ・ 午前 8:00</div>
-
-        {/* 翌月へ進める */}
-        <button type="button" className="hub-next-turn" onClick={onNextTurn}>
-          ▶ 翌月へ進める
-        </button>
-
-        {/* 下部クイックメニュー */}
-        <div className="hub-quickbar">
-          <button type="button" onClick={() => onNavigate("ranking")}><span>🏆</span>ランキング</button>
-          <button type="button" onClick={handleSave}><span>💾</span>セーブ</button>
-          <button type="button" onClick={() => setModal("settings")}><span>⚙️</span>設定</button>
-        </div>
-
+        <div className="hub-location">大統領執務室 ・ 午前 8:00</div>
         {toast && <div className="hub-toast">{toast}</div>}
       </div>
 
-      {/* ===== モーダル群 ===== */}
+      {/* ===== モーダル ===== */}
       {modal === "dialogue" && (
         <HubModal title="国民との対話" subtitle="街に出て、国民の生の声を聞く" onClose={() => setModal(null)}>
           <div className="dialogue-list">
             {citizenVoices.map((v, i) => (
               <div key={i} className="dialogue-voice">
                 <span className="dialogue-avatar">{v.face}</span>
-                <div>
-                  <span className="dialogue-who">{v.who}</span>
-                  <p>「{v.text}」</p>
-                </div>
+                <div><span className="dialogue-who">{v.who}</span><p>「{v.text}」</p></div>
               </div>
             ))}
           </div>
@@ -252,14 +236,11 @@ export function HomeScreen({
             {agenda.map((a, i) => (
               <div key={i} className={`agenda-item pri-${a.level}`}>
                 <span className="agenda-rank">{i + 1}</span>
-                <div>
-                  <strong>{a.title}</strong>
-                  <small>{a.hint}</small>
-                </div>
+                <div><strong>{a.title}</strong><small>{a.hint}</small></div>
               </div>
             ))}
           </div>
-          <p className="hub-modal-note">「執務机」から政策を、「電話」から外交を進められます。</p>
+          <p className="hub-modal-note">「政策」から閣議を、「外交」から首脳会談を進められます。</p>
         </HubModal>
       )}
 
@@ -269,17 +250,13 @@ export function HomeScreen({
             <div className="settings-row">
               <div><strong>現在のプレイ</strong><small>{nation.name} ・ {leaderName} ・ {year}年{month}月</small></div>
             </div>
-            <button type="button" className="settings-btn" onClick={handleSave}>💾 セーブする</button>
+            <button type="button" className="settings-btn" onClick={handleSave}>進行状況をセーブする</button>
             <button
               type="button"
               className="settings-btn danger"
-              onClick={() => {
-                if (confirm("最初からやり直しますか？（現在の進行は失われます）")) {
-                  window.location.reload();
-                }
-              }}
+              onClick={() => { if (confirm("最初からやり直しますか？（現在の進行は失われます）")) window.location.reload(); }}
             >
-              ↺ タイトルに戻る（最初から）
+              タイトルに戻る（最初から）
             </button>
           </div>
         </HubModal>
@@ -288,18 +265,9 @@ export function HomeScreen({
   );
 }
 
-/* ===== 補助コンポーネント ===== */
 function HubModal({
-  title,
-  subtitle,
-  children,
-  onClose,
-}: {
-  title: string;
-  subtitle: string;
-  children: React.ReactNode;
-  onClose: () => void;
-}) {
+  title, subtitle, children, onClose,
+}: { title: string; subtitle: string; children: React.ReactNode; onClose: () => void }) {
   return (
     <div className="hub-modal-overlay" onClick={onClose}>
       <div className="hub-modal" onClick={(e) => e.stopPropagation()}>
@@ -314,16 +282,14 @@ function HubModal({
   );
 }
 
-/* ===== 状態からテキストを生成 ===== */
 function buildCitizenVoices(stats: NationStats) {
   const voices: { who: string; face: string; text: string }[] = [];
-  if (stats.inflation > 5) voices.push({ who: "主婦 ", face: "😟", text: "物価が高くて、毎日の買い物がつらいです。なんとかしてください。" });
+  if (stats.inflation > 5) voices.push({ who: "主婦", face: "😟", text: "物価が高くて、毎日の買い物がつらいです。なんとかしてください。" });
   if (stats.unemployment > 7) voices.push({ who: "若者", face: "😔", text: "仕事が見つかりません。将来が不安です。" });
   if (stats.approval >= 60) voices.push({ who: "会社員", face: "😊", text: "今の政権、よくやってくれていると思います。応援しています。" });
   if (stats.happiness < 45) voices.push({ who: "高齢者", face: "😞", text: "暮らしが楽になった実感がありません。年金が心配です。" });
   if (stats.environment < 45) voices.push({ who: "学生", face: "😣", text: "環境のことも、もっと考えてほしいです。" });
-  if (voices.length === 0)
-    voices.push({ who: "市民", face: "🙂", text: "今のところ、暮らしは落ち着いています。この調子でお願いします。" });
+  if (voices.length === 0) voices.push({ who: "市民", face: "🙂", text: "今のところ暮らしは落ち着いています。この調子でお願いします。" });
   return voices.slice(0, 3);
 }
 
@@ -333,8 +299,7 @@ function buildAgenda(stats: NationStats) {
   if (stats.inflation > 6) items.push({ title: "物価高への対応", hint: "金利引き上げで物価を冷ましましょう", level: "high" });
   if (stats.unemployment > 7) items.push({ title: "雇用の立て直し", hint: "インフラ・教育投資で仕事を増やしましょう", level: "mid" });
   if (stats.approval < 40) items.push({ title: "支持率の回復", hint: "減税や福祉で国民の暮らしを支えましょう", level: "high" });
-  if (stats.trust < 45) items.push({ title: "外交関係の改善", hint: "電話から首脳会談を始めましょう", level: "mid" });
-  if (items.length === 0)
-    items.push({ title: "成長への投資", hint: "研究開発や教育で国の将来を強くしましょう", level: "mid" });
+  if (stats.trust < 45) items.push({ title: "外交関係の改善", hint: "外交から首脳会談を始めましょう", level: "mid" });
+  if (items.length === 0) items.push({ title: "成長への投資", hint: "研究開発や教育で国の将来を強くしましょう", level: "mid" });
   return items.slice(0, 4);
 }
