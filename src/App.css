@@ -1731,8 +1731,8 @@ p {
 .world-map-svg {
   display: block;
   width: 100%;
-  /* アスペクト比をより横長に調整 */
-  aspect-ratio: 1.92;
+  /* 世界地図のアスペクト比に合わせる */
+  aspect-ratio: 2.64;
   background: transparent;
 }
 

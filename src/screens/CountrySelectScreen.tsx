@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from "react";
-import { realCountries } from "../data/realCountries";
+import { realCountries, continents } from "../data/realCountries";
 import type { RealCountry } from "../data/realCountries";
 
-// ===== アジア地図の範囲 =====
-const LON_MIN = 60, LON_MAX = 150;
-const LAT_MIN = -12, LAT_MAX = 57;
-const W = 900, H = 560;
+// ===== 世界地図の範囲 =====
+const LON_MIN = -180, LON_MAX = 180;
+const LAT_MIN = -56, LAT_MAX = 80;
+const W = 1000, H = 378;
 
 function project(lon: number, lat: number): [number, number] {
   const x = ((lon - LON_MIN) / (LON_MAX - LON_MIN)) * W;
@@ -73,8 +73,20 @@ export function CountrySelectScreen({ onSelect }: Props) {
   const [geo, setGeo] = useState<GeoJSON | null>(null);
   const [hovered, setHovered] = useState<string | null>(null);
   const [selected, setSelected] = useState<RealCountry>(realCountries[0]);
+  const [continent, setContinent] = useState<string>("asia");
   const svgRef = useRef<SVGSVGElement>(null);
   const [tooltip, setTooltip] = useState<{ x: number; y: number; text: string } | null>(null);
+
+  const activeContinent = continents.find((c) => c.id === continent) ?? continents[0];
+  const visibleCountries = realCountries.filter((c) => activeContinent.regions.includes(c.region));
+
+  function pickContinent(id: string) {
+    setContinent(id);
+    const first = realCountries.find((c) =>
+      (continents.find((x) => x.id === id) ?? continents[0]).regions.includes(c.region),
+    );
+    if (first) setSelected(first);
+  }
 
   useEffect(() => {
     fetch("/world-countries.json")
@@ -103,10 +115,16 @@ export function CountrySelectScreen({ onSelect }: Props) {
       <div className="cs-header">
         <h1 className="cs-title">国を選んでください</h1>
         <div className="cs-region-tabs">
-          <button type="button" className="cs-tab active">アジア</button>
-          <button type="button" className="cs-tab disabled" disabled>ヨーロッパ</button>
-          <button type="button" className="cs-tab disabled" disabled>アメリカ</button>
-          <button type="button" className="cs-tab disabled" disabled>アフリカ</button>
+          {continents.map((c) => (
+            <button
+              key={c.id}
+              type="button"
+              className={`cs-tab ${continent === c.id ? "active" : ""}`}
+              onClick={() => pickContinent(c.id)}
+            >
+              {c.label}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -138,13 +156,13 @@ export function CountrySelectScreen({ onSelect }: Props) {
                 {/* 海 */}
                 <rect x="0" y="0" width={W} height={H} fill="url(#csOcean)" />
 
-                {/* グリッド */}
+                {/* グリッド（経緯線） */}
                 <g stroke="rgba(255,255,255,0.04)" strokeWidth="0.5">
-                  {[0, 15, 30, 45].map(lat => {
+                  {[-40, -20, 0, 20, 40, 60].map(lat => {
                     const [, y] = project(0, lat);
                     return <line key={lat} x1="0" y1={y} x2={W} y2={y} />;
                   })}
-                  {[70, 90, 110, 130, 150].map(lon => {
+                  {[-150, -100, -50, 0, 50, 100, 150].map(lon => {
                     const [x] = project(lon, 0);
                     return <line key={lon} x1={x} y1="0" x2={x} y2={H} />;
                   })}
@@ -232,9 +250,9 @@ export function CountrySelectScreen({ onSelect }: Props) {
             )}
           </div>
 
-          {/* クイック選択グリッド */}
+          {/* クイック選択グリッド（選択中の大陸の国） */}
           <div className="cs-quick-grid">
-            {realCountries.map(c => (
+            {visibleCountries.map(c => (
               <button
                 key={c.id}
                 type="button"

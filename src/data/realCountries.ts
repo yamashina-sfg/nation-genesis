@@ -1,5 +1,29 @@
 import type { NationStats } from "../types/game";
 
+/** 地域（大陸ブロック）。国選択・地図のフィルタに使う */
+export type Region =
+  | "東アジア"
+  | "東南アジア"
+  | "南アジア"
+  | "中央アジア"
+  | "北米"
+  | "中南米"
+  | "西欧"
+  | "東欧"
+  | "中東"
+  | "アフリカ"
+  | "オセアニア";
+
+/** 大陸グループ（国選択画面のタブ） */
+export const continents: { id: string; label: string; regions: Region[] }[] = [
+  { id: "asia", label: "アジア", regions: ["東アジア", "東南アジア", "南アジア", "中央アジア"] },
+  { id: "europe", label: "ヨーロッパ", regions: ["西欧", "東欧"] },
+  { id: "americas", label: "アメリカ", regions: ["北米", "中南米"] },
+  { id: "mideast", label: "中東", regions: ["中東"] },
+  { id: "africa", label: "アフリカ", regions: ["アフリカ"] },
+  { id: "oceania", label: "オセアニア", regions: ["オセアニア"] },
+];
+
 export type RealCountry = {
   id: string;
   name: string;
@@ -8,7 +32,7 @@ export type RealCountry = {
   capitalCoords: [number, number]; // [lon, lat]
   population: number; // millions
   gdpReal: number; // billions USD 2023
-  region: "東アジア" | "東南アジア" | "南アジア" | "中央アジア";
+  region: Region;
   blocs: string[];
   resources: string[];
   description: string;
@@ -711,6 +735,284 @@ export const realCountries: RealCountry[] = [
     },
     specialTraits: ["核武装", "対インド緊張", "中巴経済回廊"],
   },
+
+  /* ================= 北米 ================= */
+  {
+    id: "usa", name: "アメリカ", iso: "840", capital: "ワシントンD.C.", capitalCoords: [-77.0, 38.9],
+    population: 335, gdpReal: 27360, region: "北米",
+    blocs: ["G7", "G20", "NATO", "QUAD", "OECD"],
+    resources: ["IT", "金融", "農業", "シェール", "軍需"],
+    description: "世界最大の経済・軍事大国。基軸通貨ドルと巨大なIT産業を背景に、同盟網で国際秩序を主導する。",
+    ideology: "民主主義",
+    flagPrimary: "#3c3b6e", flagAccent: "#b22234",
+    initialStats: { approval: 48, happiness: 66, gdp: 1000, budget: 150, unemployment: 3.7, inflation: 3.1, trust: 78, military: 98, technology: 96, environment: 52 },
+    relations: { china: 35, russia: 18, japan: 88, skorea: 82, india: 70, uk: 92, france: 80, germany: 82, canada: 90, mexico: 78, israel: 88, saudi: 70, iran: 8, ukraine: 80, taiwan: 85, australia: 88, brazil: 62 },
+    specialTraits: ["基軸通貨ドル", "GAFA・AI覇権", "同盟網（NATO・QUAD）"],
+  },
+  {
+    id: "canada", name: "カナダ", iso: "124", capital: "オタワ", capitalCoords: [-75.7, 45.4],
+    population: 40, gdpReal: 2140, region: "北米",
+    blocs: ["G7", "G20", "NATO", "OECD"],
+    resources: ["石油", "鉱物", "木材", "農業", "金融"],
+    description: "資源と移民で成長する先進国。米国との結びつきが強く、多文化主義と環境政策を掲げる。",
+    ideology: "民主主義",
+    flagPrimary: "#ff0000", flagAccent: "#ffffff",
+    initialStats: { approval: 50, happiness: 74, gdp: 540, budget: 120, unemployment: 5.7, inflation: 3.4, trust: 80, military: 55, technology: 80, environment: 66 },
+    relations: { usa: 90, uk: 82, france: 78, china: 38, russia: 25, japan: 74, india: 55, australia: 78, mexico: 70 },
+    specialTraits: ["資源大国", "移民立国", "対米依存"],
+  },
+  {
+    id: "mexico", name: "メキシコ", iso: "484", capital: "メキシコシティ", capitalCoords: [-99.1, 19.4],
+    population: 129, gdpReal: 1790, region: "中南米",
+    blocs: ["G20", "OECD", "USMCA"],
+    resources: ["石油", "自動車", "農業", "製造業"],
+    description: "米国市場と結びついた製造拠点。ニアショアリングで成長する一方、治安と格差が課題。",
+    ideology: "民主主義",
+    flagPrimary: "#006847", flagAccent: "#ce1126",
+    initialStats: { approval: 54, happiness: 66, gdp: 440, budget: 40, unemployment: 3.0, inflation: 4.5, trust: 58, military: 45, technology: 52, environment: 50 },
+    relations: { usa: 78, canada: 70, brazil: 60, china: 50, japan: 60 },
+    specialTraits: ["ニアショアリング", "対米貿易", "治安問題"],
+  },
+
+  /* ================= 中南米 ================= */
+  {
+    id: "brazil", name: "ブラジル", iso: "076", capital: "ブラジリア", capitalCoords: [-47.9, -15.8],
+    population: 216, gdpReal: 2170, region: "中南米",
+    blocs: ["G20", "BRICS", "メルコスール"],
+    resources: ["農業", "鉄鉱石", "原油", "バイオ燃料"],
+    description: "南米最大の国。BRICSの一角として資源外交を展開し、アマゾンの環境問題でも世界の注目を集める。",
+    ideology: "民主主義",
+    flagPrimary: "#009c3b", flagAccent: "#ffdf00",
+    initialStats: { approval: 50, happiness: 64, gdp: 520, budget: 30, unemployment: 7.9, inflation: 4.6, trust: 62, military: 55, technology: 55, environment: 58 },
+    relations: { china: 62, usa: 62, russia: 55, india: 60, argentina: 68, japan: 58, southafrica: 60 },
+    specialTraits: ["BRICS主要国", "アマゾン環境", "農業輸出大国"],
+  },
+  {
+    id: "argentina", name: "アルゼンチン", iso: "032", capital: "ブエノスアイレス", capitalCoords: [-58.4, -34.6],
+    population: 46, gdpReal: 640, region: "中南米",
+    blocs: ["G20", "メルコスール"],
+    resources: ["農業", "牛肉", "リチウム", "天然ガス"],
+    description: "豊かな農業資源を持つが、慢性的な高インフレと債務に苦しむ。経済再建が最大の課題。",
+    ideology: "民主主義",
+    flagPrimary: "#74acdf", flagAccent: "#ffffff",
+    initialStats: { approval: 42, happiness: 58, gdp: 320, budget: -30, unemployment: 6.9, inflation: 12.0, trust: 50, military: 42, technology: 55, environment: 55 },
+    relations: { brazil: 68, china: 50, usa: 55, russia: 45 },
+    specialTraits: ["高インフレ", "リチウム資源", "債務危機"],
+  },
+
+  /* ================= 西欧 ================= */
+  {
+    id: "uk", name: "イギリス", iso: "826", capital: "ロンドン", capitalCoords: [-0.1, 51.5],
+    population: 68, gdpReal: 3340, region: "西欧",
+    blocs: ["G7", "G20", "NATO", "OECD", "コモンウェルス"],
+    resources: ["金融", "製薬", "航空", "教育"],
+    description: "金融都市ロンドンを擁する旧大国。EU離脱後、独自の通商・安全保障路線を模索する核保有国。",
+    ideology: "民主主義",
+    flagPrimary: "#012169", flagAccent: "#c8102e",
+    initialStats: { approval: 44, happiness: 68, gdp: 580, budget: 90, unemployment: 4.2, inflation: 4.0, trust: 80, military: 80, technology: 85, environment: 62 },
+    relations: { usa: 92, france: 70, germany: 72, russia: 20, china: 38, japan: 78, india: 66, canada: 82, australia: 84, ukraine: 82 },
+    specialTraits: ["金融立国シティ", "核保有", "EU離脱後の模索"],
+  },
+  {
+    id: "france", name: "フランス", iso: "250", capital: "パリ", capitalCoords: [2.3, 48.9],
+    population: 68, gdpReal: 3030, region: "西欧",
+    blocs: ["G7", "G20", "NATO", "EU", "OECD"],
+    resources: ["原子力", "航空", "農業", "観光", "高級品"],
+    description: "EUの中核を担う核保有国。原子力と独自外交を強みに、欧州の戦略的自律を主張する。",
+    ideology: "民主主義",
+    flagPrimary: "#0055a4", flagAccent: "#ef4135",
+    initialStats: { approval: 40, happiness: 67, gdp: 560, budget: 70, unemployment: 7.3, inflation: 3.5, trust: 80, military: 82, technology: 84, environment: 66 },
+    relations: { germany: 82, uk: 70, usa: 80, eu: 80, russia: 28, china: 40, japan: 72, india: 64, ukraine: 78 },
+    specialTraits: ["EU中核", "原子力大国", "戦略的自律"],
+  },
+  {
+    id: "germany", name: "ドイツ", iso: "276", capital: "ベルリン", capitalCoords: [13.4, 52.5],
+    population: 84, gdpReal: 4460, region: "西欧",
+    blocs: ["G7", "G20", "NATO", "EU", "OECD"],
+    resources: ["自動車", "機械", "化学", "製造業"],
+    description: "欧州最大の経済大国。製造業と輸出で繁栄するが、エネルギー転換と少子高齢化が課題。",
+    ideology: "民主主義",
+    flagPrimary: "#000000", flagAccent: "#ffce00",
+    initialStats: { approval: 42, happiness: 70, gdp: 650, budget: 130, unemployment: 5.7, inflation: 3.2, trust: 82, military: 60, technology: 88, environment: 70 },
+    relations: { france: 82, usa: 82, uk: 72, eu: 82, russia: 25, china: 48, japan: 70, poland: 65, ukraine: 76 },
+    specialTraits: ["欧州最大の製造業", "エネルギー転換", "輸出立国"],
+  },
+  {
+    id: "italy", name: "イタリア", iso: "380", capital: "ローマ", capitalCoords: [12.5, 41.9],
+    population: 59, gdpReal: 2250, region: "西欧",
+    blocs: ["G7", "G20", "NATO", "EU", "OECD"],
+    resources: ["製造業", "観光", "農業", "高級品"],
+    description: "観光とものづくりの国。高い公的債務と少子高齢化を抱えつつ、地中海外交の要を担う。",
+    ideology: "民主主義",
+    flagPrimary: "#008c45", flagAccent: "#cd212a",
+    initialStats: { approval: 44, happiness: 66, gdp: 480, budget: 20, unemployment: 7.6, inflation: 3.0, trust: 74, military: 58, technology: 75, environment: 62 },
+    relations: { france: 72, germany: 74, usa: 76, eu: 78, russia: 30, china: 45, uk: 68 },
+    specialTraits: ["観光大国", "高い公的債務", "地中海外交"],
+  },
+  {
+    id: "spain", name: "スペイン", iso: "724", capital: "マドリード", capitalCoords: [-3.7, 40.4],
+    population: 48, gdpReal: 1580, region: "西欧",
+    blocs: ["G20", "NATO", "EU", "OECD"],
+    resources: ["観光", "農業", "再生可能エネルギー", "自動車"],
+    description: "観光と再エネで成長する南欧の国。中南米との文化的つながりを外交資源とする。",
+    ideology: "民主主義",
+    flagPrimary: "#aa151b", flagAccent: "#f1bf00",
+    initialStats: { approval: 46, happiness: 68, gdp: 440, budget: 30, unemployment: 11.8, inflation: 3.3, trust: 74, military: 55, technology: 72, environment: 68 },
+    relations: { france: 72, germany: 70, usa: 72, eu: 78, uk: 64, brazil: 58, argentina: 60 },
+    specialTraits: ["観光大国", "再エネ先進", "中南米とのつながり"],
+  },
+
+  /* ================= 東欧 ================= */
+  {
+    id: "russia", name: "ロシア", iso: "643", capital: "モスクワ", capitalCoords: [37.6, 55.8],
+    population: 144, gdpReal: 2020, region: "東欧",
+    blocs: ["G20", "BRICS", "SCO"],
+    resources: ["天然ガス", "原油", "鉱物", "穀物", "軍需"],
+    description: "世界最大の国土とエネルギー資源を持つ核大国。西側との対立を深め、中国・新興国と接近する。",
+    ideology: "権威主義",
+    flagPrimary: "#0039a6", flagAccent: "#d52b1e",
+    initialStats: { approval: 60, happiness: 54, gdp: 560, budget: 60, unemployment: 3.3, inflation: 6.5, trust: 38, military: 90, technology: 70, environment: 40 },
+    relations: { china: 78, usa: 18, ukraine: 5, nkorea: 60, iran: 70, india: 65, germany: 25, uk: 20, japan: 30, belarus: 90 },
+    specialTraits: ["核大国", "資源外交", "西側と対立"],
+  },
+  {
+    id: "ukraine", name: "ウクライナ", iso: "804", capital: "キーウ", capitalCoords: [30.5, 50.5],
+    population: 38, gdpReal: 180, region: "東欧",
+    blocs: ["EU加盟候補"],
+    resources: ["穀物", "鉄鋼", "鉱物", "IT"],
+    description: "「欧州の穀倉」と呼ばれる農業国。安全保障の危機に直面し、西側の支援を受けて復興を目指す。",
+    ideology: "民主主義",
+    flagPrimary: "#0057b7", flagAccent: "#ffd700",
+    initialStats: { approval: 58, happiness: 50, gdp: 230, budget: -40, unemployment: 12.0, inflation: 8.0, trust: 60, military: 70, technology: 58, environment: 48 },
+    relations: { russia: 5, usa: 80, uk: 82, germany: 76, france: 78, poland: 80, eu: 78 },
+    specialTraits: ["欧州の穀倉", "安全保障危機", "西側支援で復興"],
+  },
+  {
+    id: "poland", name: "ポーランド", iso: "616", capital: "ワルシャワ", capitalCoords: [21.0, 52.2],
+    population: 38, gdpReal: 810, region: "東欧",
+    blocs: ["NATO", "EU", "OECD"],
+    resources: ["石炭", "製造業", "農業", "IT"],
+    description: "東欧最大級の経済を持つNATOの東の要。安全保障を重視し、防衛費を大きく増やしている。",
+    ideology: "民主主義",
+    flagPrimary: "#ffffff", flagAccent: "#dc143c",
+    initialStats: { approval: 48, happiness: 64, gdp: 380, budget: 40, unemployment: 5.0, inflation: 6.0, trust: 72, military: 62, technology: 68, environment: 50 },
+    relations: { germany: 65, usa: 82, ukraine: 80, russia: 15, eu: 76, france: 64, uk: 70 },
+    specialTraits: ["NATO東の要", "防衛費急増", "対露最前線"],
+  },
+
+  /* ================= 中東 ================= */
+  {
+    id: "turkey", name: "トルコ", iso: "792", capital: "アンカラ", capitalCoords: [32.9, 39.9],
+    population: 85, gdpReal: 1110, region: "中東",
+    blocs: ["G20", "NATO", "OECD"],
+    resources: ["製造業", "農業", "観光", "繊維"],
+    description: "欧州とアジアをつなぐ要衝。NATO加盟国でありながら独自外交を展開し、地域大国を志向する。",
+    ideology: "民主主義",
+    flagPrimary: "#e30a17", flagAccent: "#ffffff",
+    initialStats: { approval: 50, happiness: 58, gdp: 420, budget: -10, unemployment: 9.4, inflation: 12.0, trust: 56, military: 70, technology: 58, environment: 46 },
+    relations: { usa: 55, russia: 50, eu: 50, germany: 52, saudi: 55, iran: 48, ukraine: 60 },
+    specialTraits: ["欧亜の要衝", "独自外交", "高インフレ"],
+  },
+  {
+    id: "saudi", name: "サウジアラビア", iso: "682", capital: "リヤド", capitalCoords: [46.7, 24.7],
+    population: 37, gdpReal: 1070, region: "中東",
+    blocs: ["G20", "OPEC", "BRICS"],
+    resources: ["原油", "天然ガス", "石油化学"],
+    description: "世界有数の産油国。脱石油を掲げる大改革「ビジョン2030」で経済の多角化を進める王制国家。",
+    ideology: "君主制",
+    flagPrimary: "#006c35", flagAccent: "#ffffff",
+    initialStats: { approval: 62, happiness: 62, gdp: 460, budget: 120, unemployment: 5.0, inflation: 2.5, trust: 60, military: 62, technology: 55, environment: 38 },
+    relations: { usa: 70, china: 60, russia: 50, iran: 25, uae: 78, egypt: 65, india: 60 },
+    specialTraits: ["産油大国", "ビジョン2030", "OPEC主導"],
+  },
+  {
+    id: "uae", name: "アラブ首長国連邦", iso: "784", capital: "アブダビ", capitalCoords: [54.4, 24.5],
+    population: 9.5, gdpReal: 510, region: "中東",
+    blocs: ["OPEC", "BRICS"],
+    resources: ["原油", "金融", "物流", "観光"],
+    description: "ドバイを擁する湾岸の金融・物流ハブ。石油収入を元手に、観光と先端産業へ多角化を進める。",
+    ideology: "君主制",
+    flagPrimary: "#00732f", flagAccent: "#ce1126",
+    initialStats: { approval: 64, happiness: 66, gdp: 420, budget: 140, unemployment: 3.0, inflation: 2.6, trust: 66, military: 55, technology: 62, environment: 40 },
+    relations: { usa: 72, saudi: 78, china: 62, india: 68, russia: 52, israel: 55 },
+    specialTraits: ["金融・物流ハブ", "脱石油の多角化", "中立外交"],
+  },
+  {
+    id: "iran", name: "イラン", iso: "364", capital: "テヘラン", capitalCoords: [51.4, 35.7],
+    population: 89, gdpReal: 410, region: "中東",
+    blocs: ["SCO", "OPEC"],
+    resources: ["原油", "天然ガス", "鉱物"],
+    description: "豊富なエネルギー資源を持つ神権国家。欧米の制裁下で、ロシア・中国との連携を深める。",
+    ideology: "神権政治",
+    flagPrimary: "#239f40", flagAccent: "#da0000",
+    initialStats: { approval: 48, happiness: 50, gdp: 360, budget: -20, unemployment: 9.0, inflation: 14.0, trust: 34, military: 64, technology: 50, environment: 38 },
+    relations: { usa: 8, israel: 3, russia: 70, china: 65, saudi: 25, india: 50 },
+    specialTraits: ["神権政治", "経済制裁下", "対ロ中接近"],
+  },
+  {
+    id: "israel", name: "イスラエル", iso: "376", capital: "エルサレム", capitalCoords: [35.2, 31.8],
+    population: 9.8, gdpReal: 510, region: "中東",
+    blocs: ["OECD"],
+    resources: ["ハイテク", "防衛産業", "農業技術", "天然ガス"],
+    description: "「中東のシリコンバレー」と呼ばれる技術立国。高い軍事・技術力を持ち、米国との結びつきが強い。",
+    ideology: "民主主義",
+    flagPrimary: "#0038b8", flagAccent: "#ffffff",
+    initialStats: { approval: 46, happiness: 64, gdp: 400, budget: 30, unemployment: 3.5, inflation: 3.8, trust: 58, military: 85, technology: 90, environment: 50 },
+    relations: { usa: 88, iran: 3, saudi: 30, uae: 55, egypt: 45, russia: 35 },
+    specialTraits: ["中東のシリコンバレー", "高い軍事技術", "対米同盟"],
+  },
+
+  /* ================= アフリカ ================= */
+  {
+    id: "egypt", name: "エジプト", iso: "818", capital: "カイロ", capitalCoords: [31.2, 30.0],
+    population: 112, gdpReal: 400, region: "アフリカ",
+    blocs: ["BRICS", "アフリカ連合", "アラブ連盟"],
+    resources: ["スエズ運河", "観光", "天然ガス", "農業"],
+    description: "スエズ運河を握る地域大国。物流の要衝として影響力を持つが、人口増と物価高が重荷。",
+    ideology: "権威主義",
+    flagPrimary: "#ce1126", flagAccent: "#c09300",
+    initialStats: { approval: 52, happiness: 54, gdp: 300, budget: -20, unemployment: 7.0, inflation: 13.0, trust: 56, military: 60, technology: 45, environment: 42 },
+    relations: { usa: 60, saudi: 65, russia: 55, china: 58, israel: 45 },
+    specialTraits: ["スエズ運河", "地域大国", "人口爆発"],
+  },
+  {
+    id: "southafrica", name: "南アフリカ", iso: "710", capital: "プレトリア", capitalCoords: [28.2, -25.7],
+    population: 60, gdpReal: 380, region: "アフリカ",
+    blocs: ["G20", "BRICS", "アフリカ連合"],
+    resources: ["金", "プラチナ", "鉱物", "農業"],
+    description: "アフリカ唯一のG20国でBRICSの一角。豊富な鉱物資源を持つが、電力危機と格差が課題。",
+    ideology: "民主主義",
+    flagPrimary: "#007a4d", flagAccent: "#ffb612",
+    initialStats: { approval: 46, happiness: 56, gdp: 320, budget: -10, unemployment: 14.0, inflation: 5.5, trust: 60, military: 45, technology: 55, environment: 46 },
+    relations: { china: 62, russia: 55, brazil: 60, india: 58, usa: 55 },
+    specialTraits: ["アフリカ唯一のG20", "鉱物資源", "電力危機"],
+  },
+  {
+    id: "nigeria", name: "ナイジェリア", iso: "566", capital: "アブジャ", capitalCoords: [7.5, 9.1],
+    population: 224, gdpReal: 360, region: "アフリカ",
+    blocs: ["アフリカ連合", "OPEC"],
+    resources: ["原油", "天然ガス", "農業"],
+    description: "アフリカ最大の人口と経済を持つ産油国。若い人口を背景に成長余地が大きい新興大国。",
+    ideology: "民主主義",
+    flagPrimary: "#008751", flagAccent: "#ffffff",
+    initialStats: { approval: 44, happiness: 54, gdp: 290, budget: -15, unemployment: 8.0, inflation: 15.0, trust: 52, military: 45, technology: 40, environment: 44 },
+    relations: { usa: 55, china: 60, uk: 58, india: 52 },
+    specialTraits: ["アフリカ最大の人口", "産油国", "成長余地大"],
+  },
+
+  /* ================= オセアニア ================= */
+  {
+    id: "australia", name: "オーストラリア", iso: "036", capital: "キャンベラ", capitalCoords: [149.1, -35.3],
+    population: 26, gdpReal: 1690, region: "オセアニア",
+    blocs: ["G20", "QUAD", "OECD", "コモンウェルス"],
+    resources: ["鉄鉱石", "石炭", "天然ガス", "農業", "教育"],
+    description: "資源輸出で潤う先進国。QUADの一員として、インド太平洋の安全保障に積極的に関与する。",
+    ideology: "民主主義",
+    flagPrimary: "#00008b", flagAccent: "#e4002b",
+    initialStats: { approval: 50, happiness: 73, gdp: 470, budget: 90, unemployment: 3.7, inflation: 4.0, trust: 78, military: 58, technology: 78, environment: 60 },
+    relations: { usa: 88, uk: 84, japan: 76, india: 64, china: 40, indonesia: 60, canada: 78 },
+    specialTraits: ["資源輸出大国", "QUAD加盟", "対中警戒"],
+  },
 ];
 
 /** ISO番号 → RealCountry のマップ */
@@ -722,3 +1024,32 @@ export const countryByIso: Record<string, RealCountry> = Object.fromEntries(
 export const countryById: Record<string, RealCountry> = Object.fromEntries(
   realCountries.map((c) => [c.id, c]),
 );
+
+// 西側陣営／非西側陣営のブロック分類（関係値の自動推定に使う）
+const WEST_BLOCS = ["NATO", "EU", "G7", "QUAD", "OECD", "コモンウェルス", "USMCA"];
+const EAST_BLOCS = ["BRICS", "SCO"];
+
+function blocSide(c: RealCountry): { west: boolean; east: boolean } {
+  return {
+    west: c.blocs.some((b) => WEST_BLOCS.includes(b)),
+    east: c.blocs.some((b) => EAST_BLOCS.includes(b)),
+  };
+}
+
+/**
+ * 2国間の友好度(0-100)を求める。
+ * 1) どちらかに手入力の関係値があればそれを使う（重要な二国間関係は手作り）
+ * 2) なければ所属ブロックから推定（同じブロック＝友好、逆陣営＝緊張、それ以外＝中立）
+ */
+export function deriveRelation(a: RealCountry, b: RealCountry): number {
+  if (a.id === b.id) return 100;
+  if (a.relations[b.id] != null) return a.relations[b.id];
+  if (b.relations[a.id] != null) return b.relations[a.id];
+  const shared = a.blocs.filter((x) => b.blocs.includes(x));
+  if (shared.length >= 2) return 72;
+  if (shared.length === 1) return 64;
+  const sa = blocSide(a);
+  const sb = blocSide(b);
+  if ((sa.west && sb.east) || (sa.east && sb.west)) return 42; // 陣営が逆
+  return 50; // 中立
+}

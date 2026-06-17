@@ -13,7 +13,7 @@ import { diplomacyActions } from "./data/diplomacy";
 import { choiceEvents, passiveEvents } from "./data/events";
 import { getProfession } from "./data/professions";
 import { statLabels } from "./data/stats";
-import { realCountries } from "./data/realCountries";
+import { realCountries, deriveRelation } from "./data/realCountries";
 import type { RealCountry } from "./data/realCountries";
 import { policies } from "./data/policies";
 import { rooms } from "./data/rooms";
@@ -72,12 +72,12 @@ function realToCountry(rc: RealCountry, playerRelation: number): Country {
   };
 }
 
-/** プレイヤー国以外のアジア諸国すべてを外交対象にする */
+/** プレイヤー国以外の全ての国を外交対象にする（関係値はブロックから自動補完） */
 function buildDiplomacyNations(playerCountry: RealCountry): Country[] {
   const others = realCountries.filter((c) => c.id !== playerCountry.id);
   // 関係値が極端な国（重要な相手）を前に並べる。全カ国を返す。
   const sorted = others
-    .map((c) => ({ c, rel: playerCountry.relations[c.id] ?? 50 }))
+    .map((c) => ({ c, rel: deriveRelation(playerCountry, c) }))
     .sort((a, b) => Math.abs(b.rel - 50) - Math.abs(a.rel - 50));
   return sorted.map(({ c, rel }) => realToCountry(c, rel));
 }

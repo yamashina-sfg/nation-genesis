@@ -33,11 +33,11 @@ interface GeoJSON {
   features: GeoFeature[];
 }
 
-// アジア範囲にズーム
-const LON_MIN = 60, LON_MAX = 152;
-const LAT_MIN = -12, LAT_MAX = 57;
-const W = 960;
-const H = 500;
+// 世界全体を表示（等距円筒図法）
+const LON_MIN = -180, LON_MAX = 180;
+const LAT_MIN = -56, LAT_MAX = 80;
+const W = 1000;
+const H = 378;
 
 // 等距円筒図法
 function project(lon: number, lat: number, w: number, h: number): [number, number] {
