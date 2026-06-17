@@ -72,20 +72,13 @@ function realToCountry(rc: RealCountry, playerRelation: number): Country {
   };
 }
 
-/** プレイヤー国以外のアジア諸国 (最大6カ国) を外交対象として選ぶ */
+/** プレイヤー国以外のアジア諸国すべてを外交対象にする */
 function buildDiplomacyNations(playerCountry: RealCountry): Country[] {
-  // 優先度: 関係値の絶対値が高い (重要な国) を選ぶ
-  const others = realCountries.filter(c => c.id !== playerCountry.id);
-  // 関係値を持つ国を優先、なければデフォルト50
+  const others = realCountries.filter((c) => c.id !== playerCountry.id);
+  // 関係値が極端な国（重要な相手）を前に並べる。全カ国を返す。
   const sorted = others
-    .map(c => ({ c, rel: playerCountry.relations[c.id] ?? 50 }))
-    .sort((a, b) => {
-      // 関係値が極端 (高い友好 or 低い敵対) な国を優先
-      const scoreA = Math.abs(a.rel - 50);
-      const scoreB = Math.abs(b.rel - 50);
-      return scoreB - scoreA;
-    })
-    .slice(0, 6);
+    .map((c) => ({ c, rel: playerCountry.relations[c.id] ?? 50 }))
+    .sort((a, b) => Math.abs(b.rel - 50) - Math.abs(a.rel - 50));
   return sorted.map(({ c, rel }) => realToCountry(c, rel));
 }
 
