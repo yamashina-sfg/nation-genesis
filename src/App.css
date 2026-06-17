@@ -171,9 +171,10 @@ p {
 /* ===== メインフレーム ===== */
 .app-frame {
   display: grid;
-  grid-template-columns: 200px 1fr 320px;
-  gap: 14px;
+  grid-template-columns: 190px 1fr 300px;
+  gap: 10px;
   align-items: start;
+  padding: 8px 10px;
 }
 
 /* ===== パネル共通 ===== */
@@ -1228,9 +1229,10 @@ p {
 
 /* ===== 現代2スタイル: 新ヘッダー ===== */
 .app-header {
-  margin-bottom: 14px;
-  border: 1px solid var(--navy-border);
-  border-radius: 12px;
+  margin-bottom: 0;
+  border: none;
+  border-bottom: 1px solid var(--navy-border);
+  border-radius: 0;
   background: linear-gradient(180deg, #1a3352 0%, #0f2035 100%);
   overflow: hidden;
 }
@@ -1238,9 +1240,9 @@ p {
 .header-top {
   display: grid;
   grid-template-columns: auto 1fr auto;
-  gap: 20px;
+  gap: 16px;
   align-items: center;
-  padding: 14px 20px;
+  padding: 8px 16px;
   border-bottom: 1px solid var(--navy-border);
 }
 
@@ -1256,7 +1258,7 @@ p {
 
 .header-title {
   margin: 0;
-  font-size: 1.8rem;
+  font-size: 1.35rem;
   font-weight: 900;
   color: var(--gold-light);
   letter-spacing: -0.02em;
@@ -1388,8 +1390,8 @@ p {
 .resource-item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 9px 14px;
+  gap: 6px;
+  padding: 6px 10px;
   border-right: 1px solid rgba(255,255,255,0.06);
   transition: background 0.1s;
 }
@@ -1407,7 +1409,7 @@ p {
 }
 
 .resource-icon {
-  font-size: 1.3rem;
+  font-size: 1.1rem;
   flex-shrink: 0;
 }
 
@@ -1437,10 +1439,54 @@ p {
 }
 
 /* ===== ゲームシェル調整 ===== */
+/* ===== ビューポート全体を埋める縦型レイアウト ===== */
 .game-shell {
-  width: min(1560px, calc(100% - 20px));
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 1560px;
+  height: 100vh;
   margin: 0 auto;
-  padding: 14px 0 40px;
+  padding: 0;
+  overflow: hidden;
+}
+
+.app-header {
+  flex-shrink: 0;
+}
+
+/* app-frame が残りの高さをすべて使う */
+.app-frame {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* 各サイドバーは自分でスクロール */
+.status-sidebar {
+  overflow-y: auto;
+  height: 100%;
+}
+
+.command-center {
+  overflow-y: auto;
+  height: 100%;
+  padding: 10px 0;
+}
+
+.right-rail {
+  overflow-y: auto;
+  height: 100%;
+  position: static; /* sticky解除 */
+}
+
+/* ナビタブは一番下に固定 */
+.mode-tabs {
+  flex-shrink: 0;
+  margin-top: 0;
+  padding: 6px 10px;
+  border-top: 1px solid var(--navy-border);
+  background: rgba(10, 18, 28, 0.95);
 }
 
 /* ===== パネルカラー調整 ===== */
