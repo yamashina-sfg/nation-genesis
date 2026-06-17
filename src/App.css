@@ -2103,3 +2103,141 @@ p {
   box-shadow: 0 6px 24px rgba(212, 168, 67, 0.35);
 }
 
+
+/* ===== SVGアイコン (絵文字置き換え) ===== */
+.resource-icon-svg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  color: var(--text-muted);
+}
+
+.resource-icon-svg.warn-icon {
+  color: var(--red);
+}
+
+.resource-item:hover .resource-icon-svg {
+  color: var(--gold-light);
+}
+
+/* ===== 政策実行ボタンエリア ===== */
+.execute-area {
+  margin-bottom: 18px;
+}
+
+.execute-label {
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin: 0 0 8px;
+}
+
+.execute-empty {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  font-style: italic;
+  margin: 0 0 12px;
+  padding: 10px;
+  border: 1px dashed rgba(255,255,255,0.12);
+  border-radius: 8px;
+  text-align: center;
+}
+
+.execute-selected {
+  margin-bottom: 12px;
+}
+
+.execute-policy-list {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.execute-policy-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid var(--navy-border);
+  border-radius: 8px;
+  background: rgba(212, 168, 67, 0.08);
+}
+
+.execute-policy-item span {
+  font-size: 0.7rem;
+  color: var(--gold);
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: rgba(212, 168, 67, 0.15);
+}
+
+.execute-policy-item strong {
+  font-size: 0.9rem;
+  color: #fff;
+}
+
+.execute-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  padding: 14px 16px;
+  border: 2px solid var(--gold);
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(212, 168, 67, 0.25), rgba(212, 168, 67, 0.08));
+  color: var(--gold-light);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.execute-btn:hover {
+  background: linear-gradient(135deg, rgba(212, 168, 67, 0.45), rgba(212, 168, 67, 0.18));
+  box-shadow: 0 0 20px rgba(212, 168, 67, 0.3);
+}
+
+.execute-btn.disabled {
+  border-color: rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.04);
+  color: var(--text-muted);
+}
+
+.execute-btn-icon {
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.execute-btn-text {
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.execute-btn-sub {
+  font-size: 0.7rem;
+  opacity: 0.7;
+}
+
+.policy-divider {
+  height: 1px;
+  background: var(--navy-border);
+  margin: 14px 0;
+}
+
+/* ===== 政策カード 選択バッジ ===== */
+.policy-check {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 5px;
+  background: var(--gold);
+  color: #0d1b2a;
+  font-size: 0.68rem;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
