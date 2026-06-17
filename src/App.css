@@ -2881,3 +2881,158 @@ p {
   font-size: 0.82rem;
   line-height: 1.6;
 }
+
+/* ===================================================== */
+/* スマホ・タブレット対応 (768px以下)                     */
+/* ===================================================== */
+@media (max-width: 768px) {
+  /* シェルを縦スクロールの通常フローに戻す */
+  .game-shell {
+    height: auto;
+    min-height: 100vh;
+    max-width: 100%;
+    overflow: visible;
+    padding-bottom: 60px; /* 下部固定タブの分 */
+  }
+
+  .app-frame {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    flex: none;
+    overflow: visible;
+    padding: 8px;
+    gap: 10px;
+  }
+
+  .command-center,
+  .right-rail {
+    position: static;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+    padding: 0;
+  }
+
+  /* スマホでは上部リソースバーが全指標を表示するため左サイドバーは隠す */
+  .status-sidebar { display: none; }
+
+  .command-center { gap: 10px; }
+
+  /* ===== ヘッダー ===== */
+  .header-top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+    padding: 8px 12px;
+  }
+  .header-title-area { flex: 1 1 auto; }
+  .header-title { font-size: 1.1rem; }
+  .header-eyebrow { font-size: 0.6rem; margin-bottom: 0; }
+  .header-date-turn { flex: 0 0 auto; gap: 8px; }
+  .header-year { font-size: 1.3rem; }
+  .header-month { font-size: 0.7rem; }
+  .next-turn-btn { padding: 8px 14px; font-size: 0.9rem; }
+  .header-flag-btns { display: none; } /* 旗ボタンは省略 */
+  .header-nation {
+    flex: 1 1 100%;
+    order: 3;
+    gap: 10px;
+  }
+  .header-flag { width: 52px; height: 34px; }
+  .header-nation-name { font-size: 0.95rem; }
+
+  /* ===== リソースバー：横スクロール ===== */
+  .resource-bar {
+    display: flex;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .resource-bar::-webkit-scrollbar { display: none; }
+  .resource-item {
+    flex: 0 0 auto;
+    min-width: 84px;
+    padding: 6px 12px;
+  }
+
+  /* ===== サイドバー指標：2列 ===== */
+  .side-stat-list { grid-template-columns: repeat(2, 1fr); gap: 8px 14px; }
+
+  /* ===== 各画面の2カラム→1カラム ===== */
+  .screen-layout,
+  .ranking-layout { grid-template-columns: 1fr; }
+  .map-bottom { grid-template-columns: 1fr; }
+  .stat-grid { grid-template-columns: repeat(2, 1fr); }
+  .stock-board { grid-template-columns: 1fr; }
+  .policy-grid { grid-template-columns: 1fr; }
+  .ranking-grid { grid-template-columns: 1fr; }
+  .profession-grid { grid-template-columns: 1fr; }
+
+  /* ===== 下部ナビを画面固定 ===== */
+  .mode-tabs {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 60;
+    gap: 2px;
+    padding: 4px 6px env(safe-area-inset-bottom, 4px);
+    margin: 0;
+  }
+  .mode-tabs button {
+    padding: 9px 2px;
+    font-size: 0.72rem;
+    border-radius: 6px;
+  }
+
+  /* ===== キャラ会議は折りたたみ気味に ===== */
+  .character-roster { grid-template-columns: repeat(7, 1fr); }
+  .character-roster button span { font-size: 0.5rem; }
+  .character-roster img,
+  .character-roster button > b { width: 28px; height: 28px; }
+  .character-talk { grid-template-columns: 72px 1fr; min-height: 0; }
+  .character-avatar { width: 72px; height: 96px; }
+
+  /* ===== 国選択画面：縦積み ===== */
+  .cs-body {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+  .cs-map-col { border-right: none; border-bottom: 1px solid rgba(212,168,67,0.12); }
+  .cs-map-wrap { height: 280px; flex: none; }
+  .cs-info-col { max-height: none; }
+  .cs-header { flex-wrap: wrap; gap: 8px; padding: 12px 16px; }
+  .cs-region-tabs { flex-wrap: wrap; }
+
+  /* ===== モーダルを画面いっぱい近くに ===== */
+  .confirm-overlay,
+  .result-overlay,
+  .event-overlay { padding: 10px; }
+  .confirm-modal,
+  .result-overlay-card,
+  .event-modal { max-height: 92vh; }
+  .confirm-actions { grid-template-columns: 1fr; }
+  .ro-pros-cons { grid-template-columns: 1fr; }
+  .ro-pros { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .predict-grid { grid-template-columns: 1fr; }
+
+  /* ===== 導入画面 ===== */
+  .intro-logo { font-size: 2rem; }
+  .intro-catch { font-size: 0.92rem; }
+  .intro-narrative { padding: 16px; }
+}
+
+/* ===== さらに小さい画面 (480px以下) ===== */
+@media (max-width: 480px) {
+  .header-title { font-size: 1rem; }
+  .header-nation-meta select { font-size: 0.72rem; }
+  .side-stat-list { grid-template-columns: 1fr 1fr; }
+  .stat-grid { grid-template-columns: 1fr 1fr; }
+  .mode-tabs button { font-size: 0.66rem; padding: 8px 1px; }
+  .character-roster { grid-template-columns: repeat(4, 1fr); }
+  .ranking-row { grid-template-columns: 20px 72px 1fr 34px; font-size: 0.74rem; }
+  .cs-map-wrap { height: 220px; }
+}
