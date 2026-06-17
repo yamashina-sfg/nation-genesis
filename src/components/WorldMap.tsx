@@ -129,6 +129,8 @@ export function WorldMap({
         <svg
           ref={svgRef}
           className="world-map-svg"
+          width={W}
+          height={H}
           viewBox={`0 0 ${W} ${H}`}
           preserveAspectRatio="xMidYMid meet"
         >

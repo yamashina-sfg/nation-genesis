@@ -603,20 +603,17 @@ p {
   box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.5);
 }
 
-/* 比率固定はpadding-bottom方式で（Safari含め全ブラウザで確実に効く） */
+/* SVGに width/height 属性を付けたうえで width:100%;height:auto。
+   無理に引き伸ばさず自然な比率のまま表示する（Safari含め歪まない） */
 .world-map-canvas {
   position: relative;
   width: 100%;
-  height: 0;
-  padding-bottom: 37.8%; /* 378 / 1000 = 世界地図の高さ比 */
-  overflow: hidden;
+  min-height: 120px;
 }
 .world-map-svg {
-  position: absolute;
-  inset: 0;
   display: block;
   width: 100%;
-  height: 100%;
+  height: auto;
 }
 
 .map-country {
