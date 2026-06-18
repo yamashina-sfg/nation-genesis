@@ -17,7 +17,7 @@ const pcBg = Object.entries(bgModules).find(([k]) => !k.includes("smartphone"))?
 const spBg = Object.entries(bgModules).find(([k]) => k.includes("smartphone"))?.[1] as string | undefined;
 
 const PC_AR = 1536 / 1024;
-const SP_AR = 853 / 1844;
+const SP_AR = 1054 / 1492;
 
 type ActionTarget = GameMode | "dialogue" | "agenda";
 
