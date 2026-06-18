@@ -1,0 +1,301 @@
+/* ============================================================
+   ドット絵RPG風テーマ（全画面共通の上書き）
+   既存のレイアウト/機能はそのまま、見た目だけレトロゲーム化。
+   App.css の後に読み込まれるので、同じ詳細度なら勝つ。
+   ============================================================ */
+
+:root {
+  --pix-dark: #0a1424;
+  --pix-line: #08101c;
+  --pix-gold: #e7b94e;
+  --pix-light: rgba(255, 255, 255, 0.16);
+  --pix-shadow: rgba(0, 0, 0, 0.55);
+  /* ピクセルフォント（日本語対応の DotGothic16 を主に使う） */
+  font-family: "DotGothic16", "Press Start 2P", monospace !important;
+  letter-spacing: 0.02em;
+}
+
+body,
+button,
+input,
+select,
+textarea,
+.game-shell,
+.intro-screen,
+.country-select-screen,
+.office-stage,
+.hub-modal,
+.confirm-modal,
+.event-modal,
+.result-overlay-card {
+  font-family: "DotGothic16", "Press Start 2P", monospace !important;
+}
+
+/* 画像はドット感を保ってスケール */
+img,
+.office-hub,
+.hub-flag,
+.header-flag,
+.flag-preview,
+.cs-quick-flag,
+.cs-flag-banner,
+.character-avatar img,
+.character-roster img {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+/* 角丸を全廃（ドット絵はカクカク） */
+button,
+input,
+select,
+textarea,
+.panel,
+.app-header,
+.resource-bar,
+.resource-item,
+.mode-tabs,
+.mode-tabs button,
+.section-title,
+.world-map,
+.world-map-canvas,
+.office-hub,
+.hub-profile,
+.hub-alert,
+.hub-menu-btn,
+.hub-quickbar,
+.hub-next-turn,
+.hub-title-badge,
+.summit-scene,
+.exchange-board,
+.exchange-ticker,
+.press-stage,
+.room-banner,
+.stat-card,
+.news-list li,
+.ranking-card,
+.ranking-bar,
+.ranking-bar span,
+.cs-tab,
+.cs-quick-btn,
+.cs-country-card,
+.cs-trait-chip,
+.cs-bloc-chip,
+.intro-narrative,
+.intro-speech,
+.intro-next-btn,
+.intro-start-btn,
+.profession-card,
+.event-choice-btn,
+.policy-card,
+.policy-effects em,
+.diplo-action,
+.rate-btn,
+.turn-button,
+.execute-btn,
+.confirm-modal,
+.confirm-execute,
+.confirm-cancel,
+.event-modal,
+.hub-modal,
+.hub-modal-close,
+.result-overlay-card,
+.ro-happening,
+.ro-delta,
+.agenda-item,
+.dialogue-voice,
+.settings-btn,
+.settings-row,
+.voice-row,
+.predict-item,
+.stock-card,
+.crisis-badge,
+.hub-crisis,
+.relation-badge,
+.achv-toast,
+.character-talk,
+.character-avatar,
+.character-roster button,
+.speech-bubble,
+[class*="-chip"],
+[class*="-badge"] {
+  border-radius: 0 !important;
+}
+
+/* ===== ピクセル窓（パネル/モーダル） ===== */
+.panel,
+.confirm-modal,
+.event-modal,
+.hub-modal,
+.result-overlay-card,
+.cs-country-card,
+.summit-scene,
+.exchange-board,
+.press-stage,
+.stock-card,
+.ranking-card,
+.news-list li,
+.intro-narrative {
+  border: 3px solid var(--pix-line) !important;
+  background-clip: padding-box;
+  box-shadow:
+    inset 0 0 0 2px rgba(231, 185, 78, 0.3),
+    inset 3px 3px 0 var(--pix-light),
+    0 0 0 2px var(--pix-gold),
+    4px 4px 0 var(--pix-shadow);
+}
+
+/* ===== ピクセルボタン（ベベル＋押し込み） ===== */
+.mode-tabs button,
+.policy-card,
+.diplo-action,
+.rate-btn,
+.hub-menu-btn,
+.cs-tab,
+.cs-quick-btn,
+.profession-card,
+.event-choice-btn,
+.confirm-execute,
+.confirm-cancel,
+.settings-btn,
+.ro-close-btn,
+.intro-next-btn,
+.intro-start-btn,
+.nation-switcher button,
+.hub-quickbar button,
+.hub-alert,
+.execute-btn {
+  border: 2px solid var(--pix-line) !important;
+  box-shadow:
+    inset 2px 2px 0 rgba(255, 255, 255, 0.2),
+    inset -2px -2px 0 rgba(0, 0, 0, 0.42),
+    2px 2px 0 var(--pix-shadow) !important;
+  transition: none !important;
+}
+.mode-tabs button:active,
+.policy-card:active,
+.diplo-action:active,
+.rate-btn:active,
+.hub-menu-btn:active,
+.cs-tab:active,
+.cs-quick-btn:active,
+.profession-card:active,
+.event-choice-btn:active,
+.confirm-execute:active,
+.confirm-cancel:active,
+.settings-btn:active,
+.intro-next-btn:active,
+.intro-start-btn:active,
+.nation-switcher button:active,
+.hub-quickbar button:active,
+.execute-btn:active {
+  transform: translate(2px, 2px) !important;
+  box-shadow:
+    inset -2px -2px 0 rgba(255, 255, 255, 0.12),
+    inset 2px 2px 0 rgba(0, 0, 0, 0.42) !important;
+}
+/* ホバーで動かない（ピクセル感を保つ） */
+.hub-menu-btn:hover,
+.diplo-action:hover,
+.policy-card:hover {
+  transform: none !important;
+}
+
+/* 主要CTA（翌月へ・実行など）は金枠を強調 */
+.next-turn-btn,
+.hub-next-turn,
+.turn-button,
+.cs-start-btn,
+.execute-btn,
+.confirm-execute,
+.intro-start-btn,
+.intro-next-btn {
+  border: 2px solid var(--pix-line) !important;
+  box-shadow:
+    inset 2px 2px 0 rgba(255, 255, 255, 0.35),
+    inset -2px -2px 0 rgba(120, 80, 10, 0.6),
+    3px 3px 0 var(--pix-shadow) !important;
+}
+
+/* ===== セクション見出しをピクセル帯に ===== */
+.section-title {
+  border-bottom: 2px solid var(--pix-gold) !important;
+  border-radius: 0 !important;
+}
+
+/* ===== モードタブ（下のメニュー）をピクセルHUD化 ===== */
+.mode-tabs {
+  border-top: 3px solid var(--pix-line) !important;
+}
+.mode-tabs button.active {
+  box-shadow:
+    inset 2px 2px 0 rgba(255, 255, 255, 0.25),
+    inset -2px -2px 0 rgba(0, 0, 0, 0.4),
+    0 0 0 2px var(--pix-gold) !important;
+}
+
+/* ===== ヘッダー/リソースバーをピクセル枠に ===== */
+.app-header {
+  border-bottom: 3px solid var(--pix-line) !important;
+}
+.resource-item {
+  border-right: 2px solid rgba(0, 0, 0, 0.4) !important;
+}
+
+/* ===== ゲージ類をブロック表示に ===== */
+.side-stat-list meter,
+.stat-card meter {
+  border: 2px solid var(--pix-line);
+  background: #0a1726;
+  image-rendering: pixelated;
+}
+.side-stat-list meter::-webkit-meter-bar,
+.stat-card meter::-webkit-meter-bar {
+  background: #0a1726;
+}
+.side-stat-list meter::-webkit-meter-optimum-value,
+.stat-card meter::-webkit-meter-optimum-value {
+  background: repeating-linear-gradient(
+    90deg,
+    var(--pix-gold) 0 6px,
+    #b88a2a 6px 8px
+  );
+}
+
+/* キャラのアバターはドット枠 */
+.character-avatar,
+.character-roster img,
+.character-roster button > b {
+  border: 2px solid var(--pix-line) !important;
+}
+
+/* 吹き出しは角ゼロのピクセル窓 */
+.speech-bubble {
+  border: 2px solid var(--pix-line) !important;
+  box-shadow: inset 2px 2px 0 rgba(255, 255, 255, 0.1) !important;
+}
+
+/* スクロールバーもレトロ風 */
+.command-center::-webkit-scrollbar,
+.right-rail::-webkit-scrollbar,
+.status-sidebar::-webkit-scrollbar,
+.hub-modal::-webkit-scrollbar,
+.confirm-modal::-webkit-scrollbar {
+  width: 10px;
+}
+.command-center::-webkit-scrollbar-thumb,
+.right-rail::-webkit-scrollbar-thumb,
+.status-sidebar::-webkit-scrollbar-thumb,
+.hub-modal::-webkit-scrollbar-thumb,
+.confirm-modal::-webkit-scrollbar-thumb {
+  background: var(--pix-gold);
+  border: 2px solid var(--pix-line);
+}
+
+/* タイトルロゴはくっきりドット */
+.header-title,
+.intro-logo,
+.hub-profile-name {
+  text-shadow: 2px 2px 0 var(--pix-shadow);
+  letter-spacing: 0.04em;
+}
