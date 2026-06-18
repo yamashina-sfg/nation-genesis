@@ -66,14 +66,14 @@ export function PoliciesScreen({
 
       <aside className="panel central-bank">
         <div className="section-title" style={{ marginBottom: 10 }}>
-          <span>中央銀行 / 金融政策</span>
+          <span>中央銀行 / お金の借りやすさ</span>
           <strong>金利 {rate.toFixed(1)}%</strong>
         </div>
         <p style={{ fontSize: "0.78rem", color: "var(--text-muted)", margin: "0 0 8px" }}>
-          金利＝お金を借りるときの利子。上げると物価が落ち着き、下げると景気が元気になります。
+          「お金の借りやすさ」（金利）の調整です。上げると物価上昇が落ち着き、下げると景気が元気になります。
         </p>
         <input
-          aria-label="政策金利"
+          aria-label="お金の借りやすさ（政策金利）"
           max="6"
           min="0"
           step="0.25"
@@ -101,8 +101,8 @@ export function PoliciesScreen({
 
         <div className="policy-divider" />
         <p style={{ fontSize: "0.78rem", color: "var(--text-muted)", margin: 0, lineHeight: 1.6 }}>
-          政策・外交・金利を実行したら、ヘッダーの<b>「翌月へ」</b>で時間を進めましょう。
-          世界や国内では、あなたの政策とは関係なく事件が起き続けます。
+          政策・外交・金利を実行したら、ヘッダーの<b>「翌日へ進む」</b>で時間を進めましょう。
+          世界や国内では、あなたの政策とは関係なく毎日いろいろな出来事が起き続けます。
         </p>
       </aside>
     </section>

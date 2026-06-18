@@ -1355,6 +1355,18 @@ p {
   font-size: 0.82rem;
 }
 
+.header-daycount {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 7px;
+  background: rgba(212, 168, 67, 0.2);
+  border: 1px solid var(--gold);
+  border-radius: 4px;
+  color: var(--gold-light);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
 .next-turn-btn {
   padding: 10px 20px;
   border: 2px solid var(--gold);
@@ -1574,6 +1586,58 @@ p {
   color: var(--text-muted);
   font-size: 0.9rem;
   line-height: 1.65;
+}
+
+/* 大臣・関係者の意見（意見が割れる） */
+.event-voices {
+  padding: 14px 24px 4px;
+  display: grid;
+  gap: 8px;
+}
+.event-voices-label {
+  margin: 0 0 2px;
+  color: var(--gold-light);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.event-voice {
+  display: flex;
+  gap: 9px;
+  align-items: flex-start;
+  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border-left: 3px solid var(--text-muted);
+  border-radius: 6px;
+}
+.event-voice.support { border-left-color: #4caf72; }
+.event-voice.oppose { border-left-color: #d8484f; }
+.event-voice.neutral { border-left-color: #caa84a; }
+.event-voice-stance {
+  flex: 0 0 auto;
+  padding: 1px 8px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #fff;
+  background: var(--text-muted);
+  white-space: nowrap;
+}
+.event-voice.support .event-voice-stance { background: #3f9d63; }
+.event-voice.oppose .event-voice-stance { background: #c44b51; }
+.event-voice.neutral .event-voice-stance { background: #b6962f; }
+.event-voice-who {
+  display: block;
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: var(--gold-light);
+  margin-bottom: 2px;
+}
+.event-voice p {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--text);
 }
 
 .event-choices {

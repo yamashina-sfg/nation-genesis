@@ -157,15 +157,56 @@ export type EventChoice = {
   explanation: string;
 };
 
+/** イベントの分類（1日ごとの抽選バケツ） */
+export type EventScope =
+  | "domestic" // 小さな国内ニュース
+  | "world" // 世界ニュース
+  | "market" // 市場変動
+  | "diplo" // 外交イベント
+  | "citizen" // 市民イベント
+  | "crisis" // 緊急イベント
+  | "positive"; // ポジティブイベント
+
+/** 時間差で発生する後続効果（短期/中期/長期） */
+export type FollowupEffect = {
+  /** 何日後に発生するか */
+  afterDays: number;
+  title: string;
+  body: string;
+  category: NewsItem["category"];
+  effect: Partial<NationStats>;
+};
+
 /** ゲームイベント */
 export type GameEvent = {
   id: string;
   title: string;
   body: string;
   category: NewsItem["category"];
+  /** 1日ごとの抽選バケツ */
+  scope?: EventScope;
+  /** 市民の生の反応（速報の下に一言） */
+  citizen?: string;
   /** 選択肢がある場合: プレイヤーに判断を求める */
   choices?: EventChoice[];
+  /** 選択型イベントで割れる大臣・関係者の意見 */
+  voices?: StakeholderVoice[];
+  /** 時間差で出る後続効果 */
+  followups?: FollowupEffect[];
   /** 選択肢がない場合: 自動適用 */
+  effect: Partial<NationStats>;
+};
+
+/**
+ * 保留中の後続効果（数日後・数週間後・数か月後に発生）。
+ * シリアライズ可能＝セーブできる。
+ */
+export type ScheduledEffect = {
+  /** この日（通算日数 dayCount）になったら発生 */
+  fireOnDay: number;
+  title: string;
+  body: string;
+  category: NewsItem["category"];
   effect: Partial<NationStats>;
 };
 

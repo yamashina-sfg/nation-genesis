@@ -13,6 +13,11 @@ export const eventDeck: GameEvent[] = [
     body: "国内で新型ウイルスが広がり、病院が逼迫し始めました。対応を迫られています。",
     category: "災害",
     effect: {},
+    voices: [
+      { characterId: "citizen", stance: "support", text: "命が第一です。多少経済が止まっても規制を。" },
+      { characterId: "business", stance: "oppose", text: "経済を止めれば倒産が相次ぎます。慎重に。" },
+      { characterId: "finance", stance: "neutral", text: "給付には予算が要ります。財源とのバランスを。" },
+    ],
     choices: [
       {
         id: "quarantine",
@@ -43,6 +48,11 @@ export const eventDeck: GameEvent[] = [
     body: "経済格差や政策への不満が噴出し、数万人が首都の広場に集結しました。",
     category: "政治",
     effect: {},
+    voices: [
+      { characterId: "citizen", stance: "support", text: "声に耳を傾けるべきです。対話を。" },
+      { characterId: "defense", stance: "oppose", text: "秩序を守るのも政府の責任です。放置はできません。" },
+      { characterId: "finance", stance: "neutral", text: "要求を全部のめば財政がもちません。" },
+    ],
     choices: [
       {
         id: "dialogue",
@@ -73,6 +83,11 @@ export const eventDeck: GameEvent[] = [
     body: "国際情勢の悪化でエネルギー輸入コストが急上昇しています。家庭と企業が直撃を受けています。",
     category: "経済",
     effect: {},
+    voices: [
+      { characterId: "citizen", stance: "support", text: "補助金で家計を守ってほしいです。" },
+      { characterId: "finance", stance: "oppose", text: "補助金は財政を圧迫します。出口戦略が必要です。" },
+      { characterId: "business", stance: "neutral", text: "長期的には再エネ投資で自給率を上げるべきです。" },
+    ],
     choices: [
       {
         id: "subsidy",
@@ -133,6 +148,11 @@ export const eventDeck: GameEvent[] = [
     body: "GDP成長率が鈍化し、企業の設備投資が減少しています。失業率が上昇傾向です。",
     category: "経済",
     effect: {},
+    voices: [
+      { characterId: "business", stance: "support", text: "今は大胆な財政出動で景気を支えるべきです。" },
+      { characterId: "finance", stance: "oppose", text: "赤字を膨らませれば将来にツケが回ります。" },
+      { characterId: "citizen", stance: "neutral", text: "仕事が減るのが一番こわいです。雇用を守って。" },
+    ],
     choices: [
       {
         id: "stimulus_spend",
@@ -367,6 +387,62 @@ export const eventDeck: GameEvent[] = [
         effect: { trust: -8, approval: -4, budget: 0, gdp: -3 },
         explanation: "国内に集中できますが、地域連帯から離反したとみなされ外交信用が大きく下落します。",
       },
+    ],
+  },
+
+  /* ===== 大臣の意見が割れる選択型イベント ===== */
+  {
+    id: "immigration_policy",
+    title: "人手不足、移民の受け入れを拡大すべきか",
+    body: "深刻な人手不足を背景に、外国人労働者の受け入れ拡大が議論になっています。閣内でも意見が割れています。",
+    category: "政治",
+    scope: "domestic",
+    effect: {},
+    voices: [
+      { characterId: "business", stance: "support", text: "人手不足を補えるため賛成です。経済を回すには必要です。" },
+      { characterId: "citizen", stance: "oppose", text: "地域の受け入れ準備が足りず、暮らしへの不安があります。" },
+      { characterId: "finance", stance: "neutral", text: "支援制度の予算を確保する必要があります。" },
+    ],
+    choices: [
+      { id: "expand", label: "受け入れを大きく拡大", description: "人手不足は解消するが軋轢も", effect: { gdp: 12, unemployment: -0.8, happiness: -4, approval: -3 }, explanation: "労働力が増えて経済が回りますが、急な変化に地域の不満が高まります。" },
+      { id: "gradual", label: "条件付きで段階的に", description: "バランス重視だが効果は緩やか", effect: { gdp: 5, budget: -8, unemployment: -0.3, approval: 1 }, explanation: "支援制度を整えながら少しずつ受け入れます。財政負担はありますが穏当です。" },
+      { id: "reject", label: "受け入れは見送る", description: "国内優先だが人手不足は続く", effect: { gdp: -4, unemployment: 0.4, happiness: 2, approval: 2 }, explanation: "国内雇用を守る姿勢は一部に支持されますが、人手不足は深刻化します。" },
+    ],
+  },
+  {
+    id: "tax_hike_debate",
+    title: "財政赤字、増税に踏み切るべきか",
+    body: "膨らむ財政赤字を受け、増税の是非が問われています。痛みを伴う決断に閣内の意見も対立しています。",
+    category: "経済",
+    scope: "domestic",
+    effect: {},
+    voices: [
+      { characterId: "finance", stance: "support", text: "財政の持続性のため、今こそ増税が必要です。" },
+      { characterId: "business", stance: "oppose", text: "増税は消費と投資を冷やします。時期尚早です。" },
+      { characterId: "citizen", stance: "oppose", text: "ただでさえ生活が苦しいのに、これ以上の負担は…。" },
+    ],
+    choices: [
+      { id: "raise", label: "増税を断行", description: "財政は改善するが反発も大きい", effect: { budget: 30, gdp: -10, happiness: -6, approval: -10 }, explanation: "財政赤字は大きく改善しますが、国民と経済界の反発で支持率が落ちます。" },
+      { id: "partial", label: "富裕層・大企業に限定増税", description: "反発を抑えつつ税収確保", effect: { budget: 16, gdp: -4, approval: -3, happiness: -1 }, explanation: "負担を一部に絞ることで反発を抑えつつ、ある程度の税収を確保します。" },
+      { id: "delay", label: "増税を見送る", description: "今の生活は守るが赤字は続く", effect: { budget: -6, happiness: 3, approval: 4 }, explanation: "当面の不満は避けられますが、財政赤字は膨らみ続けます。" },
+    ],
+  },
+  {
+    id: "ai_regulation",
+    title: "急成長するAI、規制すべきか",
+    body: "AIの急速な普及で、雇用や安全への懸念が高まっています。規制と振興のどちらを優先すべきか議論されています。",
+    category: "技術",
+    scope: "domestic",
+    effect: {},
+    voices: [
+      { characterId: "business", stance: "oppose", text: "強い規制は国際競争に負けます。振興を優先すべきです。" },
+      { characterId: "citizen", stance: "support", text: "仕事が奪われないか不安です。一定のルールが必要です。" },
+      { characterId: "defense", stance: "neutral", text: "安全保障の観点でも、無秩序な普及には注意が要ります。" },
+    ],
+    choices: [
+      { id: "promote", label: "規制せず振興を優先", description: "技術は伸びるが社会不安も", effect: { technology: 10, gdp: 8, happiness: -4, unemployment: 0.5 }, explanation: "技術競争力は高まりますが、雇用不安や社会の戸惑いが広がります。" },
+      { id: "balance", label: "ルールを整えつつ推進", description: "穏当だが調整に時間", effect: { technology: 4, gdp: 3, budget: -6, approval: 2 }, explanation: "安全と振興の両立を図ります。整備にコストはかかりますが安定的です。" },
+      { id: "restrict", label: "厳しく規制", description: "不安は和らぐが成長は鈍化", effect: { technology: -3, happiness: 3, approval: 2, gdp: -4 }, explanation: "社会の不安は和らぎますが、技術の成長と国際競争力は犠牲になります。" },
     ],
   },
 

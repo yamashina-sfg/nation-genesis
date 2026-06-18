@@ -5,6 +5,8 @@ type NationHeaderProps = {
   nation: PlayerNation;
   year: number;
   month: number;
+  day: number;
+  dayCount: number;
   crisisLevel: string;
   marketIndex: number;
   budget: number;
@@ -114,6 +116,8 @@ export function NationHeader({
   nation,
   year,
   month,
+  day,
+  dayCount,
   crisisLevel,
   stats,
   onNationChange,
@@ -158,10 +162,11 @@ export function NationHeader({
         <div className="header-date-turn">
           <div className="header-date">
             <span className="header-year">{year}</span>
-            <span className="header-month">年{month}月</span>
+            <span className="header-month">年{month}月{day}日</span>
+            <span className="header-daycount">{dayCount}日目</span>
           </div>
           <button type="button" className="next-turn-btn" onClick={onNextTurn}>
-            ▶ 翌月へ
+            ▶ 翌日へ進む
           </button>
           <div className="header-flag-btns">
             <button type="button" onClick={() => onNationChange({ ...nation, flagPrimary: "#263f8f", flagAccent: "#d39b2c" })}>旗A</button>

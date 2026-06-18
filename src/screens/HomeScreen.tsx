@@ -88,6 +88,8 @@ type HomeScreenProps = {
   crisisLevel: string;
   year: number;
   month: number;
+  day: number;
+  dayCount: number;
   latestNewsTitle?: string;
   pendingCount: number;
   onNavigate: (mode: GameMode) => void;
@@ -127,6 +129,8 @@ export function HomeScreen({
   crisisLevel,
   year,
   month,
+  day,
+  dayCount,
   latestNewsTitle,
   pendingCount,
   onNavigate,
@@ -183,7 +187,7 @@ export function HomeScreen({
               </div>
               <div className="hub-profile-stats">
                 <span className="hub-approval">支持率 <b>{Math.round(stats.approval)}</b></span>
-                <span className="hub-date">{year}年{month}月</span>
+                <span className="hub-date">{year}年{month}月{day}日 ・ {dayCount}日目</span>
                 <span className={`hub-crisis ${crisisLevel === "警戒" ? "danger" : "safe"}`}>
                   {crisisLevel === "警戒" ? "警戒" : "安定"}
                 </span>
@@ -226,7 +230,7 @@ export function HomeScreen({
         <div className="hub-bottombar">
           <button type="button" className="hub-next-turn" onClick={onNextTurn}>
             <HubIcon id="turn" />
-            <span>翌月へ進める</span>
+            <span>翌日へ進む</span>
           </button>
           <div className="hub-quickbar">
             <button type="button" onClick={() => onNavigate("ranking")}><HubIcon id="ranking" /><span>順位</span></button>

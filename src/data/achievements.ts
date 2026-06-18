@@ -2,7 +2,7 @@ import type { NationStats } from "../types/game";
 
 export type AchvContext = {
   stats: NationStats;
-  turns: number; // 在任月数
+  turns: number; // 在任日数
   policies: number; // 実行した政策数
   diplomacy: number; // 外交回数
   alliances: number; // 同盟数
@@ -32,8 +32,8 @@ export const achievements: Achievement[] = [
   { id: "tech90", title: "技術立国の父", icon: "🔬", desc: "技術力が90を超えた", check: (c) => c.stats.technology >= 90 },
   { id: "trust80", title: "世界の信頼", icon: "🌐", desc: "外交信用が80を超えた", check: (c) => c.stats.trust >= 80 },
   { id: "surplus", title: "黒字の魔術師", icon: "🏦", desc: "国の財布(予算)が200を超えた", check: (c) => c.stats.budget >= 200 },
-  { id: "survive12", title: "一年生大統領", icon: "📅", desc: "1年間（12か月）在任した", check: (c) => c.turns >= 12 },
-  { id: "survive36", title: "ベテラン大統領", icon: "🎖️", desc: "3年間（36か月）在任した", check: (c) => c.turns >= 36 },
+  { id: "survive30", title: "一か月生き抜いた大統領", icon: "📅", desc: "在任30日を達成した", check: (c) => c.turns >= 30 },
+  { id: "survive180", title: "歴戦の大統領", icon: "🎖️", desc: "在任180日を達成した", check: (c) => c.turns >= 180 },
 ];
 
 /** 現在のステータスから新たに解除された実績を返す */

@@ -456,6 +456,24 @@ textarea,
   100% { transform: translateX(-50%) translateY(0) scale(1); opacity: 1; }
 }
 
+/* 平穏な日などの軽い通知 */
+.day-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 96px;
+  transform: translateX(-50%);
+  z-index: 110;
+  padding: 8px 16px;
+  max-width: 92vw;
+  text-align: center;
+  background: rgba(8, 16, 28, 0.92);
+  color: #d7e2f4;
+  font-size: 0.72rem;
+  border: 2px solid var(--pix-line);
+  box-shadow: 0 0 0 2px var(--pix-gold), 3px 3px 0 var(--pix-shadow);
+  animation: toastpop 0.25s steps(3) both;
+}
+
 /* ============================================================
    初回チュートリアル（RPG風の案内）
    ============================================================ */
