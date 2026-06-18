@@ -205,38 +205,21 @@ export function HomeScreen({
           </div>
         </div>
 
-        {/* 本日の課題（ミッション） */}
-        {missions.length > 0 && (
-          <div className="hub-missions">
-            <div className="hub-missions-head">
-              <span>本日の課題</span>
-              <small>達成で +25 XP</small>
-            </div>
-            <ul>
-              {missions.map((m) => (
-                <li key={m.id} className={m.done ? "done" : ""}>
-                  <span className="hub-mission-check">{m.done ? "✔" : "□"}</span>
-                  <div>
-                    <b>{m.label}</b>
-                    {!m.done && <small>{m.hint}</small>}
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
         {/* 整列した執務メニュー（PC=右縦一列 / スマホ=下グリッド） */}
         <nav className="hub-menu" aria-label="執務メニュー">
-          {actions.map((a) => (
-            <button key={a.id} type="button" className="hub-menu-btn" onClick={() => go(a.target)}>
-              <span className="hub-menu-icon"><HubIcon id={a.id} /></span>
-              <span className="hub-menu-text">
-                <b>{a.label}</b>
-                <small>{a.sub}</small>
-              </span>
-            </button>
-          ))}
+          {actions.map((a) => {
+            const openMissions = a.id === "agenda" ? missions.filter((m) => !m.done).length : 0;
+            return (
+              <button key={a.id} type="button" className="hub-menu-btn" onClick={() => go(a.target)}>
+                <span className="hub-menu-icon"><HubIcon id={a.id} /></span>
+                <span className="hub-menu-text">
+                  <b>{a.label}</b>
+                  <small>{a.sub}</small>
+                </span>
+                {openMissions > 0 && <span className="hub-menu-badge">{openMissions}</span>}
+              </button>
+            );
+          })}
         </nav>
 
         {/* 下部バー：翌月へ ＋ クイックメニュー */}
@@ -272,7 +255,20 @@ export function HomeScreen({
       )}
 
       {modal === "agenda" && (
-        <HubModal title="本日の課題" subtitle="秘書官アヤがまとめた、今日の優先事項" onClose={() => setModal(null)}>
+        <HubModal title="本日の課題" subtitle="達成すると経験値がもらえます（各 +25 XP）" onClose={() => setModal(null)}>
+          {missions.length > 0 && (
+            <div className="mission-list">
+              {missions.map((m) => (
+                <div key={m.id} className={`mission-item ${m.done ? "done" : ""}`}>
+                  <span className="mission-check">{m.done ? "✔" : "□"}</span>
+                  <div>
+                    <strong>{m.label}</strong>
+                    {m.done ? <small>達成しました！</small> : <small>{m.hint}</small>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
           <div className="agenda-list">
             {agenda.map((a, i) => (
               <div key={i} className={`agenda-item pri-${a.level}`}>

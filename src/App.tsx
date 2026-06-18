@@ -22,6 +22,8 @@ import { realCountries, deriveRelation } from "./data/realCountries";
 import type { RealCountry } from "./data/realCountries";
 import { policies } from "./data/policies";
 import { rooms } from "./data/rooms";
+import { TUTORIAL_STEPS, tutorialDone, markTutorialDone } from "./data/tutorial";
+import { TutorialOverlay } from "./components/TutorialOverlay";
 import { CountrySelectScreen } from "./screens/CountrySelectScreen";
 import { HomeScreen } from "./screens/HomeScreen";
 import { IntroScreen } from "./screens/IntroScreen";
@@ -192,6 +194,25 @@ export default function App() {
   const [missions, setMissions] = useState<Mission[]>(() => (sv?.missions as Mission[]) ?? []);
   const [levelUpToast, setLevelUpToast] = useState<number | null>(null);
   const [missionToast, setMissionToast] = useState<string | null>(null);
+  /** チュートリアル：初回プレイ時のみ起動（-1=非表示） */
+  const [tutorialStep, setTutorialStep] = useState<number>(-1);
+  function advanceTutorial() {
+    setTutorialStep((s) => {
+      if (s >= TUTORIAL_STEPS.length - 1) {
+        markTutorialDone();
+        setMode("status");
+        return -1;
+      }
+      const next = s + 1;
+      setMode(TUTORIAL_STEPS[next].mode);
+      return next;
+    });
+  }
+  function skipTutorial() {
+    markTutorialDone();
+    setTutorialStep(-1);
+    setMode("status");
+  }
   /** XPを加算し、レベルアップしたら演出を出す */
   function gainXp(amount: number) {
     setXp((prev) => {
@@ -290,6 +311,11 @@ export default function App() {
     setAllianceCount(0);
     const mIndex = Math.round(initialCompanies.reduce((s, c) => s + c.price, 0) / initialCompanies.length);
     setMissions(generateMissions({ stats: startStats, policyCount: 0, diploCount: 0, marketIndex: mIndex }));
+    // 初回プレイなら案内（チュートリアル）を開始
+    if (!tutorialDone()) {
+      setMode(TUTORIAL_STEPS[0].mode);
+      setTutorialStep(0);
+    }
   }
 
   const marketIndex = useMemo(
@@ -883,6 +909,10 @@ export default function App() {
 
   return (
     <main className={`game-shell ${isHome ? "home-active" : ""}`}>
+      {/* 初回プレイの案内（チュートリアル） */}
+      {tutorialStep >= 0 && (
+        <TutorialOverlay step={tutorialStep} onNext={advanceTutorial} onSkip={skipTutorial} />
+      )}
       {/* 政策確認モーダル（賛成/反対 → 実行/やめる） */}
       {pendingPolicy && (
         <PolicyConfirmModal
