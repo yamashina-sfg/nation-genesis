@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
 import { useEffect, useState } from "react";
 import { clearSave } from "../utils/save";
+import type { Mission } from "../data/missions";
 import type { GameMode, NationStats, PlayerNation } from "../types/game";
 
 /**
@@ -78,6 +79,11 @@ type HomeScreenProps = {
   professionLabel: string;
   playerTitle: string;
   achievementCount: number;
+  level: number;
+  xpInLevel: number;
+  xpSpan: number;
+  atMaxLevel: boolean;
+  missions: Mission[];
   stats: NationStats;
   crisisLevel: string;
   year: number;
@@ -112,6 +118,11 @@ export function HomeScreen({
   professionLabel,
   playerTitle,
   achievementCount,
+  level,
+  xpInLevel,
+  xpSpan,
+  atMaxLevel,
+  missions,
   stats,
   crisisLevel,
   year,
@@ -158,11 +169,18 @@ export function HomeScreen({
             />
             <div className="hub-profile-text">
               <span className="hub-profile-role">
-                <span className="hub-title-badge">称号「{playerTitle}」</span>
+                <span className="hub-lv-badge">Lv.{level}</span>
+                <span className="hub-title-badge">{playerTitle}</span>
                 {achievementCount > 0 && <span className="hub-achv-count">🏅{achievementCount}</span>}
               </span>
               <strong className="hub-profile-name">{leaderName}</strong>
-              <span className="hub-profile-sub">{professionLabel}出身の大統領</span>
+              {/* 経験値バー */}
+              <div className="hub-xp">
+                <div className="hub-xp-bar">
+                  <span style={{ width: atMaxLevel ? "100%" : `${Math.round((xpInLevel / xpSpan) * 100)}%` }} />
+                </div>
+                <small>{atMaxLevel ? "MAX" : `次のLvまで ${Math.max(0, xpSpan - xpInLevel)} XP`}</small>
+              </div>
               <div className="hub-profile-stats">
                 <span className="hub-approval">支持率 <b>{Math.round(stats.approval)}</b></span>
                 <span className="hub-date">{year}年{month}月</span>
@@ -186,6 +204,27 @@ export function HomeScreen({
             </button>
           </div>
         </div>
+
+        {/* 本日の課題（ミッション） */}
+        {missions.length > 0 && (
+          <div className="hub-missions">
+            <div className="hub-missions-head">
+              <span>本日の課題</span>
+              <small>達成で +25 XP</small>
+            </div>
+            <ul>
+              {missions.map((m) => (
+                <li key={m.id} className={m.done ? "done" : ""}>
+                  <span className="hub-mission-check">{m.done ? "✔" : "□"}</span>
+                  <div>
+                    <b>{m.label}</b>
+                    {!m.done && <small>{m.hint}</small>}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         {/* 整列した執務メニュー（PC=右縦一列 / スマホ=下グリッド） */}
         <nav className="hub-menu" aria-label="執務メニュー">

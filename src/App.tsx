@@ -9,6 +9,9 @@ import { RightRail } from "./components/RightRail";
 import { StatusSidebar } from "./components/StatusSidebar";
 import { newlyUnlocked, currentTitle } from "./data/achievements";
 import type { Achievement } from "./data/achievements";
+import { levelInfo, XP } from "./data/levels";
+import { generateMissions, isMissionDone } from "./data/missions";
+import type { Mission } from "./data/missions";
 import { characters } from "./data/characters";
 import { initialCompanies } from "./data/companies";
 import { diplomacyActions } from "./data/diplomacy";
@@ -184,6 +187,24 @@ export default function App() {
   const [policyCount, setPolicyCount] = useState<number>(() => sv?.policyCount ?? 0);
   const [diploCount, setDiploCount] = useState<number>(() => sv?.diploCount ?? 0);
   const [allianceCount, setAllianceCount] = useState<number>(() => sv?.allianceCount ?? 0);
+  /** 経験値・レベル・ミッション（RPG要素） */
+  const [xp, setXp] = useState<number>(() => sv?.xp ?? 0);
+  const [missions, setMissions] = useState<Mission[]>(() => (sv?.missions as Mission[]) ?? []);
+  const [levelUpToast, setLevelUpToast] = useState<number | null>(null);
+  const [missionToast, setMissionToast] = useState<string | null>(null);
+  /** XPを加算し、レベルアップしたら演出を出す */
+  function gainXp(amount: number) {
+    setXp((prev) => {
+      const before = levelInfo(prev).level;
+      const next = prev + amount;
+      const after = levelInfo(next).level;
+      if (after > before) {
+        setLevelUpToast(after);
+        setTimeout(() => setLevelUpToast(null), 3600);
+      }
+      return next;
+    });
+  }
   /** 現在表示中の選択型イベント */
   const [pendingEvent, setPendingEvent] = useState<GameEvent | null>(null);
   /** 実行結果オーバーレイ */
@@ -262,6 +283,13 @@ export default function App() {
         makeComment("press", `${leaderName}新政権に世界が注目しています。最初の一手は何になるのでしょうか。`),
       ],
     }]);
+    // RPG要素を初期化：経験値・回数リセット、本日の課題を生成
+    setXp(0);
+    setPolicyCount(0);
+    setDiploCount(0);
+    setAllianceCount(0);
+    const mIndex = Math.round(initialCompanies.reduce((s, c) => s + c.price, 0) / initialCompanies.length);
+    setMissions(generateMissions({ stats: startStats, policyCount: 0, diploCount: 0, marketIndex: mIndex }));
   }
 
   const marketIndex = useMemo(
@@ -277,6 +305,7 @@ export default function App() {
   // 在任月数
   const turnsElapsed = (year - 2028) * 12 + (month - 1);
   const playerTitle = currentTitle(unlockedAchv);
+  const lvl = levelInfo(xp);
 
   // 実績の解除チェック（状態が変わるたびに評価）
   useEffect(() => {
@@ -289,6 +318,19 @@ export default function App() {
       setTimeout(() => setAchvToast(null), 3600);
     }
   }, [stats, turnsElapsed, policyCount, diploCount, allianceCount, selectedRealCountry, unlockedAchv]);
+
+  // 本日の課題（ミッション）の達成チェック → 報酬XP＋演出
+  useEffect(() => {
+    if (!selectedRealCountry || missions.length === 0) return;
+    const ctx = { stats, policyCount, diploCount, marketIndex };
+    const justDone = missions.find((m) => !m.done && isMissionDone(m, ctx));
+    if (justDone) {
+      setMissions((prev) => prev.map((m) => (m.id === justDone.id ? { ...m, done: true } : m)));
+      gainXp(XP.mission);
+      setMissionToast(`ミッション達成！「${justDone.label}」 +${XP.mission}XP`);
+      setTimeout(() => setMissionToast(null), 3200);
+    }
+  }, [stats, policyCount, diploCount, marketIndex, missions, selectedRealCountry]);
 
   // 自動セーブ（この端末に保存。ゲーム開始後、状態が変わるたびに保存）
   useEffect(() => {
@@ -313,11 +355,13 @@ export default function App() {
       policyCount,
       diploCount,
       allianceCount,
+      xp,
+      missions,
     });
   }, [
     playerProfile, selectedRealCountry, mode, nation, month, year, stats, rate,
     companies, nations, selectedNationId, speakerId, news, latestResult,
-    unlockedAchv, policyCount, diploCount, allianceCount,
+    unlockedAchv, policyCount, diploCount, allianceCount, xp, missions,
   ]);
 
   function togglePolicy(id: string) {
@@ -428,6 +472,7 @@ export default function App() {
     setPendingPolicy(null);
     setShowResultOverlay(true);
     setPolicyCount((c) => c + 1);
+    gainXp(XP.policy);
   }
 
   /** 友好度で段階解放された外交アクションを実行 (actionId は diplomacy.ts) */
@@ -525,7 +570,8 @@ export default function App() {
     );
     setShowResultOverlay(true);
     setDiploCount((c) => c + 1);
-    if (action.id === "alliance") setAllianceCount((c) => c + 1);
+    gainXp(XP.diplomacy);
+    if (action.id === "alliance") { setAllianceCount((c) => c + 1); gainXp(XP.alliance); }
   }
 
   function handleRateAction(direction: "hike" | "cut") {
@@ -770,6 +816,17 @@ export default function App() {
     setPendingTurnData(null);
     // 結果オーバーレイを表示
     setShowResultOverlay(true);
+    gainXp(XP.turn);
+    // 達成済みミッションは新しい課題に差し替え（常に3つの目標を提示）
+    const mIndex = Math.round(companies.reduce((s, c) => s + c.price, 0) / companies.length);
+    setMissions((prev) => {
+      const kept = prev.filter((m) => !m.done);
+      const fresh = generateMissions(
+        { stats: finalStats, policyCount, diploCount, marketIndex: mIndex },
+        Math.max(0, 3 - kept.length),
+      );
+      return [...kept, ...fresh].slice(0, 3);
+    });
   }
 
   function advanceTurn() {
@@ -808,6 +865,7 @@ export default function App() {
       .filter(([, v]) => v !== 0)
       .map(([key, amount]) => ({ key, amount: amount ?? 0, reason: choice.explanation }));
     commitTurn(finalStats, policyNames, passiveEvent, pendingEvent?.title, choiceDeltas);
+    gainXp(XP.eventChoice);
   }
 
   // ① 主人公プロフィール未設定 → 導入ストーリー画面
@@ -858,6 +916,20 @@ export default function App() {
           </div>
         </div>
       )}
+      {/* レベルアップ演出 */}
+      {levelUpToast !== null && (
+        <div className="levelup-toast" onClick={() => setLevelUpToast(null)}>
+          <span className="levelup-flash">LEVEL UP!</span>
+          <strong>大統領レベル {levelUpToast}</strong>
+          <small>{levelInfo(xp).title}</small>
+        </div>
+      )}
+      {/* ミッション達成トースト */}
+      {missionToast && (
+        <div className="mission-toast" onClick={() => setMissionToast(null)}>
+          ✔ {missionToast}
+        </div>
+      )}
       {!isHome && (
         <NationHeader
           nation={nation}
@@ -881,8 +953,13 @@ export default function App() {
               nation={nation}
               leaderName={playerProfile.name}
               professionLabel={getProfession(playerProfile.professionId).label}
-              playerTitle={playerTitle}
+              playerTitle={lvl.title}
               achievementCount={unlockedAchv.length}
+              level={lvl.level}
+              xpInLevel={lvl.inLevel}
+              xpSpan={lvl.span}
+              atMaxLevel={lvl.atMax}
+              missions={missions}
               stats={stats}
               crisisLevel={crisisLevel}
               year={year}
