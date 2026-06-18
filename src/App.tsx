@@ -45,6 +45,7 @@ import type {
 } from "./types/game";
 import { applyEffect, clamp, round1 } from "./utils/gameMath";
 import { predictStockMoves } from "./utils/predict";
+import { loadSave, writeSave } from "./utils/save";
 
 /** realCountries → Country 変換 (外交対象として使用) */
 function realToCountry(rc: RealCountry, playerRelation: number): Country {
@@ -121,51 +122,68 @@ function makeComment(characterId: string, text: string): CharacterComment {
 }
 
 export default function App() {
+  /** 端末に保存された進行データ（あれば続きから） */
+  const initialSave = useMemo(() => loadSave(), []);
+  const sv = initialSave as Record<string, any> | null;
+
   /** ゲーム開始フロー: 主人公プロフィール → 国選択 → プレイ */
-  const [playerProfile, setPlayerProfile] = useState<PlayerProfile | null>(null);
-  const [selectedRealCountry, setSelectedRealCountry] = useState<RealCountry | null>(null);
+  const [playerProfile, setPlayerProfile] = useState<PlayerProfile | null>(
+    () => (sv?.playerProfile as PlayerProfile) ?? null,
+  );
+  const [selectedRealCountry, setSelectedRealCountry] = useState<RealCountry | null>(
+    () => (sv?.countryId ? realCountries.find((c) => c.id === sv.countryId) ?? null : null),
+  );
   /** 政策確認モーダルで保留中の政策 */
   const [pendingPolicy, setPendingPolicy] = useState<Policy | null>(null);
-  const [mode, setMode] = useState<GameMode>("status");
-  const [nation, setNation] = useState<PlayerNation>({
-    name: "日本",
-    doctrine: "技術立国",
-    flagPrimary: "#ffffff",
-    flagAccent: "#bc002d",
-  });
-  const [month, setMonth] = useState(1);
-  const [year, setYear] = useState(2028);
-  const [stats, setStats] = useState<NationStats>({
-    approval: 52,
-    happiness: 72,
-    gdp: 620,
-    budget: 180,
-    unemployment: 2.6,
-    inflation: 2.8,
-    trust: 72,
-    military: 65,
-    technology: 85,
-    environment: 65,
-  });
-  const [rate, setRate] = useState(2.5);
+  const [mode, setMode] = useState<GameMode>(() => (sv?.mode as GameMode) ?? "status");
+  const [nation, setNation] = useState<PlayerNation>(
+    () =>
+      (sv?.nation as PlayerNation) ?? {
+        name: "日本",
+        doctrine: "技術立国",
+        flagPrimary: "#ffffff",
+        flagAccent: "#bc002d",
+      },
+  );
+  const [month, setMonth] = useState<number>(() => sv?.month ?? 1);
+  const [year, setYear] = useState<number>(() => sv?.year ?? 2028);
+  const [stats, setStats] = useState<NationStats>(
+    () =>
+      (sv?.stats as NationStats) ?? {
+        approval: 52,
+        happiness: 72,
+        gdp: 620,
+        budget: 180,
+        unemployment: 2.6,
+        inflation: 2.8,
+        trust: 72,
+        military: 65,
+        technology: 85,
+        environment: 65,
+      },
+  );
+  const [rate, setRate] = useState<number>(() => sv?.rate ?? 2.5);
   const [selectedPolicyIds, setSelectedPolicyIds] = useState<string[]>(["education"]);
-  const [companies, setCompanies] = useState<Company[]>(initialCompanies);
+  const [companies, setCompanies] = useState<Company[]>(
+    () => (sv?.companies as Company[]) ?? initialCompanies,
+  );
   const [nations, setNations] = useState<Country[]>(() => {
-    // デフォルトは日本のネイバー国
-    const japan = realCountries.find(c => c.id === "japan")!;
+    if (sv?.nations) return sv.nations as Country[];
+    const japan = realCountries.find((c) => c.id === "japan")!;
     return buildDiplomacyNations(japan);
   });
-  const [selectedNationId, setSelectedNationId] = useState(() => {
-    const japan = realCountries.find(c => c.id === "japan")!;
+  const [selectedNationId, setSelectedNationId] = useState<string>(() => {
+    if (sv?.selectedNationId) return sv.selectedNationId as string;
+    const japan = realCountries.find((c) => c.id === "japan")!;
     return buildDiplomacyNations(japan)[0]?.id ?? "china";
   });
-  const [speakerId, setSpeakerId] = useState("finance");
+  const [speakerId, setSpeakerId] = useState<string>(() => sv?.speakerId ?? "finance");
   /** 実績・称号 */
-  const [unlockedAchv, setUnlockedAchv] = useState<string[]>([]);
+  const [unlockedAchv, setUnlockedAchv] = useState<string[]>(() => sv?.unlockedAchv ?? []);
   const [achvToast, setAchvToast] = useState<Achievement | null>(null);
-  const [policyCount, setPolicyCount] = useState(0);
-  const [diploCount, setDiploCount] = useState(0);
-  const [allianceCount, setAllianceCount] = useState(0);
+  const [policyCount, setPolicyCount] = useState<number>(() => sv?.policyCount ?? 0);
+  const [diploCount, setDiploCount] = useState<number>(() => sv?.diploCount ?? 0);
+  const [allianceCount, setAllianceCount] = useState<number>(() => sv?.allianceCount ?? 0);
   /** 現在表示中の選択型イベント */
   const [pendingEvent, setPendingEvent] = useState<GameEvent | null>(null);
   /** 実行結果オーバーレイ */
@@ -176,27 +194,33 @@ export default function App() {
     passiveEvent: { title: string; body: string; category: NewsItem["category"]; deltas: StatDelta[] };
     baseStats: NationStats;
   } | null>(null);
-  const [latestResult, setLatestResult] = useState<ActionResult | undefined>({
-    title: "政権発足",
-    body: "最初の国家運営が始まりました。政策、外交、市場の変化はニュースと大臣コメントに記録されます。",
-    deltas: [],
-    benefits: ["国民と市場に基本方針を示しました。"],
-    drawbacks: ["まだ外交関係と産業政策は固まっていません。"],
-    comments: [
-      makeComment("finance", "予算と物価を同時に見ながら、無理のない成長軌道を作りましょう。"),
-    ],
-  });
-  const [news, setNews] = useState<NewsItem[]>([
-    {
-      title: "新政権が発足",
-      body: "アジアの国家として、最初の国家方針が世界市場に注目されています。",
-      category: "政治",
-      reason: "国家の基本制度と初期予算が公開されたため。",
-      comments: [
-        makeComment("press", "読者が知りたいのは、数字が動いた理由です。すべて記録していきます。"),
+  const [latestResult, setLatestResult] = useState<ActionResult | undefined>(
+    () =>
+      (sv?.latestResult as ActionResult) ?? {
+        title: "政権発足",
+        body: "最初の国家運営が始まりました。政策、外交、市場の変化はニュースと大臣コメントに記録されます。",
+        deltas: [],
+        benefits: ["国民と市場に基本方針を示しました。"],
+        drawbacks: ["まだ外交関係と産業政策は固まっていません。"],
+        comments: [
+          makeComment("finance", "予算と物価を同時に見ながら、無理のない成長軌道を作りましょう。"),
+        ],
+      },
+  );
+  const [news, setNews] = useState<NewsItem[]>(
+    () =>
+      (sv?.news as NewsItem[]) ?? [
+        {
+          title: "新政権が発足",
+          body: "アジアの国家として、最初の国家方針が世界市場に注目されています。",
+          category: "政治",
+          reason: "国家の基本制度と初期予算が公開されたため。",
+          comments: [
+            makeComment("press", "読者が知りたいのは、数字が動いた理由です。すべて記録していきます。"),
+          ],
+        },
       ],
-    },
-  ]);
+  );
 
   /** 国選択画面でプレイヤーが国を選んだ際の処理 */
   function handleCountrySelect(country: RealCountry) {
@@ -265,6 +289,36 @@ export default function App() {
       setTimeout(() => setAchvToast(null), 3600);
     }
   }, [stats, turnsElapsed, policyCount, diploCount, allianceCount, selectedRealCountry, unlockedAchv]);
+
+  // 自動セーブ（この端末に保存。ゲーム開始後、状態が変わるたびに保存）
+  useEffect(() => {
+    if (!playerProfile || !selectedRealCountry) return;
+    writeSave({
+      v: 1,
+      playerProfile,
+      countryId: selectedRealCountry.id,
+      mode,
+      nation,
+      month,
+      year,
+      stats,
+      rate,
+      companies,
+      nations,
+      selectedNationId,
+      speakerId,
+      news,
+      latestResult,
+      unlockedAchv,
+      policyCount,
+      diploCount,
+      allianceCount,
+    });
+  }, [
+    playerProfile, selectedRealCountry, mode, nation, month, year, stats, rate,
+    companies, nations, selectedNationId, speakerId, news, latestResult,
+    unlockedAchv, policyCount, diploCount, allianceCount,
+  ]);
 
   function togglePolicy(id: string) {
     setSelectedPolicyIds((current) => {

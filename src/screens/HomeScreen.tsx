@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
 import { useEffect, useState } from "react";
+import { clearSave } from "../utils/save";
 import type { GameMode, NationStats, PlayerNation } from "../types/game";
 
 /**
@@ -134,16 +135,9 @@ export function HomeScreen({
   }
 
   function handleSave() {
-    try {
-      localStorage.setItem(
-        "kokka-save",
-        JSON.stringify({ leaderName, nation: nation.name, year, month, stats, savedAt: Date.now() }),
-      );
-      setToast("進行状況を記録しました");
-    } catch {
-      setToast("保存できませんでした");
-    }
-    setTimeout(() => setToast(null), 2000);
+    // 進行は常に自動保存されている。ここでは確認の表示のみ。
+    setToast("セーブしました（この端末に自動保存されています）");
+    setTimeout(() => setToast(null), 2200);
   }
 
   const citizenVoices = buildCitizenVoices(stats);
@@ -262,7 +256,7 @@ export function HomeScreen({
             <button
               type="button"
               className="settings-btn danger"
-              onClick={() => { if (confirm("最初からやり直しますか？（現在の進行は失われます）")) window.location.reload(); }}
+              onClick={() => { if (confirm("最初からやり直しますか？（保存した進行は消えます）")) { clearSave(); window.location.reload(); } }}
             >
               タイトルに戻る（最初から）
             </button>
