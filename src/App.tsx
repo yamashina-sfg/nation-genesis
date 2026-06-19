@@ -24,6 +24,7 @@ import {
   type DiploTier,
 } from "./data/dayEngine";
 import { eraForYear, isUnlocked } from "./data/eras";
+import { legacyScore, rankFor, rankTitle } from "./utils/score";
 import { getProfession } from "./data/professions";
 import { statLabels, statEasy } from "./data/stats";
 import { realCountries, deriveRelation } from "./data/realCountries";
@@ -59,7 +60,7 @@ import type {
 } from "./types/game";
 import { applyEffect, clamp, round1 } from "./utils/gameMath";
 import { predictStockMoves } from "./utils/predict";
-import { loadSave, writeSave } from "./utils/save";
+import { loadSave, writeSave, clearSave } from "./utils/save";
 
 /** realCountries → Country 変換 (外交対象として使用) */
 function realToCountry(rc: RealCountry, playerRelation: number): Country {
@@ -173,6 +174,8 @@ export default function App() {
   const [worldTension, setWorldTension] = useState<number>(() => sv?.worldTension ?? 25);
   /** 平穏な日などの軽い通知 */
   const [dayToast, setDayToast] = useState<string | null>(null);
+  /** 結末（退陣＝fail / 現代到達＝clear）。null ならプレイ中 */
+  const [endState, setEndState] = useState<{ kind: "fail" | "clear"; title: string; body: string } | null>(null);
   const [stats, setStats] = useState<NationStats>(
     () =>
       (sv?.stats as NationStats) ?? {
@@ -334,6 +337,7 @@ export default function App() {
     setDayCount(1);
     setPendingEvents([]);
     setWorldTension(25);
+    setEndState(null);
     // RPG要素を初期化：経験値・回数リセット、本日の課題を生成
     setXp(0);
     setPolicyCount(0);
@@ -388,6 +392,18 @@ export default function App() {
       setTimeout(() => setMissionToast(null), 3200);
     }
   }, [stats, policyCount, diploCount, marketIndex, missions, selectedRealCountry]);
+
+  // 結末の判定（退陣 / 現代到達）。一度きり。
+  useEffect(() => {
+    if (!selectedRealCountry || endState) return;
+    if (stats.approval <= 2) {
+      setEndState({ kind: "fail", title: "国民に見放された", body: "支持率が地に落ち、あなたは大統領の座を追われました。" });
+    } else if (stats.budget <= -78) {
+      setEndState({ kind: "fail", title: "財政が破綻した", body: "国庫が底をつき、政権は崩壊しました。あなたは責任を取り退陣します。" });
+    } else if (year >= 2025) {
+      setEndState({ kind: "clear", title: "歴史を駆け抜けた", body: "1850年から現代まで、あなたは国家を導き続けました。お疲れさまでした、大統領。" });
+    }
+  }, [stats.approval, stats.budget, year, selectedRealCountry, endState]);
 
   // 自動セーブ（この端末に保存。ゲーム開始後、状態が変わるたびに保存）
   useEffect(() => {
@@ -1009,6 +1025,7 @@ export default function App() {
 
   /** 「翌年へ進む」：1年進めて、その年の出来事を決める */
   function advanceTurn() {
+    if (endState) return; // 退陣／完走後は進めない
     const nextYear = year + 1;
     const nextDate = { year: nextYear, month: 1, day: 1 };
     const nextDayCount = dayCount + 1;
@@ -1117,6 +1134,38 @@ export default function App() {
           {dayToast}
         </div>
       )}
+      {/* 結末（退陣 / 現代到達）オーバーレイ */}
+      {endState && (() => {
+        const score = legacyScore(stats, dayCount);
+        const rank = rankFor(score);
+        return (
+          <div className="end-overlay">
+            <div className={`end-card ${endState.kind}`}>
+              <span className="end-kicker">{endState.kind === "clear" ? "🏛 ENDING" : "⚑ GAME OVER"}</span>
+              <h2 className="end-title">{endState.title}</h2>
+              <p className="end-body">{endState.body}</p>
+              <div className="end-rank">
+                <span className={`end-rank-badge r-${rank}`}>{rank}</span>
+                <div>
+                  <strong>{rankTitle[rank]}</strong>
+                  <small>歴史的評価スコア {score}</small>
+                </div>
+              </div>
+              <div className="end-stats">
+                <span>在任 <b>{dayCount}</b> 年（{year}年）</span>
+                <span>支持 <b>{Math.round(stats.approval)}</b></span>
+                <span>豊かさ <b>{Math.round(stats.gdp)}</b></span>
+                <span>技術 <b>{Math.round(stats.technology)}</b></span>
+                <span>外交 <b>{Math.round(stats.trust)}</b></span>
+                <span>称号 <b>{lvl.title}</b></span>
+              </div>
+              <button type="button" className="end-restart" onClick={() => { clearSave(); location.reload(); }}>
+                ▶ もう一度、歴史を動かす
+              </button>
+            </div>
+          </div>
+        );
+      })()}
       {!isHome && (
         <NationHeader
           nation={nation}

@@ -192,11 +192,65 @@
 .room-stat.warn { border-color: #d8484f; color: #ffb0b4; }
 .room-stat.good { border-color: #6fe3a0; }
 
+/* 歴史的評価チップ */
+.room-score-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 1px 7px 1px 3px;
+  background: rgba(231, 185, 78, 0.12);
+  border: 1px solid var(--room-accent, #e7b94e);
+}
+.room-score-chip b {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 18px; height: 18px; font-size: 0.74rem; font-weight: 800;
+  color: #06222a; background: #e7b94e; border: 1px solid #08101c;
+}
+.room-score-chip b.r-S { background: #ffd75e; }
+.room-score-chip b.r-A { background: #8fe39f; }
+.room-score-chip b.r-B { background: #7fb6e6; }
+.room-score-chip b.r-C { background: #cdb98a; }
+.room-score-chip b.r-D { background: #c79090; }
+.room-score-chip small { font-size: 0.6rem; color: #e7d6a8; }
+
+/* 「次の一手」アドバイザーバナー */
+.room-advisor {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  text-align: left;
+  padding: 6px 10px;
+  background: rgba(20, 30, 46, 0.95);
+  border: none;
+  border-bottom: 2px solid #08101c;
+  border-left: 4px solid #6fb6e6;
+  color: #dfe7f3;
+  font-size: 0.72rem;
+  cursor: pointer;
+}
+.room-advisor.urgent {
+  border-left-color: #d8484f;
+  background: rgba(60, 18, 22, 0.95);
+  animation: advisorpulse 1.4s steps(2) infinite;
+}
+@keyframes advisorpulse { 0%,100% { background: rgba(60, 18, 22, 0.95); } 50% { background: rgba(86, 24, 28, 0.97); } }
+.room-advisor-emoji { font-size: 0.95rem; }
+.room-advisor-text { flex: 1 1 auto; }
+.room-advisor-go {
+  flex: 0 0 auto;
+  padding: 2px 7px;
+  background: var(--room-accent, #196c76);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.64rem;
+}
+
 /* ===== 右上のアクション ===== */
 .room-actions {
   position: absolute;
-  top: 52px;
-  right: 10px;
+  top: 8px;
+  right: 8px;
   z-index: 20;
   display: flex;
   flex-direction: column;

@@ -14,6 +14,7 @@ import { getTheme } from "../data/roomThemes";
 import type { ThemeDecor } from "../data/roomThemes";
 import { getMinister } from "../data/ministers";
 import { clearSave } from "../utils/save";
+import { legacyScore, rankFor } from "../utils/score";
 import type { GameMode, NationStats, PlayerNation, Policy } from "../types/game";
 import type { Mission } from "../data/missions";
 
@@ -142,6 +143,21 @@ export function PresidentRoom({
   const dim = stats.budget < 25 || stats.approval < 35;
   const tense = stats.military >= 65;
 
+  const score = legacyScore(stats, dayCount);
+  const rank = rankFor(score);
+
+  // 「次の一手」アドバイザー：最も緊急の課題を提示し、担当大臣へ誘導
+  const advisor = useMemo(() => {
+    if (stats.budget < 20) return { ministerId: "finance", text: "財政が危険水域です。財務大臣に相談を。", urgent: true };
+    if (stats.approval < 35) return { ministerId: "chief", text: "支持率が低下しています。打開策が必要です。", urgent: true };
+    if (stats.trust < 35) return { ministerId: "foreign", text: "外交信用が落ちています。関係修復を。", urgent: true };
+    if (stats.happiness < 40) return { ministerId: "welfare", text: "国民の暮らしに不満。生活を支える政策を。", urgent: true };
+    if (stats.military < 30) return { ministerId: "defense", text: "国防が手薄です。守りの強化を検討。", urgent: false };
+    if (stats.technology < 40) return { ministerId: "education", text: "技術で後れ気味。教育・研究への投資を。", urgent: false };
+    return null;
+  }, [stats.budget, stats.approval, stats.trust, stats.happiness, stats.military, stats.technology]);
+  const advisorMinister = advisor ? getMinister(advisor.ministerId) : null;
+
   const boardStyle = {
     aspectRatio: `${COLS} / ${ROWS}`,
     ["--room-wall" as string]: theme.wall,
@@ -176,15 +192,26 @@ export function PresidentRoom({
 
   return (
     <div className="room-screen">
-      <RoomStatusBar year={year} eraShort={eraShort} dayCount={dayCount} level={level} stats={stats} />
+      <RoomStatusBar year={year} eraShort={eraShort} dayCount={dayCount} level={level} stats={stats} score={score} rank={rank} />
 
-      <div className="room-actions">
-        <button type="button" className="room-next-btn" onClick={onNextTurn}>▶ 翌年へ進む</button>
-        <button type="button" className="room-menu-btn" onClick={() => setMenuOpen(true)}>☰ メニュー</button>
-      </div>
+      {advisor && advisorMinister && (
+        <button
+          type="button"
+          className={`room-advisor ${advisor.urgent ? "urgent" : ""}`}
+          onClick={() => setActiveMinisterId(advisor.ministerId)}
+        >
+          <span className="room-advisor-emoji">{advisor.urgent ? "⚠️" : "💡"}</span>
+          <span className="room-advisor-text">{advisor.text}</span>
+          <span className="room-advisor-go">{advisorMinister.title}へ ▶</span>
+        </button>
+      )}
 
       <div className="room-board-wrap">
         <div className="room-board" style={boardStyle}>
+          <div className="room-actions">
+            <button type="button" className="room-next-btn" onClick={onNextTurn}>▶ 翌年へ進む</button>
+            <button type="button" className="room-menu-btn" onClick={() => setMenuOpen(true)}>☰ メニュー</button>
+          </div>
           <TileMap objects={baseObjects} decor={decor} />
 
           <div className="room-layer">

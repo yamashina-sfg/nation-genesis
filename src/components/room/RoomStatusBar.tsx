@@ -1,4 +1,5 @@
 import type { NationStats } from "../../types/game";
+import type { Rank } from "../../utils/score";
 
 type Props = {
   year: number;
@@ -6,10 +7,12 @@ type Props = {
   dayCount: number;
   level: number;
   stats: NationStats;
+  score: number;
+  rank: Rank;
 };
 
 /** ゲーム画面に馴染む上部ステータスバー */
-export function RoomStatusBar({ year, eraShort, dayCount, level, stats }: Props) {
+export function RoomStatusBar({ year, eraShort, dayCount, level, stats, score, rank }: Props) {
   const item = (label: string, value: number, opts?: { warn?: boolean; good?: boolean; suffix?: string }) => (
     <span className={`room-stat ${opts?.warn ? "warn" : ""} ${opts?.good ? "good" : ""}`}>
       {label} <b>{Math.round(value)}{opts?.suffix ?? ""}</b>
@@ -21,6 +24,10 @@ export function RoomStatusBar({ year, eraShort, dayCount, level, stats }: Props)
       <span className="room-era-chip">
         <b>{year}年</b>
         <small>{eraShort}・在任{dayCount}年</small>
+      </span>
+      <span className="room-score-chip" title="歴史的評価スコア（目標：2025年到達）">
+        <b className={`r-${rank}`}>{rank}</b>
+        <small>評価 {score}</small>
       </span>
       <span className="room-stat good">Lv <b>{level}</b></span>
       {item("支持", stats.approval, { warn: stats.approval < 35, good: stats.approval >= 65 })}
