@@ -1,5 +1,6 @@
 import type { GameEvent } from "../types/game";
 import { historyEvents1850 } from "./historyEvents1850";
+import { historyEvents1900 } from "./historyEvents1900";
 
 /**
  * ゲームイベント一覧。
@@ -674,7 +675,7 @@ export const eventDeck: GameEvent[] = [
 ];
 
 /** 選択型イベントのみ（時代別の歴史イベントも合流） */
-export const choiceEvents = [...eventDeck, ...historyEvents1850].filter(
+export const choiceEvents = [...eventDeck, ...historyEvents1850, ...historyEvents1900].filter(
   (e) => e.choices && e.choices.length > 0,
 );
 
