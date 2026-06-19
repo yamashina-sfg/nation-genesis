@@ -25,6 +25,10 @@ export type Policy = {
   id: string;
   name: string;
   field: string;
+  /** この年から解放（時代制限）。未指定なら最初から使える */
+  since?: number;
+  /** この年まで（以降は使えなくなる。未指定なら以降も使える） */
+  until?: number;
   /** やさしい一言説明 */
   summary: string;
   short: Partial<NationStats>;
@@ -183,6 +187,10 @@ export type GameEvent = {
   title: string;
   body: string;
   category: NewsItem["category"];
+  /** この年から発生しうる（時代制限）。未指定なら全時代 */
+  since?: number;
+  /** この年まで発生（以降は出ない）。未指定なら以降も出る */
+  until?: number;
   /** 1日ごとの抽選バケツ */
   scope?: EventScope;
   /** 市民の生の反応（速報の下に一言） */

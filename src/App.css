@@ -1351,8 +1351,16 @@ p {
 }
 
 .header-month {
-  color: var(--text-muted);
-  font-size: 0.82rem;
+  display: block;
+  color: var(--gold-light);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.header-year small {
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin-left: 2px;
 }
 
 .header-daycount {

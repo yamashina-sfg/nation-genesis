@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
 import { useEffect, useState } from "react";
 import { clearSave } from "../utils/save";
+import { eraForYear } from "../data/eras";
 import type { Mission } from "../data/missions";
 import type { GameMode, NationStats, PlayerNation } from "../types/game";
 
@@ -187,7 +188,7 @@ export function HomeScreen({
               </div>
               <div className="hub-profile-stats">
                 <span className="hub-approval">支持率 <b>{Math.round(stats.approval)}</b></span>
-                <span className="hub-date">{year}年{month}月{day}日 ・ {dayCount}日目</span>
+                <span className="hub-date">{year}年 ・ {eraForYear(year).short}（在任{dayCount}年）</span>
                 <span className={`hub-crisis ${crisisLevel === "警戒" ? "danger" : "safe"}`}>
                   {crisisLevel === "警戒" ? "警戒" : "安定"}
                 </span>
@@ -207,6 +208,13 @@ export function HomeScreen({
               <div><strong>緊急ニュース</strong><small>{latestNewsTitle ?? "最新の動きはありません"}</small></div>
             </button>
           </div>
+        </div>
+
+        {/* 時代バナー（いまどの時代か） */}
+        <div className="hub-era-banner">
+          <span className="hub-era-year">{year}年</span>
+          <span className="hub-era-name">{eraForYear(year).name}</span>
+          <small className="hub-era-blurb">{eraForYear(year).blurb}</small>
         </div>
 
         {/* 整列した執務メニュー（PC=右縦一列 / スマホ=下グリッド） */}

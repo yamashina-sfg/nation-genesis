@@ -9,7 +9,7 @@ import type { GameEvent } from "../types/game";
 export const dailyDeck: GameEvent[] = [
   /* ===== 国内（domestic） ===== */
   {
-    id: "d_startup_boom", scope: "domestic", category: "経済",
+    id: "d_startup_boom", scope: "domestic", category: "経済", since: 1960,
     title: "若者の起業ブーム",
     body: "学生や若手が次々と会社を立ち上げ、街に新しい活気が生まれています。",
     citizen: "「自分もやってみたい」という声が増えています。",
@@ -72,7 +72,7 @@ export const dailyDeck: GameEvent[] = [
     effect: { gdp: 4, happiness: 2, environment: -1 },
   },
   {
-    id: "d_new_service", scope: "domestic", category: "技術",
+    id: "d_new_service", scope: "domestic", category: "技術", since: 1995,
     title: "新技術の民間サービスが流行",
     body: "AIを使った便利なサービスが一気に普及し、暮らしが変わり始めています。",
     citizen: "「もう手放せない」と利用者が急増しています。",
@@ -156,7 +156,7 @@ export const dailyDeck: GameEvent[] = [
     effect: { inflation: 0.8, happiness: -3, budget: -3 },
   },
   {
-    id: "w_ai_revolution", scope: "world", category: "技術",
+    id: "w_ai_revolution", scope: "world", category: "技術", since: 2010,
     title: "世界的なAI革命が加速",
     body: "新しいAIが次々登場し、対応できる国とできない国の差が開いています。",
     citizen: "「うちの会社も乗り遅れたくない」と社員。",
@@ -223,7 +223,7 @@ export const dailyDeck: GameEvent[] = [
     effect: { gdp: -3, happiness: -1 },
   },
   {
-    id: "m_ai_company_grow", scope: "market", category: "技術",
+    id: "m_ai_company_grow", scope: "market", category: "技術", since: 1998,
     title: "AI企業が急成長",
     body: "国内のAI企業が世界市場で評価され、株価をけん引しています。",
     citizen: "「うちの国にもこんな企業が」と誇らしげ。",
@@ -341,7 +341,7 @@ export const dailyDeck: GameEvent[] = [
     effect: { happiness: -3, gdp: -3, approval: -2 },
   },
   {
-    id: "k_cyber", scope: "crisis", category: "技術",
+    id: "k_cyber", scope: "crisis", category: "技術", since: 2000,
     title: "サイバー攻撃を受ける",
     body: "政府機関や企業がサイバー攻撃を受け、一部のサービスが停止しました。",
     citizen: "「個人情報は大丈夫なのか」と不安。",

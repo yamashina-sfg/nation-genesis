@@ -23,7 +23,7 @@ import {
   countryPersonalityMod,
   type DiploTier,
 } from "./data/dayEngine";
-import { addDays } from "./utils/calendar";
+import { eraForYear, isUnlocked } from "./data/eras";
 import { getProfession } from "./data/professions";
 import { statLabels, statEasy } from "./data/stats";
 import { realCountries, deriveRelation } from "./data/realCountries";
@@ -160,8 +160,9 @@ export default function App() {
       },
   );
   const [month, setMonth] = useState<number>(() => sv?.month ?? 1);
-  const [year, setYear] = useState<number>(() => sv?.year ?? 2028);
-  /** 1ターン＝1日。day=日付、dayCount=通算在任日数（1日目から） */
+  /** 開始は1850年。1ターン＝1年で近代史を追体験する */
+  const [year, setYear] = useState<number>(() => sv?.year ?? 1850);
+  /** day=日付（飾り）、dayCount=在任ターン数＝在任年数（1年目から） */
   const [day, setDay] = useState<number>(() => sv?.day ?? 1);
   const [dayCount, setDayCount] = useState<number>(() => sv?.dayCount ?? 1);
   /** 時間差で発生する後続効果のキュー（短期/中期/長期） */
@@ -326,8 +327,8 @@ export default function App() {
         makeComment("press", `${leaderName}新政権に世界が注目しています。最初の一手は何になるのでしょうか。`),
       ],
     }]);
-    // 日付・後続イベント・世界情勢を初期化（就任1日目から）
-    setYear(2028);
+    // 日付・後続イベント・世界情勢を初期化（1850年・就任1年目から）
+    setYear(1850);
     setMonth(1);
     setDay(1);
     setDayCount(1);
@@ -358,7 +359,8 @@ export default function App() {
       : "安定";
 
   // 在任月数
-  const turnsElapsed = dayCount; // 在任日数（実績判定に使用）
+  const turnsElapsed = dayCount; // 在任年数（実績判定に使用）
+  const era = eraForYear(year); // 現在の時代
   const playerTitle = currentTitle(unlockedAchv);
   const lvl = levelInfo(xp);
 
@@ -482,20 +484,20 @@ export default function App() {
 
     setStats((current) => applyEffect(current, effect));
 
-    // 時間差の後続効果を予約：14日後に評価、90日後に長期効果
+    // 時間差の後続効果を予約：翌年に評価、数年後に長期効果
     const scheduled: ScheduledEffect[] = [];
     if (Object.keys(longEffect).length > 0) {
       scheduled.push({
-        fireOnDay: dayCount + 14,
+        fireOnDay: dayCount + 1,
         title: `${policy.name}の効果が見え始める`,
-        body: `${policy.name}から2週間。現場での評価が少しずつ表れてきました。`,
+        body: `${policy.name}から1年。現場での評価が少しずつ表れてきました。`,
         category: "政治",
         effect: { approval: 2, happiness: 1 },
       });
       scheduled.push({
-        fireOnDay: dayCount + 90,
+        fireOnDay: dayCount + 3,
         title: `${policy.name}の長期効果が表れる`,
-        body: `${policy.name}から約3か月。じっくり効いてくる効果が国の指標に表れました。`,
+        body: `${policy.name}から数年。じっくり効いてくる効果が国の指標に表れました。`,
         category: "政治",
         effect: longEffect,
       });
@@ -530,7 +532,7 @@ export default function App() {
     const positives = deltas.filter((d) => d.amount > 0).map((d) => statLabels[d.key]);
     const negatives = deltas.filter((d) => d.amount < 0).map((d) => statLabels[d.key]);
     const bonusNote = mult > 1 ? `${profession.label}の手腕で効果が高まりました。` : "";
-    const longNote = Object.keys(longEffect).length > 0 ? "本格的な効果は数週間〜数か月かけて表れる見込みです。" : "";
+    const longNote = Object.keys(longEffect).length > 0 ? "本格的な効果はこの先数年かけて表れる見込みです。" : "";
     const newsBody =
       `政府は「${policy.name}」を実行しました。${policy.summary} ` +
       (positives.length ? `これにより${positives.join("・")}が改善しました。` : "") +
@@ -936,18 +938,21 @@ export default function App() {
       );
     }
 
-    // ===== 世界情勢（緊張）は毎日すこし収まる。危機・対立で上がる =====
+    // ===== 世界情勢（緊張）は毎ターンすこし収まる。危機・対立で上がる =====
     let tension = Math.max(0, worldTension - 1);
     if (passive?.scope === "crisis") tension = clamp(tension + 5, 0, 100);
     if (passive?.scope === "diplo" && (passive.effect.trust ?? 0) < 0) tension = clamp(tension + 4, 0, 100);
     setWorldTension(tension);
 
     // ===== 後続効果のスケジュール（remaining ＋ 今回の速報の followups）=====
+    // followups の afterDays は「日」単位で書かれているので、1ターン＝1年に合わせて
+    // ターン数（年数）へ換算する（約30日＝1ターン）。最低1ターン後。
     const newScheduled: ScheduledEffect[] = [...remaining];
     if (passive?.followups) {
       for (const f of passive.followups) {
+        const afterTurns = Math.max(1, Math.round(f.afterDays / 30));
         newScheduled.push({
-          fireOnDay: nextDayCount + f.afterDays,
+          fireOnDay: nextDayCount + afterTurns,
           title: f.title, body: f.body, category: f.category, effect: f.effect,
         });
       }
@@ -964,10 +969,10 @@ export default function App() {
     setPendingTurnData(null);
 
     if (notable) {
-      const headline = choice ? `【決定】${choice.title}` : passive ? passive.title : due[0]?.title ?? "今日の動き";
+      const headline = choice ? `【決定】${choice.title}` : passive ? passive.title : due[0]?.title ?? "今年の動き";
       const allDeltas = newsItems.flatMap((n) => n.deltas ?? []);
       setLatestResult({
-        title: `${date.month}月${date.day}日（${nextDayCount}日目）の動き`,
+        title: `${date.year}年（${eraForYear(date.year).short}）の動き`,
         body: headline,
         deltas: allDeltas,
         benefits: allDeltas.filter((d) => d.amount > 0).map((d) => `${statEasy[d.key]}が改善`),
@@ -983,8 +988,8 @@ export default function App() {
       setNews((current) => [...newsItems, ...current].slice(0, 16));
       setShowResultOverlay(true);
     } else {
-      // 平穏な日：大きな動きはなし。軽い通知だけ。
-      setDayToast(`${date.month}月${date.day}日 — 平穏な一日。特に大きな動きはありません。`);
+      // 平穏な年：大きな動きはなし。軽い通知だけ。
+      setDayToast(`${date.year}年 — 平穏な一年。特に大きな動きはありません。`);
       setTimeout(() => setDayToast(null), 2600);
     }
 
@@ -1002,24 +1007,26 @@ export default function App() {
     });
   }
 
-  /** 「翌日へ進む」：1日進めて、その日の出来事を決める */
+  /** 「翌年へ進む」：1年進めて、その年の出来事を決める */
   function advanceTurn() {
-    const nextDate = addDays({ year, month, day }, 1);
+    const nextYear = year + 1;
+    const nextDate = { year: nextYear, month: 1, day: 1 };
     const nextDayCount = dayCount + 1;
-    // 今日が期日の後続効果を取り出す
+    // 期日が来た後続効果を取り出す
     const due = pendingEvents.filter((e) => e.fireOnDay <= nextDayCount);
     const remaining = pendingEvents.filter((e) => e.fireOnDay > nextDayCount);
 
-    // ときどき「決断を迫る」選択型イベントが起きる（序盤は出さない）
-    const fireChoice = nextDayCount > 3 && Math.random() < 0.12 && choiceEvents.length > 0;
+    // ときどき「決断を迫る」選択型イベントが起きる（序盤は出さない／時代に合うものだけ）
+    const eligibleChoices = choiceEvents.filter((e) => isUnlocked(nextYear, e.since, e.until));
+    const fireChoice = nextDayCount > 3 && Math.random() < 0.14 && eligibleChoices.length > 0;
     if (fireChoice) {
-      const choiceEvent = choiceEvents[Math.floor(Math.random() * choiceEvents.length)];
+      const choiceEvent = eligibleChoices[Math.floor(Math.random() * eligibleChoices.length)];
       setPendingTurnData({ date: nextDate, dayCount: nextDayCount, due, remaining });
       setPendingEvent(choiceEvent);
       return; // 選択を待つ
     }
 
-    const passive = pickDailyEvent(nextDayCount);
+    const passive = pickDailyEvent(nextYear, nextDayCount);
     commitDay({ date: nextDate, nextDayCount, passive, due, remaining });
   }
 
@@ -1156,7 +1163,9 @@ export default function App() {
           )}
           {mode === "policies" && (
             <PoliciesScreen
-              policies={policies}
+              policies={policies.filter((p) => isUnlocked(year, p.since, p.until))}
+              eraName={era.name}
+              year={year}
               rate={rate}
               onRateChange={setRate}
               onRateAction={handleRateAction}

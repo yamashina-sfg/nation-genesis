@@ -32,8 +32,8 @@ export const achievements: Achievement[] = [
   { id: "tech90", title: "技術立国の父", icon: "🔬", desc: "技術力が90を超えた", check: (c) => c.stats.technology >= 90 },
   { id: "trust80", title: "世界の信頼", icon: "🌐", desc: "外交信用が80を超えた", check: (c) => c.stats.trust >= 80 },
   { id: "surplus", title: "黒字の魔術師", icon: "🏦", desc: "国の財布(予算)が200を超えた", check: (c) => c.stats.budget >= 200 },
-  { id: "survive30", title: "一か月生き抜いた大統領", icon: "📅", desc: "在任30日を達成した", check: (c) => c.turns >= 30 },
-  { id: "survive180", title: "歴戦の大統領", icon: "🎖️", desc: "在任180日を達成した", check: (c) => c.turns >= 180 },
+  { id: "survive10", title: "一国の指導者", icon: "📅", desc: "在任10年を達成した", check: (c) => c.turns >= 10 },
+  { id: "survive40", title: "時代を見届けた指導者", icon: "🎖️", desc: "在任40年を達成した", check: (c) => c.turns >= 40 },
 ];
 
 /** 現在のステータスから新たに解除された実績を返す */

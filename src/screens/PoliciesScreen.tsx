@@ -3,6 +3,8 @@ import type { Policy, StatKey } from "../types/game";
 
 type PoliciesScreenProps = {
   policies: Policy[];
+  eraName?: string;
+  year?: number;
   rate: number;
   onRateChange: (rate: number) => void;
   onRateAction: (direction: "hike" | "cut") => void;
@@ -13,6 +15,8 @@ type PoliciesScreenProps = {
 
 export function PoliciesScreen({
   policies,
+  eraName,
+  year,
   rate,
   onRateChange,
   onRateAction,
@@ -25,6 +29,12 @@ export function PoliciesScreen({
           <span>政策を決断する</span>
           <strong>大統領の決断</strong>
         </div>
+        {eraName && (
+          <p className="era-policy-note">
+            いまは<b>{year}年・{eraName}</b>。この時代に実行できる政策が並びます。
+            時代が進むと、新しい政策が解放されます。
+          </p>
+        )}
         <p className="screen-hint">
           実行したい政策をクリックすると、<b>閣僚や国民の賛成・反対の声</b>と<b>予想される影響</b>が表示されます。
           内容を確認して「実行する」を押すと、政策が実行されニュースになります。
@@ -101,8 +111,8 @@ export function PoliciesScreen({
 
         <div className="policy-divider" />
         <p style={{ fontSize: "0.78rem", color: "var(--text-muted)", margin: 0, lineHeight: 1.6 }}>
-          政策・外交・金利を実行したら、ヘッダーの<b>「翌日へ進む」</b>で時間を進めましょう。
-          世界や国内では、あなたの政策とは関係なく毎日いろいろな出来事が起き続けます。
+          政策・外交・金利を実行したら、ヘッダーの<b>「翌年へ進む」</b>で時間を進めましょう。
+          時代が移り変わり、世界や国内ではあなたの政策とは関係なく出来事が起き続けます。
         </p>
       </aside>
     </section>

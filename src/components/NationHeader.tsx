@@ -1,5 +1,6 @@
 import type { NationStats, PlayerNation, StatKey } from "../types/game";
 import { createFlag, formatStat } from "../utils/gameMath";
+import { eraForYear } from "../data/eras";
 
 type NationHeaderProps = {
   nation: PlayerNation;
@@ -161,12 +162,12 @@ export function NationHeader({
 
         <div className="header-date-turn">
           <div className="header-date">
-            <span className="header-year">{year}</span>
-            <span className="header-month">年{month}月{day}日</span>
-            <span className="header-daycount">{dayCount}日目</span>
+            <span className="header-year">{year}<small>年</small></span>
+            <span className="header-month">{eraForYear(year).short}</span>
+            <span className="header-daycount">在任{dayCount}年</span>
           </div>
           <button type="button" className="next-turn-btn" onClick={onNextTurn}>
-            ▶ 翌日へ進む
+            ▶ 翌年へ進む
           </button>
           <div className="header-flag-btns">
             <button type="button" onClick={() => onNationChange({ ...nation, flagPrimary: "#263f8f", flagAccent: "#d39b2c" })}>旗A</button>

@@ -1,5 +1,10 @@
 import type { EventScope, GameEvent } from "../types/game";
 import { dailyDeck } from "./dailyDeck";
+import { eraEvents } from "./eraEvents";
+import { isUnlocked } from "./eras";
+
+/** 速報イベントの母集団（汎用＋時代別） */
+const allDailyEvents: GameEvent[] = [...dailyDeck, ...eraEvents];
 
 /**
  * 1日ごとの進行ロジック（純粋関数）。
@@ -29,15 +34,22 @@ function pickScope(): EventScope | "peaceful" {
 }
 
 /**
- * 今日の速報イベントを引く。null は平穏な日。
- * crisis は序盤（最初の数日）には出さない（いきなり詰まないように）。
+ * その年の速報イベントを引く。null は平穏な年。
+ * その時代に「解放されている」イベントだけが対象（since/until で制限）。
+ * crisis は序盤（最初の数ターン）には出さない（いきなり詰まないように）。
  */
-export function pickDailyEvent(dayCount: number): GameEvent | null {
+export function pickDailyEvent(year: number, turnCount: number): GameEvent | null {
   let scope = pickScope();
   if (scope === "peaceful") return null;
-  if (scope === "crisis" && dayCount < 4) scope = "world";
-  const pool = dailyDeck.filter((e) => e.scope === scope);
-  if (pool.length === 0) return null;
+  if (scope === "crisis" && turnCount < 4) scope = "world";
+  const pool = allDailyEvents.filter(
+    (e) => e.scope === scope && isUnlocked(year, e.since, e.until),
+  );
+  if (pool.length === 0) {
+    // その時代にそのバケツが無ければ、時代に合う何かにフォールバック
+    const any = allDailyEvents.filter((e) => isUnlocked(year, e.since, e.until));
+    return any.length ? any[Math.floor(Math.random() * any.length)] : null;
+  }
   return pool[Math.floor(Math.random() * pool.length)];
 }
 

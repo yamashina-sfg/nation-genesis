@@ -79,6 +79,7 @@ export const eventDeck: GameEvent[] = [
   },
   {
     id: "energy_crisis",
+    since: 1900,
     title: "エネルギー価格が急騰",
     body: "国際情勢の悪化でエネルギー輸入コストが急上昇しています。家庭と企業が直撃を受けています。",
     category: "経済",
@@ -181,6 +182,7 @@ export const eventDeck: GameEvent[] = [
   /* ===== アジア特有の選択型イベント ===== */
   {
     id: "nkorea_icbm",
+    since: 1990,
     title: "北朝鮮がICBMを発射",
     body: "北朝鮮が弾道ミサイルを日本海に向けて発射しました。地域の緊張が一気に高まっています。国際社会は対応を求めています。",
     category: "外交",
@@ -211,6 +213,7 @@ export const eventDeck: GameEvent[] = [
   },
   {
     id: "southchinasea",
+    since: 1990,
     title: "南シナ海で中国船が領海侵犯",
     body: "中国海警局の船舶が自国が主張する排他的経済水域に侵入し、漁船に接近しました。国際的な注目が集まっています。",
     category: "外交",
@@ -241,6 +244,7 @@ export const eventDeck: GameEvent[] = [
   },
   {
     id: "taiwan_strait",
+    since: 1990,
     title: "台湾海峡の緊張が高まる",
     body: "中国軍が台湾周辺で大規模軍事演習を実施しました。半導体サプライチェーンへの影響が懸念されています。",
     category: "外交",
@@ -271,6 +275,7 @@ export const eventDeck: GameEvent[] = [
   },
   {
     id: "asia_currency_crisis",
+    since: 1990,
     title: "アジア通貨危機の兆候",
     body: "新興アジア通貨が急落し、1997年のアジア通貨危機再来が懸念されています。外資が流出し始めました。",
     category: "経済",
@@ -331,6 +336,7 @@ export const eventDeck: GameEvent[] = [
   },
   {
     id: "semiconductor_war",
+    since: 2000,
     title: "テクノロジー覇権争い (半導体)",
     body: "米中の半導体輸出規制が激化し、サプライチェーンの再編が迫られています。国内産業への影響が深刻化しています。",
     category: "技術",
@@ -361,6 +367,7 @@ export const eventDeck: GameEvent[] = [
   },
   {
     id: "asean_summit",
+    since: 1970,
     title: "ASEAN首脳会議の主催権",
     body: "今年のASEAN首脳会議の議長国に選ばれる機会が訪れました。積極的に主催するか、役割を絞るかが問われています。",
     category: "外交",
@@ -390,9 +397,52 @@ export const eventDeck: GameEvent[] = [
     ],
   },
 
+  /* ===== 1850〜：近代国家づくりの決断 ===== */
+  {
+    id: "unequal_treaty",
+    since: 1850,
+    until: 1905,
+    title: "強国から不利な条約を迫られている",
+    body: "強大な国が、自国に不利な貿易条約を結ぶよう圧力をかけてきました。閣内は対応で割れています。",
+    category: "外交",
+    scope: "diplo",
+    effect: {},
+    voices: [
+      { characterId: "foreign", stance: "support", text: "今は力が足りません。受け入れて時間を稼ぎ、力を蓄えるべきです。" },
+      { characterId: "defense", stance: "oppose", text: "屈すれば国の誇りが地に落ちます。断固はねつけるべきです。" },
+      { characterId: "business", stance: "neutral", text: "貿易が開けば商機もあります。条件次第かと。" },
+    ],
+    choices: [
+      { id: "accept", label: "条約を受け入れる", description: "屈辱だが衝突は避けられる", effect: { trust: 4, gdp: 6, approval: -8, happiness: -4 }, explanation: "衝突を避け貿易は開けますが、不平等な扱いに国民の不満が高まります。" },
+      { id: "negotiate", label: "粘り強く交渉する", description: "条件改善を狙うが時間がかかる", effect: { trust: 2, budget: -4, approval: 1 }, explanation: "少しでも有利な条件を引き出そうと交渉します。成果は不透明です。" },
+      { id: "refuse", label: "断固拒否する", description: "誇りは守るが衝突の危険", effect: { approval: 6, military: 2, trust: -6, gdp: -5 }, explanation: "毅然とした姿勢は支持されますが、相手国との関係が悪化し緊張が高まります。" },
+    ],
+  },
+  {
+    id: "railway_debate",
+    since: 1850,
+    until: 1900,
+    title: "国家予算をかけた鉄道計画",
+    body: "国を一変させる大規模な鉄道計画。巨額の費用をどうするかで意見が割れています。",
+    category: "経済",
+    scope: "domestic",
+    effect: {},
+    voices: [
+      { characterId: "business", stance: "support", text: "鉄道は国の血管です。借金してでも今すぐ敷くべきです。" },
+      { characterId: "finance", stance: "oppose", text: "財政が破綻します。身の丈に合った範囲にすべきです。" },
+      { characterId: "citizen", stance: "neutral", text: "便利になるのは嬉しいですが、増税は困ります。" },
+    ],
+    choices: [
+      { id: "big", label: "国の威信をかけ全国に敷設", description: "成長は大きいが財政は火の車", effect: { gdp: 16, budget: -30, unemployment: -0.8, happiness: 2 }, explanation: "全国網で経済が大きく伸びますが、巨額の借金で財政は厳しくなります。" },
+      { id: "partial", label: "主要路線だけ整備", description: "堅実なバランス型", effect: { gdp: 8, budget: -14, unemployment: -0.4 }, explanation: "必要な区間に絞り、成長と財政のバランスを取ります。" },
+      { id: "foreign_loan", label: "外国資本を借りて建設", description: "早いが外国への依存が生まれる", effect: { gdp: 12, budget: -8, trust: -3, technology: 2 }, explanation: "外国の資金と技術で早く敷けますが、その国への依存と影響力を招きます。" },
+    ],
+  },
+
   /* ===== 大臣の意見が割れる選択型イベント ===== */
   {
     id: "immigration_policy",
+    since: 1990,
     title: "人手不足、移民の受け入れを拡大すべきか",
     body: "深刻な人手不足を背景に、外国人労働者の受け入れ拡大が議論になっています。閣内でも意見が割れています。",
     category: "政治",
@@ -429,6 +479,7 @@ export const eventDeck: GameEvent[] = [
   },
   {
     id: "ai_regulation",
+    since: 2015,
     title: "急成長するAI、規制すべきか",
     body: "AIの急速な普及で、雇用や安全への懸念が高まっています。規制と振興のどちらを優先すべきか議論されています。",
     category: "技術",
