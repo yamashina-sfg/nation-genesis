@@ -201,6 +201,8 @@ export type GameEvent = {
   voices?: StakeholderVoice[];
   /** 時間差で出る後続効果 */
   followups?: FollowupEffect[];
+  /** 教育的な一言メモ（史実の背景。中立的に）。会話/結果に小さく表示 */
+  historicalNote?: string;
   /** 選択肢がない場合: 自動適用 */
   effect: Partial<NationStats>;
 };

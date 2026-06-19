@@ -1654,6 +1654,25 @@ p {
   gap: 12px;
 }
 
+/* 歴史メモ（教育的な一言。中立的に） */
+.event-history-note {
+  margin: 0 24px 22px;
+  padding: 9px 12px;
+  font-size: 0.74rem;
+  line-height: 1.6;
+  color: #d8e2c8;
+  background: rgba(120, 160, 90, 0.12);
+  border-left: 3px solid #8bb564;
+  border-radius: 6px;
+}
+.event-history-icon {
+  display: block;
+  font-size: 0.66rem;
+  font-weight: 700;
+  color: #b6d68a;
+  margin-bottom: 3px;
+}
+
 .event-choices-label {
   margin: 0 0 4px;
   color: var(--gold-light);

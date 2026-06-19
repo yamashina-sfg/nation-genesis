@@ -96,6 +96,13 @@ export function EventModal({ event, onChoice }: EventModalProps) {
             </button>
           ))}
         </div>
+
+        {event.historicalNote && (
+          <p className="event-history-note">
+            <span className="event-history-icon">📖 歴史メモ</span>
+            {event.historicalNote}
+          </p>
+        )}
       </div>
     </div>
   );
