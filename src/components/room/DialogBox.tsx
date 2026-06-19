@@ -1,5 +1,6 @@
 import type { Minister } from "../../data/ministers";
 import type { Policy } from "../../types/game";
+import { PixelSprite } from "./PixelSprite";
 
 export type DialogExtra = { label: string; sub?: string; onClick: () => void; primary?: boolean };
 
@@ -19,7 +20,7 @@ export function DialogBox({ minister, line, policies, extras = [], onPickPolicy,
       <div className="dialog-box" onClick={(e) => e.stopPropagation()}>
         <div className="dialog-head">
           <span className="dialog-portrait" style={{ background: minister.color }} aria-hidden>
-            {minister.emoji}
+            <PixelSprite role={minister.role} size={90} />
           </span>
           <span className="dialog-name">
             {minister.name}

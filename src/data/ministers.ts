@@ -1,4 +1,5 @@
 import type { NationStats } from "../types/game";
+import type { SpriteRole } from "../components/room/PixelSprite";
 
 /**
  * 大臣NPCの定義。
@@ -11,6 +12,8 @@ export type Minister = {
   title: string;
   emoji: string;
   color: string;
+  /** ドット絵スプライトの役職 */
+  role: SpriteRole;
   fields: string[];
   /** 国家状況に応じた一言 */
   line: (s: NationStats, year: number) => string;
@@ -23,6 +26,7 @@ export const ministers: Minister[] = [
     title: "財務大臣",
     emoji: "👩‍💼",
     color: "#2f6f57",
+    role: "finance",
     fields: ["財政", "投資"],
     line: (s) =>
       s.budget < 0
@@ -37,6 +41,7 @@ export const ministers: Minister[] = [
     title: "外務大臣",
     emoji: "🧑‍✈️",
     color: "#3a6ea5",
+    role: "foreign",
     fields: ["外交"],
     line: (s) =>
       s.trust < 40
@@ -49,6 +54,7 @@ export const ministers: Minister[] = [
     title: "防衛大臣",
     emoji: "🪖",
     color: "#a4555c",
+    role: "defense",
     fields: ["安全保障"],
     line: (s) =>
       s.military < 35
@@ -61,6 +67,7 @@ export const ministers: Minister[] = [
     title: "厚生大臣",
     emoji: "🧑‍⚕️",
     color: "#5a9a4a",
+    role: "citizen",
     fields: ["社会", "人口", "環境"],
     line: (s) =>
       s.happiness < 45
@@ -73,6 +80,7 @@ export const ministers: Minister[] = [
     title: "教育・科学大臣",
     emoji: "🧑‍🏫",
     color: "#9a7b3a",
+    role: "business",
     fields: ["産業"],
     line: (s) =>
       s.technology < 45
@@ -85,6 +93,7 @@ export const ministers: Minister[] = [
     title: "官房長官",
     emoji: "🧑‍💼",
     color: "#6a6f7a",
+    role: "secretary",
     fields: ["政治"],
     line: (s) =>
       s.approval < 40

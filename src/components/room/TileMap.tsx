@@ -1,23 +1,24 @@
-import { COLS, ROWS, cellStyle, type RoomObject } from "../../data/roomLayout";
-import type { ThemeDecor } from "../../data/roomThemes";
+import { COLS, ROWS, WALL_MAP, roomAt, cellStyle, furniture, type Furniture } from "../../data/roomLayout";
 
 type Props = {
-  objects: RoomObject[];
-  /** 状態に応じた床の飾り（通り抜け可） */
-  decor: ThemeDecor[];
+  wallColor: string;
+  /** 操作対象の家具をクリック/タップしたとき */
+  onInteract: (f: Furniture) => void;
 };
 
-/** 床・壁タイルと家具を描く（背景レイヤー） */
-export function TileMap({ objects, decor }: Props) {
+/** 床・壁タイルと家具を描く背景レイヤー */
+export function TileMap({ wallColor, onInteract }: Props) {
   const cells = [];
   for (let y = 0; y < ROWS; y++) {
     for (let x = 0; x < COLS; x++) {
-      const isWall = x === 0 || x === COLS - 1 || y === 0 || y === ROWS - 1;
+      const wall = WALL_MAP[y][x] === "#";
+      const floor = wall ? wallColor : roomAt(x, y).floor;
       const alt = (x + y) % 2 === 0;
       cells.push(
         <div
           key={`${x}-${y}`}
-          className={`room-cell ${isWall ? "wall" : `floor${alt ? " alt" : ""}`}`}
+          className={`room-cell ${wall ? "wall" : "floor"} ${alt ? "alt" : ""}`}
+          style={{ background: floor }}
         />,
       );
     }
@@ -32,22 +33,24 @@ export function TileMap({ objects, decor }: Props) {
         {cells}
       </div>
       <div className="room-layer">
-        {objects.map((o, i) => (
-          <div
-            key={`${o.kind}-${i}`}
-            className={`room-obj ${o.kind}${o.themedFlag ? " flag" : ""}`}
-            style={cellStyle(o.x, o.y, o.w ?? 1, o.h ?? 1)}
-            title={o.label}
-          >
-            {!o.themedFlag && <span aria-hidden>{o.emoji}</span>}
-            <span className="room-obj-label">{o.label}</span>
-          </div>
-        ))}
-        {decor.map((d, i) => (
-          <div key={`decor-${i}`} className="room-decor" style={cellStyle(d.x, d.y)} title={d.label}>
-            <span aria-hidden>{d.emoji}</span>
-          </div>
-        ))}
+        {furniture.map((f, i) => {
+          const interactive = !!f.interact;
+          return (
+            <div
+              key={`${f.kind}-${i}`}
+              className={`furn furn-${f.kind}${f.flag ? " flag" : ""}${interactive ? " interactive" : ""}`}
+              style={{
+                ...cellStyle(f.x, f.y, f.w ?? 1, f.h ?? 1),
+                pointerEvents: interactive ? "auto" : "none",
+                cursor: interactive ? "pointer" : undefined,
+              }}
+              title={f.label ?? f.kind}
+              onClick={interactive ? () => onInteract(f) : undefined}
+            >
+              {f.label && <span className="furn-label">{f.label}</span>}
+            </div>
+          );
+        })}
       </div>
     </>
   );
