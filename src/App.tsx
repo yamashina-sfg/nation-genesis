@@ -33,7 +33,7 @@ import { rooms } from "./data/rooms";
 import { TUTORIAL_STEPS, tutorialDone, markTutorialDone } from "./data/tutorial";
 import { TutorialOverlay } from "./components/TutorialOverlay";
 import { CountrySelectScreen } from "./screens/CountrySelectScreen";
-import { HomeScreen } from "./screens/HomeScreen";
+import { PresidentRoom } from "./components/PresidentRoom";
 import { IntroScreen } from "./screens/IntroScreen";
 import { MapScreen } from "./screens/MapScreen";
 import { MarketScreen } from "./screens/MarketScreen";
@@ -1138,25 +1138,18 @@ export default function App() {
         <section className={`command-center room-${mode}`}>
           {!isHome && <RoomBanner room={rooms[mode]} />}
           {mode === "status" && (
-            <HomeScreen
+            <PresidentRoom
+              countryId={selectedRealCountry.id}
               nation={nation}
-              leaderName={playerProfile.name}
-              professionLabel={getProfession(playerProfile.professionId).label}
-              playerTitle={lvl.title}
-              achievementCount={unlockedAchv.length}
-              level={lvl.level}
-              xpInLevel={lvl.inLevel}
-              xpSpan={lvl.span}
-              atMaxLevel={lvl.atMax}
-              missions={missions}
               stats={stats}
-              crisisLevel={crisisLevel}
+              policies={policies.filter((p) => isUnlocked(year, p.since, p.until))}
               year={year}
-              month={month}
-              day={day}
+              eraName={era.name}
+              eraShort={era.short}
               dayCount={dayCount}
-              latestNewsTitle={news[0]?.title}
-              pendingCount={pendingEvent ? 1 : 0}
+              level={lvl.level}
+              missions={missions}
+              onRequestPolicy={setPendingPolicy}
               onNavigate={setMode}
               onNextTurn={advanceTurn}
             />

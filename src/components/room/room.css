@@ -1,0 +1,375 @@
+/* ============================================================
+   ポケモン風トップダウン大統領室
+   ============================================================ */
+.room-screen {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  background: #0a1320;
+  overflow: hidden;
+}
+
+.room-board-wrap {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+}
+
+.room-board {
+  position: relative;
+  width: min(96vw, 760px);
+  max-height: 100%;
+  border: 4px solid #08101c;
+  box-shadow: 0 0 0 2px var(--room-accent, #196c76), 6px 6px 0 rgba(0, 0, 0, 0.5);
+  image-rendering: pixelated;
+  background: var(--room-floor, #445363);
+  overflow: hidden;
+}
+
+/* 床・壁タイル */
+.room-tiles {
+  position: absolute;
+  inset: 0;
+  display: grid;
+}
+.room-cell {
+  width: 100%;
+  height: 100%;
+}
+.room-cell.floor { background: var(--room-floor); }
+.room-cell.floor.alt { background: var(--room-floorAlt); }
+.room-cell.wall {
+  background: var(--room-wall);
+  box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.28), inset 0 2px 0 rgba(255, 255, 255, 0.08);
+}
+
+/* オブジェクト/NPC/プレイヤーを置く層 */
+.room-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.room-obj,
+.room-npc,
+.room-player,
+.room-decor {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+/* 家具 */
+.room-obj {
+  background: var(--room-furniture, #2a3540);
+  border: 2px solid rgba(0, 0, 0, 0.45);
+  box-shadow: inset 2px 2px 0 rgba(255, 255, 255, 0.12), inset -2px -3px 0 rgba(0, 0, 0, 0.35);
+  font-size: 1.3rem;
+  flex-direction: column;
+  gap: 1px;
+  line-height: 1;
+}
+.room-obj.flag {
+  border: 2px solid rgba(0, 0, 0, 0.5);
+  background: var(--flag-grad);
+}
+.room-obj-label {
+  font-size: 0.42rem;
+  color: rgba(255, 255, 255, 0.85);
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.6);
+  white-space: nowrap;
+}
+.room-obj.door {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+/* 床の上の装飾（通り抜け可） */
+.room-decor {
+  font-size: 1.15rem;
+  filter: drop-shadow(1px 2px 0 rgba(0, 0, 0, 0.5));
+}
+
+/* NPC */
+.room-npc {
+  font-size: 1.35rem;
+  flex-direction: column;
+  transition: transform 0.12s steps(2);
+}
+.room-npc-emoji {
+  filter: drop-shadow(1px 2px 0 rgba(0, 0, 0, 0.55));
+}
+.room-npc-name {
+  position: absolute;
+  top: -42%;
+  font-size: 0.46rem;
+  padding: 1px 4px;
+  background: rgba(8, 16, 28, 0.9);
+  color: #fff;
+  border: 1px solid var(--room-accent);
+  white-space: nowrap;
+}
+.room-npc.near {
+  animation: npcbob 0.6s steps(2) infinite;
+}
+.room-npc.near .room-npc-name {
+  background: var(--room-accent);
+  color: #06222a;
+  font-weight: 700;
+}
+.room-npc .room-talk-cue {
+  position: absolute;
+  top: -64%;
+  font-size: 0.7rem;
+  animation: cuebob 0.5s steps(2) infinite;
+}
+@keyframes npcbob { 0% { transform: translateY(0); } 50% { transform: translateY(-6%); } 100% { transform: translateY(0); } }
+@keyframes cuebob { 0% { transform: translateY(0); } 50% { transform: translateY(-20%); } 100% { transform: translateY(0); } }
+
+/* プレイヤー */
+.room-player {
+  font-size: 1.4rem;
+  transition: left 0.13s linear, top 0.13s linear;
+  z-index: 5;
+}
+.room-player-emoji {
+  filter: drop-shadow(1px 2px 0 rgba(0, 0, 0, 0.6));
+}
+
+/* 雰囲気オーバーレイ（国家状態で変化） */
+.room-mood {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 6;
+  mix-blend-mode: multiply;
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+.room-mood.dim { background: #0a1020; opacity: 0.45; }
+.room-mood.tense { background: #5a0d0d; opacity: 0.22; mix-blend-mode: normal; }
+
+/* ===== 上部ステータスバー ===== */
+.room-statusbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px 8px;
+  padding: 6px 8px;
+  background: rgba(8, 16, 28, 0.92);
+  border-bottom: 3px solid #08101c;
+  font-size: 0.7rem;
+}
+.room-era-chip {
+  display: flex;
+  flex-direction: column;
+  padding: 2px 8px;
+  background: var(--room-accent, #196c76);
+  color: #062227;
+  font-weight: 700;
+  margin-right: 2px;
+}
+.room-era-chip b { font-size: 0.82rem; }
+.room-era-chip small { font-size: 0.54rem; opacity: 0.85; }
+.room-stat {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 3px;
+  padding: 2px 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #dfe7f3;
+}
+.room-stat b { color: #fff; }
+.room-stat.warn { border-color: #d8484f; color: #ffb0b4; }
+.room-stat.good { border-color: #6fe3a0; }
+
+/* ===== 右上のアクション ===== */
+.room-actions {
+  position: absolute;
+  top: 52px;
+  right: 10px;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.room-next-btn,
+.room-menu-btn {
+  padding: 7px 12px;
+  border: 2px solid #08101c;
+  background: var(--room-accent, #196c76);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.72rem;
+  cursor: pointer;
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.5);
+}
+.room-menu-btn { background: #2b3645; }
+.room-next-btn:active, .room-menu-btn:active { transform: translate(2px, 2px); box-shadow: none; }
+
+/* ヒント */
+.room-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 8px;
+  transform: translateX(-50%);
+  z-index: 8;
+  padding: 4px 10px;
+  background: rgba(8, 16, 28, 0.85);
+  color: #cfe0ee;
+  font-size: 0.62rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  white-space: nowrap;
+}
+
+/* ===== 会話ウィンドウ ===== */
+.dialog-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  background: rgba(4, 8, 16, 0.35);
+}
+.dialog-box {
+  margin: 0 auto 14px;
+  width: min(680px, calc(100% - 20px));
+  background: linear-gradient(180deg, #12233c, #0a1424);
+  border: 3px solid #08101c;
+  box-shadow: inset 0 0 0 2px rgba(231, 185, 78, 0.3), 0 0 0 2px var(--room-accent, #196c76), 5px 5px 0 rgba(0, 0, 0, 0.5);
+  padding: 10px 14px 12px;
+}
+.dialog-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.dialog-portrait {
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  border: 2px solid #08101c;
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.5);
+}
+.dialog-name { color: var(--room-accent, #e7b94e); font-weight: 700; letter-spacing: 0.04em; }
+.dialog-name small { color: rgba(255, 255, 255, 0.6); margin-left: 6px; font-size: 0.6rem; }
+.dialog-line {
+  margin: 0 0 10px;
+  color: #eef3ff;
+  font-size: 0.82rem;
+  line-height: 1.6;
+}
+.dialog-actions {
+  display: grid;
+  gap: 6px;
+}
+.dialog-actions-label {
+  font-size: 0.66rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0 0 2px;
+}
+.dialog-btn {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  text-align: left;
+  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 2px solid #08101c;
+  color: #eef3ff;
+  font-size: 0.76rem;
+  cursor: pointer;
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.4);
+}
+.dialog-btn:active { transform: translate(2px, 2px); box-shadow: none; }
+.dialog-btn .dialog-btn-sub { font-size: 0.58rem; color: rgba(255, 255, 255, 0.6); }
+.dialog-btn.primary { background: var(--room-accent, #196c76); color: #fff; }
+.dialog-btn.close { background: #2b3645; justify-content: center; }
+.dialog-empty { font-size: 0.72rem; color: rgba(255, 255, 255, 0.6); margin: 0 0 8px; }
+
+/* ===== 仮想十字キー ===== */
+.vpad {
+  position: absolute;
+  z-index: 30;
+  bottom: 14px;
+  user-select: none;
+  touch-action: none;
+}
+.vpad.left { left: 14px; }
+.vpad.right { right: 14px; }
+.vpad-cross {
+  display: grid;
+  grid-template-columns: repeat(3, 44px);
+  grid-template-rows: repeat(3, 44px);
+}
+.vpad-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(20, 30, 46, 0.85);
+  border: 2px solid #08101c;
+  color: #cfe0ee;
+  font-size: 1rem;
+  cursor: pointer;
+}
+.vpad-btn:active { background: var(--room-accent, #196c76); color: #fff; }
+.vpad-btn.up { grid-area: 1 / 2; }
+.vpad-btn.left { grid-area: 2 / 1; }
+.vpad-btn.right { grid-area: 2 / 3; }
+.vpad-btn.down { grid-area: 3 / 2; }
+.vpad-btn.mid { grid-area: 2 / 2; background: transparent; border: none; }
+.vpad-a {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--room-accent, #196c76);
+  border: 3px solid #08101c;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.5);
+}
+.vpad-a:active { transform: translate(2px, 2px); box-shadow: none; }
+
+/* PCでは仮想パッドを隠す（キーボード操作） */
+@media (hover: hover) and (pointer: fine) {
+  .vpad { display: none; }
+}
+
+/* ===== ルームメニュー ===== */
+.room-menu-modal {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(4, 8, 16, 0.6);
+}
+.room-menu-card {
+  width: min(320px, 86%);
+  background: #12233c;
+  border: 3px solid #08101c;
+  box-shadow: 0 0 0 2px var(--room-accent, #196c76), 5px 5px 0 rgba(0, 0, 0, 0.5);
+  padding: 14px;
+  display: grid;
+  gap: 8px;
+}
+.room-menu-card h3 { margin: 0 0 4px; color: var(--room-accent, #e7b94e); font-size: 0.9rem; }
+.room-menu-card .mission-mini { font-size: 0.72rem; color: #dfe7f3; line-height: 1.5; }
