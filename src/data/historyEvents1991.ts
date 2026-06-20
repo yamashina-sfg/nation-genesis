@@ -1,0 +1,600 @@
+import type { GameEvent } from "../types/game";
+
+/**
+ * 1991〜2008年「グローバル化・IT革命・ドットコム・中国成長・EU・テロ」の歴史イベント。
+ * やさしい言い換え：グローバル化=「世界中でモノ・お金・人が動く時代」、IT革命=
+ * 「インターネットとコンピュータが社会を変えた時代」、ドットコムバブル=「IT企業への
+ * 期待が過熱した状態」、EU=「ヨーロッパ諸国が協力を深める仕組み」。実在の政治家・政党は出さない。
+ * ITバブルは「加速か抑制か」を選ばせ、加速を選ぶと数年後に崩壊が followups で起こる。
+ */
+export const historyEvents1991: GameEvent[] = [
+  /* ===== IT革命（1991〜2005） ===== */
+  {
+    id: "h5_internet_1995",
+    since: 1993, until: 2005, category: "技術", scope: "domestic",
+    title: "インターネットが普及し始める",
+    body: "【速報】インターネット利用者が急増！企業や学校でもオンライン化が進み、新しい産業が生まれつつあります。",
+    citizen: "「ネットが便利です」と新しい世界に驚く人々。",
+    effect: {},
+    historicalNote: "IT革命（インターネットとコンピュータが社会を変えた時代）は、情報のやり取りと経済を根本から変えた。",
+    voices: [
+      { characterId: "business", stance: "support", text: "次の時代の基盤です。国を挙げて投資すべきです。" },
+      { characterId: "finance", stance: "neutral", text: "有望ですが、過熱には注意が要ります。" },
+    ],
+    choices: [
+      { id: "bigfund", label: "大規模に情報インフラへ投資", description: "技術大幅↑・予算減少", effect: { technology: 8, gdp: 5, budget: -14 }, explanation: "IT産業と国の競争力が大きく伸びますが、予算を圧迫します。" },
+      { id: "private", label: "民間主導で進める", description: "予算維持・成長は緩やか", effect: { technology: 4, gdp: 3 }, explanation: "費用を抑えますが、普及の速度は民間任せになります。" },
+      { id: "careful", label: "慎重に段階的に進める", description: "安定・他国に遅れる", effect: { technology: 2, trust: 1 }, explanation: "安定的ですが、IT競争で他国に後れを取る恐れがあります。" },
+    ],
+    followups: [
+      { afterDays: 120, title: "ネットが暮らしと仕事に浸透", body: "買い物も連絡も調べ物もネットで完結する人が増え、社会が大きく変わりました。", category: "技術", effect: { technology: 4, gdp: 4 } },
+    ],
+  },
+  {
+    id: "h5_mobile_1997",
+    since: 1994, until: 2007, category: "技術", scope: "domestic",
+    title: "携帯電話が爆発的に普及",
+    body: "【速報】一人一台の携帯電話が当たり前に。いつでもどこでもつながる時代になりました。",
+    citizen: "「待ち合わせが楽になった」と若者。",
+    effect: {},
+    historicalNote: "携帯電話の普及は通信産業を巨大化させ、常時接続社会への入り口となった。",
+    choices: [
+      { id: "promote", label: "通信産業を後押しする", description: "産業↑・投資", effect: { technology: 5, gdp: 5, budget: -8 }, explanation: "通信産業が国の柱に育ちますが、整備に費用がかかります。" },
+      { id: "market", label: "市場の競争に任せる", description: "競争で発展・格差も", effect: { technology: 3, gdp: 3, trust: 1 }, explanation: "競争でサービスが進化しますが、料金や地域の格差も生まれます。" },
+    ],
+  },
+  {
+    id: "h5_email_1996",
+    since: 1994, until: 2005, category: "技術", scope: "domestic",
+    title: "電子メールが仕事を変える",
+    body: "【速報】手紙やFAXに代わり、電子メールが業務の標準になりつつあります。",
+    citizen: "「一瞬で世界中に連絡できる」と感心。",
+    effect: {},
+    historicalNote: "電子メールの普及は業務を効率化し、紙の文化からデジタルへの移行を加速させた。",
+    choices: [
+      { id: "digitalize", label: "行政・企業のデジタル化を推進", description: "効率↑・移行コスト", effect: { technology: 4, gdp: 3, budget: -6, happiness: 1 }, explanation: "効率が上がりますが、移行に手間と費用がかかります。" },
+      { id: "gradual", label: "ゆっくり移行する", description: "混乱回避・遅れ", effect: { technology: 2 }, explanation: "混乱は避けますが、効率化は遅れます。" },
+    ],
+  },
+  {
+    id: "h5_ecommerce_1999",
+    since: 1996, until: 2008, category: "市場", scope: "market",
+    title: "ネット通販（ECサイト）が誕生",
+    body: "【速報】画面をクリックするだけで買い物ができる——ネット通販が新しい商売の形を生んでいます。",
+    citizen: "「家にいながら何でも買える」と便利さに驚く。",
+    effect: {},
+    historicalNote: "EC（ネット通販）の登場は流通を変革し、新しい巨大企業を生む土壌となった。",
+    choices: [
+      { id: "support", label: "電子商取引のルールを整える", description: "新産業↑・整備費", effect: { gdp: 6, technology: 3, budget: -6 }, explanation: "新しい産業が育ちますが、ルール整備に費用がかかります。" },
+      { id: "protect", label: "既存の商店街を守る", description: "雇用配慮・成長は鈍る", effect: { happiness: 2, gdp: 1 }, explanation: "地域の商売を守りますが、新産業の伸びは限られます。" },
+    ],
+  },
+  {
+    id: "h5_digital_gov_2001",
+    since: 1998, until: 2008, category: "政治", scope: "domestic",
+    title: "行政のデジタル化を進めるか",
+    body: "【速報】役所の手続きをオンライン化し、暮らしと行政を便利にする計画が議論されています。",
+    citizen: "「役所に並ばなくて済むなら助かる」と期待。",
+    effect: {},
+    historicalNote: "行政のデジタル化は効率と利便性を高めたが、情報格差やセキュリティの課題も生んだ。",
+    choices: [
+      { id: "invest", label: "電子政府を構築する", description: "利便性↑・大きな投資", effect: { technology: 4, happiness: 3, gdp: 2, budget: -12 }, explanation: "暮らしと行政が便利になりますが、構築に大きな投資が要ります。" },
+      { id: "later", label: "紙の手続きを当面維持", description: "節約・立ち遅れ", effect: { budget: 2, technology: -1 }, explanation: "費用は抑えますが、デジタル化で他国に後れを取ります。" },
+    ],
+  },
+
+  /* ===== ドットコムバブルと崩壊（1998〜2002） ===== */
+  {
+    id: "h5_itstock_1999",
+    since: 1997, until: 2001, category: "市場", scope: "market",
+    title: "IT企業への期待が過熱する",
+    body: "【速報】ベンチャー企業が急増し、IT関連株に投資マネーが殺到。「IT企業への期待が過熱した状態」です。",
+    citizen: "「ネット企業に投資すれば儲かる」と熱狂。",
+    effect: {},
+    historicalNote: "ドットコムバブル（IT企業への期待が過熱した状態）は、実体のないIT企業にまで資金を集めた。",
+    voices: [
+      { characterId: "business", stance: "support", text: "新時代の主役です。勢いを止めるべきではありません。" },
+      { characterId: "finance", stance: "oppose", text: "中身のない会社まで高値です。いずれ崩れます。" },
+    ],
+    choices: [
+      { id: "accelerate", label: "ITブームを加速させる", description: "今は絶好調・数年後に崩壊の危険", effect: { gdp: 9, technology: 4, happiness: 4, inflation: 0.5 }, explanation: "経済とIT産業が沸きますが、過熱を放置すれば崩壊の反動が大きくなります。" },
+      { id: "cool", label: "過熱を冷ます", description: "崩壊を防ぐ・人気は落ちる", effect: { gdp: -3, technology: 2, trust: 3 }, explanation: "将来の崩壊を和らげますが、好景気に水を差すと嫌われます。" },
+    ],
+    followups: [
+      { afterDays: 90, title: "【号外】ドットコムバブルが崩壊", body: "中身のないIT企業が次々と倒れ、ネット関連株が暴落しました。", category: "市場", effect: { gdp: -8, technology: -1, happiness: -4 } },
+      { afterDays: 150, title: "本物のIT企業だけが生き残る", body: "淘汰を経て、実力あるIT企業が次の成長の主役になりつつあります。", category: "技術", effect: { technology: 4, gdp: 4 } },
+    ],
+  },
+  {
+    id: "h5_venture_1998",
+    since: 1996, until: 2005, category: "市場", scope: "market",
+    title: "ベンチャー企業が次々と誕生",
+    body: "【速報】若者が新しいアイデアで起業する波が広がり、街に新しい会社が増えています。",
+    citizen: "「自分も会社を作りたい」と起業熱が高まる。",
+    effect: {},
+    historicalNote: "ベンチャー企業の隆盛は技術革新と雇用を生んだが、玉石混交で淘汰も激しかった。",
+    choices: [
+      { id: "support", label: "起業を支援する仕組みを作る", description: "新産業↑・投資", effect: { gdp: 5, technology: 4, unemployment: -0.3, budget: -8 }, explanation: "新しい産業と雇用が生まれますが、支援に費用がかかります。" },
+      { id: "market", label: "市場の選別に任せる", description: "節約・玉石混交", effect: { gdp: 3, technology: 2 }, explanation: "費用は抑えますが、有望な芽を逃すこともあります。" },
+    ],
+  },
+  {
+    id: "h5_dotcom_crash_2001",
+    since: 2000, until: 2004, category: "市場", scope: "crisis",
+    title: "ITバブル崩壊の余波",
+    body: "【緊急速報】過熱したIT株が崩れ、ベンチャーの倒産と投資家の損失が広がっています。",
+    citizen: "「あの熱狂は何だったのか」と投資家。",
+    effect: {},
+    historicalNote: "ドットコム崩壊は過剰な期待を冷やしたが、生き残った企業がその後の本格的IT社会を築いた。",
+    choices: [
+      { id: "support", label: "有望企業を下支えする", description: "再起を助ける・出費", effect: { gdp: 3, technology: 3, budget: -10 }, explanation: "本物の企業の再起を助けますが、財政の負担になります。" },
+      { id: "letfall", label: "淘汰を受け入れる", description: "出費なし・痛みを伴う", effect: { gdp: -4, unemployment: 0.4, technology: 1 }, explanation: "弱い企業は退場し筋肉質になりますが、当面は痛みます。" },
+    ],
+  },
+
+  /* ===== グローバル化（1991〜2008） ===== */
+  {
+    id: "h5_freetrade_1994",
+    since: 1991, until: 2008, category: "外交", scope: "world",
+    title: "自由貿易が世界に広がる",
+    body: "【速報】国境を越えてモノ・お金・人が自由に動く時代へ。世界が一つの市場のようになっています。",
+    citizen: "「海外の品が安く買える」と消費者は歓迎。",
+    effect: {},
+    historicalNote: "グローバル化（世界中でモノ・お金・人が動く時代）は成長を生んだが、国内産業や雇用に痛みも与えた。",
+    voices: [
+      { characterId: "business", stance: "support", text: "自由貿易を進めるべきです。世界が市場になります。" },
+      { characterId: "citizen", stance: "oppose", text: "海外企業との競争が厳しい。仕事が海外へ移っています。" },
+      { characterId: "finance", stance: "neutral", text: "成長の機会ですが、痛む産業への手当ても要ります。" },
+    ],
+    choices: [
+      { id: "open", label: "自由貿易を積極的に進める", description: "豊かさ↑・国内に痛み", effect: { gdp: 9, trust: 5, happiness: -2, unemployment: 0.3 }, explanation: "経済は伸び国際的地位も上がりますが、国内産業と雇用が打撃を受けます。" },
+      { id: "managed", label: "段階的に開き国内を守る", description: "穏当・成長は緩やか", effect: { gdp: 4, happiness: 2, trust: 1 }, explanation: "国内への配慮で痛みを抑えますが、成長は緩やかです。" },
+    ],
+  },
+  {
+    id: "h5_overseas_1998",
+    since: 1991, until: 2008, category: "経済", scope: "market",
+    title: "企業の海外進出が加速",
+    body: "【速報】安い人件費を求め、国内企業が次々と工場を海外へ移しています。",
+    citizen: "「うちの工場も海外に移転するらしい」と不安。",
+    effect: {},
+    historicalNote: "企業の海外進出はコストを下げ利益を生んだが、国内の産業空洞化という課題を残した。",
+    choices: [
+      { id: "global", label: "海外展開を後押しする", description: "企業利益↑・国内雇用↓", effect: { gdp: 6, trust: 2, unemployment: 0.4, happiness: -2 }, explanation: "企業は競争力を高めますが、国内の雇用が細ります。" },
+      { id: "anchor", label: "国内拠点の維持を支援", description: "雇用維持・コスト高", effect: { unemployment: -0.3, happiness: 3, budget: -8 }, explanation: "国内雇用を守りますが、支援費用と高コストを抱えます。" },
+    ],
+  },
+  {
+    id: "h5_foreign_firms_2000",
+    since: 1993, until: 2008, category: "市場", scope: "market",
+    title: "外国企業が国内市場に参入",
+    body: "【速報】規制緩和で外国企業が国内に進出し、競争とサービスの選択肢が広がっています。",
+    citizen: "「便利になったが、地元の店が心配」と複雑。",
+    effect: {},
+    historicalNote: "外資の参入は競争と効率を生んだが、国内企業との摩擦や買収への警戒も呼んだ。",
+    choices: [
+      { id: "welcome", label: "外資を歓迎し開放する", description: "競争と投資↑・国内に圧力", effect: { gdp: 6, technology: 2, trust: 3, happiness: -1 }, explanation: "投資と競争で経済が活気づきますが、国内企業は圧力を受けます。" },
+      { id: "guard", label: "重要産業は保護する", description: "安全保障配慮・成長は限定", effect: { gdp: 2, military: 1, trust: -1 }, explanation: "戦略産業を守りますが、開放の恩恵は限られます。" },
+    ],
+  },
+  {
+    id: "h5_globalcompete_2003",
+    since: 1995, until: 2008, category: "経済", scope: "domestic",
+    title: "激しいグローバル競争にさらされる",
+    body: "【速報】世界中の企業と価格・品質で競う時代。生き残りには絶え間ない革新が求められています。",
+    citizen: "「気を抜けば一気に追い抜かれる」と経営者。",
+    effect: {},
+    historicalNote: "グローバル競争は効率と革新を促したが、勝者と敗者の差を国の内外で広げた。",
+    choices: [
+      { id: "innovate", label: "研究開発と人材で勝負する", description: "競争力↑・投資", effect: { technology: 5, gdp: 5, budget: -10 }, explanation: "革新で競争を勝ち抜きますが、投資が必要です。" },
+      { id: "cost", label: "コスト削減で対抗する", description: "短期は持つ・消耗戦", effect: { gdp: 3, happiness: -2, unemployment: 0.2 }, explanation: "当面は持ちこたえますが、削り合いは長く続きません。" },
+    ],
+  },
+
+  /* ===== 中国の台頭（1995〜2008） ===== */
+  {
+    id: "h5_china_factory_2002",
+    since: 1995, until: 2008, category: "経済", scope: "world",
+    title: "巨大な新興国が「世界の工場」に",
+    body: "【速報】人件費の安い大国が世界中の生産を引き受け、安い製品が大量に流れ込んでいます。",
+    citizen: "「安い輸入品は助かるが、国内の工場が…」と複雑。",
+    effect: {},
+    historicalNote: "新興大国の急成長は世界の生産地図を塗り替え、各国に産業空洞化と競争を迫った。",
+    choices: [
+      { id: "highend", label: "高付加価値の産業へ移行", description: "競争を避け上へ・転換の痛み", effect: { technology: 5, gdp: 4, unemployment: 0.3, budget: -8 }, explanation: "価格競争を避け技術で勝負しますが、転換の痛みを伴います。" },
+      { id: "compete", label: "価格で正面から競う", description: "雇用維持・消耗", effect: { gdp: 2, happiness: -2, unemployment: -0.2 }, explanation: "当面の雇用は守れますが、際限ない価格競争に巻き込まれます。" },
+    ],
+  },
+  {
+    id: "h5_china_export_2004",
+    since: 1998, until: 2008, category: "市場", scope: "market",
+    title: "輸出競争と貿易摩擦が激化",
+    body: "【速報】新興国の安い製品との競争が激しく、国内産業から保護を求める声が上がっています。",
+    citizen: "「うちの製品が売れなくなった」と中小企業。",
+    effect: {},
+    historicalNote: "新興国との貿易摩擦は、保護主義と自由貿易のあいだで各国を揺さぶった。",
+    choices: [
+      { id: "negotiate", label: "通商交渉で公正なルールを求める", description: "信用↑・時間かかる", effect: { trust: 4, gdp: 2, budget: -4 }, explanation: "公正な競争条件を粘り強く求めますが、成果には時間がかかります。" },
+      { id: "tariff", label: "関税で国内産業を守る", description: "国内保護・摩擦", effect: { happiness: 2, gdp: -2, trust: -3 }, explanation: "国内産業を守りますが、相手国との摩擦と報復を招きます。" },
+    ],
+  },
+  {
+    id: "h5_dependence_2005",
+    since: 1998, until: 2008, category: "経済", scope: "domestic",
+    title: "海外依存のリスクが意識される",
+    body: "【速報】生産も部品も海外頼みになり、「いざという時に大丈夫か」という不安が出ています。",
+    citizen: "「便利だけど、すべて海外任せで平気なのか」と疑問。",
+    effect: {},
+    historicalNote: "グローバルな分業は効率を生んだが、供給網の海外依存は新たな安全保障リスクとなった。",
+    choices: [
+      { id: "resilience", label: "重要分野は国内に残す", description: "安心↑・コスト高", effect: { military: 2, technology: 2, budget: -8, gdp: -1 }, explanation: "供給の安定と安全保障を高めますが、コストがかかります。" },
+      { id: "efficiency", label: "効率優先で分業を深める", description: "安い・もろさも残る", effect: { gdp: 4, happiness: 1 }, explanation: "コストは下がりますが、海外依存のもろさを抱えます。" },
+    ],
+  },
+
+  /* ===== EU（ヨーロッパ統合の影響, 1992〜2008） ===== */
+  {
+    id: "h5_eu_market_1995",
+    since: 1992, until: 2008, category: "外交", scope: "world",
+    title: "巨大な共通市場が誕生",
+    body: "【速報】ヨーロッパ諸国が協力を深め、国境のない一つの大きな市場をつくり上げました。",
+    citizen: "「ヨーロッパが一つになるなんて」と驚き。",
+    effect: {},
+    historicalNote: "EU（ヨーロッパ諸国が協力を深める仕組み）の共通市場は、地域統合の壮大な実験となった。",
+    choices: [
+      { id: "engage", label: "共通市場との結びつきを深める", description: "貿易↑・ルールに従う", effect: { gdp: 6, trust: 5, budget: -4 }, explanation: "大きな市場とつながり経済が伸びますが、共通ルールに従う必要があります。" },
+      { id: "selective", label: "是々非々で付き合う", description: "自由・恩恵は限定", effect: { gdp: 3, trust: 1 }, explanation: "自主性を保ちますが、統合の恩恵は限られます。" },
+    ],
+  },
+  {
+    id: "h5_eu_currency_1999",
+    since: 1996, until: 2008, category: "市場", scope: "market",
+    title: "共通通貨の導入が進む",
+    body: "【速報】複数の国が同じお金を使う「共通通貨」が導入され、両替なしで取引できる時代に。",
+    citizen: "「旅行も買い物も便利になった」と歓迎。",
+    effect: {},
+    historicalNote: "共通通貨は域内の貿易を促したが、各国が独自の金融政策を手放すという代償も伴った。",
+    choices: [
+      { id: "align", label: "通貨統合の流れに歩調を合わせる", description: "取引円滑・自主性は制約", effect: { gdp: 5, trust: 4, inflation: -0.2 }, explanation: "取引が円滑になりますが、独自の金融政策の自由は狭まります。" },
+      { id: "own", label: "自国通貨を維持する", description: "自由・取引コスト", effect: { gdp: 2, trust: -1 }, explanation: "金融の自由を保ちますが、域内取引の利便では劣ります。" },
+    ],
+  },
+  {
+    id: "h5_eu_migration_2004",
+    since: 1995, until: 2008, category: "政治", scope: "citizen",
+    title: "労働者の自由な移動が広がる",
+    body: "【速報】統合で人の移動が自由になり、働き手が国を越えて行き来しています。",
+    citizen: "「人手は助かるが、賃金が下がらないか」と労働者。",
+    effect: {},
+    historicalNote: "労働移動の自由は経済に活力を与えたが、賃金や文化をめぐる摩擦も生んだ。",
+    choices: [
+      { id: "open", label: "受け入れて活力にする", description: "労働力↑・摩擦も", effect: { gdp: 6, unemployment: -0.3, happiness: -2 }, explanation: "労働力で経済が伸びますが、地域や賃金で摩擦が生じます。" },
+      { id: "manage", label: "受け入れを調整する", description: "穏当・人手不足続く", effect: { gdp: 2, happiness: 1, budget: -4 }, explanation: "摩擦を抑えますが、人手不足の解消は限られます。" },
+    ],
+  },
+
+  /* ===== 社会（働き方・格差・少子高齢化） ===== */
+  {
+    id: "h5_nonregular_2002",
+    since: 1996, until: 2008, category: "政治", scope: "citizen",
+    title: "非正規雇用が増えていく",
+    body: "【速報】コスト削減と柔軟化のため、非正規の働き方が広がり、不安定な雇用が増えています。",
+    citizen: "「いつ契約が切れるか分からない」と不安。",
+    effect: {},
+    historicalNote: "雇用の流動化は企業に柔軟性を与えたが、働く人の不安定さと格差を生んだ。",
+    voices: [
+      { characterId: "business", stance: "support", text: "柔軟な雇用は企業の競争力に必要です。" },
+      { characterId: "citizen", stance: "oppose", text: "安定した仕事がないと、将来設計ができません。" },
+    ],
+    choices: [
+      { id: "protect", label: "雇用の安定を守るルールを作る", description: "暮らし↑・企業負担", effect: { happiness: 5, approval: 3, gdp: -2, budget: -6 }, explanation: "働く人の安心が高まりますが、企業の負担が増えます。" },
+      { id: "flexible", label: "柔軟な雇用を認める", description: "企業に有利・格差拡大", effect: { gdp: 4, happiness: -4, unemployment: -0.2 }, explanation: "企業は身軽になりますが、格差と不安が広がります。" },
+    ],
+  },
+  {
+    id: "h5_inequality_2005",
+    since: 1998, until: 2008, category: "政治", scope: "citizen",
+    title: "格差の広がりが問題に",
+    body: "【速報】豊かな人とそうでない人の差が広がり、「努力しても報われない」という不満が高まっています。",
+    citizen: "「同じ国なのに、暮らしがこんなに違うなんて」とため息。",
+    effect: {},
+    historicalNote: "格差（豊かな人とそうでない人の差が広がること）は、グローバル化と雇用変化の影として表面化した。",
+    choices: [
+      { id: "redistribute", label: "再分配を強める", description: "格差是正・財政と活力", effect: { happiness: 5, approval: 4, gdp: -2, budget: -10 }, explanation: "格差を和らげ社会を安定させますが、財政負担と活力低下の懸念もあります。" },
+      { id: "growth", label: "成長で底上げを狙う", description: "活力↑・格差は残る", effect: { gdp: 5, happiness: -2 }, explanation: "成長に期待しますが、格差そのものは残ります。" },
+    ],
+  },
+  {
+    id: "h5_aging_2003",
+    since: 1995, until: 2008, category: "政治", scope: "domestic",
+    title: "少子高齢化が進行する",
+    body: "【速報】子どもが減り高齢者が増え、年金・医療・労働力への影響が現実味を帯びています。",
+    citizen: "「将来が不安です」「年金は大丈夫なのか」と心配の声。",
+    effect: {},
+    historicalNote: "少子高齢化の進行は、社会保障の持続性と労働力の確保を長期の最重要課題にした。",
+    choices: [
+      { id: "childcare", label: "子育て支援を充実させる", description: "将来への布石・出費", effect: { happiness: 4, approval: 3, budget: -12 }, explanation: "将来の人口減に手を打ちますが、効果は何十年も先です。" },
+      { id: "reform", label: "社会保障を持続可能に改革", description: "財政安定・今の痛み", effect: { trust: 3, budget: 6, happiness: -3 }, explanation: "将来世代の負担を抑えますが、給付見直しに反発が出ます。" },
+    ],
+  },
+  {
+    id: "h5_urban_2000",
+    since: 1992, until: 2008, category: "政治", scope: "domestic",
+    title: "都市集中と地方の衰退",
+    body: "【速報】仕事と人が都市に集まり続け、地方では過疎と商店街の衰退が進んでいます。",
+    citizen: "「地元には仕事がない」と若者が都会へ。",
+    effect: {},
+    historicalNote: "都市集中は効率を生む一方、地方の衰退と地域間格差という構造問題を深めた。",
+    choices: [
+      { id: "revitalize", label: "地方創生に投資する", description: "均衡↑・費用", effect: { happiness: 4, gdp: 2, budget: -12, environment: 1 }, explanation: "地方を元気にし格差を和らげますが、費用がかかります。" },
+      { id: "efficient", label: "都市の効率を生かす", description: "効率↑・地方は衰退", effect: { gdp: 5, happiness: -3 }, explanation: "経済効率は高まりますが、地方の衰退が進みます。" },
+    ],
+  },
+
+  /* ===== 安全保障・テロ（2001前後） ===== */
+  {
+    id: "h5_terror_2001",
+    since: 2001, until: 2008, category: "外交", scope: "crisis",
+    title: "世界を揺るがす大規模テロ事件",
+    body: "【緊急速報】大規模なテロ事件が発生し、世界に衝撃が走りました。安全とどう向き合うかが問われています。",
+    citizen: "「平和な日常が一瞬で崩れるなんて」と不安が広がる。",
+    effect: {},
+    historicalNote: "2001年前後の大規模テロは『テロとの戦い』の時代を開き、安全と自由のバランスを世界に問うた。",
+    voices: [
+      { characterId: "defense", stance: "support", text: "国民を守るため、警備と備えの強化が必要です。" },
+      { characterId: "foreign", stance: "neutral", text: "一国では防げません。国際協力が鍵です。" },
+      { characterId: "citizen", stance: "oppose", text: "監視が強まりすぎて、自由が失われないか心配です。" },
+    ],
+    choices: [
+      { id: "security", label: "警備・対テロ体制を強化", description: "安全保障↑・予算増加", effect: { military: 6, trust: 2, budget: -14, happiness: -1 }, explanation: "安全は高まりますが、財政負担が増えます。" },
+      { id: "cooperate", label: "国際協力で対処する", description: "外交信用↑・対応は遅い", effect: { trust: 6, military: 2, budget: -6 }, explanation: "国際的な信用を得ますが、単独より対応は遅くなります。" },
+      { id: "surveil", label: "監視を強化し治安を優先", description: "治安↑・自由への不満", effect: { military: 3, approval: 2, happiness: -4 }, explanation: "治安は向上しますが、自由が狭まることへの不満が高まります。" },
+    ],
+  },
+  {
+    id: "h5_airport_2002",
+    since: 2001, until: 2008, category: "政治", scope: "domestic",
+    title: "空港・交通の警備を強化",
+    body: "【速報】テロへの備えで、空港や駅の検査が厳しくなり、安全と利便のバランスが問われています。",
+    citizen: "「安全のためなら多少の不便は仕方ない」との声。",
+    effect: {},
+    historicalNote: "テロ後の警備強化は安全を高めたが、利便性やプライバシーとの兼ね合いが課題となった。",
+    choices: [
+      { id: "strict", label: "厳重な検査体制を敷く", description: "安全↑・不便と費用", effect: { military: 3, happiness: -2, budget: -8 }, explanation: "安全は高まりますが、不便と費用が増えます。" },
+      { id: "smart", label: "技術で効率的に守る", description: "両立・先行投資", effect: { technology: 3, military: 2, budget: -10 }, explanation: "安全と利便の両立を図りますが、システム投資が要ります。" },
+    ],
+  },
+  {
+    id: "h5_conflict_2003",
+    since: 2001, until: 2008, category: "外交", scope: "diplo",
+    title: "地域紛争への関与を問われる",
+    body: "【速報】遠い地域の紛争に有志の国々が関与し、あなたの国にも参加や支援が求められています。",
+    citizen: "「他国の戦争に加わるべきではない」との声も強い。",
+    effect: {},
+    historicalNote: "テロとの戦いの名のもとの軍事介入は、国際社会を二分し、長期化のリスクも抱えた。",
+    choices: [
+      { id: "join", label: "有志連合に加わる", description: "同盟強化・国内反発と泥沼化", effect: { trust: 3, military: 2, budget: -12, approval: -4 }, explanation: "同盟内の立場は強まりますが、国内の反発と長期化のリスクを負います。" },
+      { id: "humanitarian", label: "人道・復興支援に絞る", description: "信用↑・前線は避ける", effect: { trust: 4, budget: -8, happiness: 1 }, explanation: "戦闘は避け人道支援で信用を得ますが、同盟内で物足りないと見られることも。" },
+    ],
+  },
+  {
+    id: "h5_cyber_dawn_2006",
+    since: 2003, until: 2008, category: "技術", scope: "domestic",
+    title: "新たな脅威——サイバー攻撃の芽",
+    body: "【速報】ネット社会の広がりとともに、企業や政府を狙うサイバー攻撃が現れ始めています。",
+    citizen: "「便利な反面、こわい面もある」と利用者。",
+    effect: {},
+    historicalNote: "情報化の進展は、目に見えないサイバー空間を新たな安全保障の戦場に変えていった。",
+    choices: [
+      { id: "defend", label: "サイバー防衛に投資する", description: "守り↑・先行投資", effect: { technology: 4, military: 2, trust: 1, budget: -8 }, explanation: "新しい脅威に備えますが、目に見えにくい投資です。" },
+      { id: "later", label: "様子を見る", description: "節約・備え不足", effect: { technology: 1 }, explanation: "出費は抑えますが、いざという時の備えが手薄になります。" },
+    ],
+  },
+
+  /* ===== 市場・金融（拡大とリスク） ===== */
+  {
+    id: "h5_finance_expand_2005",
+    since: 1996, until: 2008, category: "市場", scope: "market",
+    title: "金融が膨張し、複雑な商品が広がる",
+    body: "【速報】世界中でお金が膨らみ、仕組みの複雑な金融商品が出回っています。好景気の裏で危うさも。",
+    citizen: "「よく分からないが、儲かるらしい」と投資熱。",
+    effect: {},
+    historicalNote: "膨張した金融と複雑な商品は世界経済を潤したが、やがて世界規模の金融危機の火種となった。",
+    voices: [
+      { characterId: "business", stance: "support", text: "金融の発展は経済を回します。規制で縛りすぎないでください。" },
+      { characterId: "finance", stance: "oppose", text: "中身の見えない商品は危険です。監督を強めるべきです。" },
+    ],
+    choices: [
+      { id: "deregulate", label: "金融の自由を広げる", description: "好景気↑・リスク蓄積", effect: { gdp: 7, trust: 1, inflation: 0.4 }, explanation: "経済は沸きますが、見えないリスクが積み上がります。" },
+      { id: "supervise", label: "監督を強め健全性を保つ", description: "安定↑・成長は抑制", effect: { gdp: -2, trust: 4 }, explanation: "将来の危機を防ぎますが、目先の成長は抑えられます。" },
+    ],
+  },
+  {
+    id: "h5_housing_2006",
+    since: 2002, until: 2008, category: "市場", scope: "market",
+    title: "世界で住宅価格が高騰",
+    body: "【速報】低金利を背景に世界中で住宅価格が上がり続け、「いつまでも上がる」と楽観が広がっています。",
+    citizen: "「家は資産だ」と誰もが住宅ローンに走る。",
+    effect: {},
+    historicalNote: "世界的な住宅バブルは好景気を演出したが、その崩壊が後の世界金融危機の引き金となった。",
+    choices: [
+      { id: "caution", label: "過熱に警戒し引き締める", description: "崩壊予防・景気は冷える", effect: { gdp: -3, trust: 3, inflation: -0.4 }, explanation: "将来の崩壊を和らげますが、目先の景気を冷やします。" },
+      { id: "ride", label: "好景気を享受する", description: "今は潤う・崩壊リスク", effect: { gdp: 6, happiness: 3, inflation: 0.5 }, explanation: "今は潤いますが、崩壊の反動という危険を抱えます。" },
+    ],
+  },
+  {
+    id: "h5_emerging_invest_2007",
+    since: 1995, until: 2008, category: "外交", scope: "diplo",
+    title: "新興国への投資ブーム",
+    body: "【速報】成長する新興国へ投資マネーが流れ込み、世界経済が一体で膨らんでいます。",
+    citizen: "「世界中が好景気らしい」と楽観ムード。",
+    effect: {},
+    historicalNote: "新興国の成長は世界経済を押し上げたが、資金の急な流出入はもろさも内包していた。",
+    choices: [
+      { id: "invest", label: "新興国との結びつきを深める", description: "成長と市場↑・リスク", effect: { gdp: 6, trust: 4, budget: -4 }, explanation: "成長市場とつながり利益を得ますが、急変のリスクも抱えます。" },
+      { id: "domestic", label: "足元の経済を固める", description: "堅実・好機は限定", effect: { gdp: 2, happiness: 2 }, explanation: "国内を固めますが、世界の成長の波には乗り遅れます。" },
+    ],
+  },
+
+  /* ===== 社会の変化・追加 ===== */
+  {
+    id: "h5_worklife_2004",
+    since: 1998, until: 2008, category: "政治", scope: "citizen",
+    title: "働き方とIT化で暮らしが変わる",
+    body: "【速報】パソコンと携帯で「いつでも仕事」が可能になり、便利さと忙しさが同時に増えています。",
+    citizen: "「生活は便利になりましたが、休む暇がない」との声。",
+    effect: {},
+    historicalNote: "IT化は仕事の効率を上げたが、仕事と暮らしの境界を曖昧にし、新たな疲れも生んだ。",
+    choices: [
+      { id: "balance", label: "働き方の改善を促す", description: "暮らし↑・企業に負担", effect: { happiness: 5, approval: 3, gdp: -1, budget: -4 }, explanation: "暮らしのゆとりが増えますが、企業には一定の負担となります。" },
+      { id: "efficiency", label: "効率と生産性を優先", description: "成長↑・疲弊も", effect: { gdp: 4, technology: 2, happiness: -3 }, explanation: "生産性は上がりますが、働く人の疲れが増します。" },
+    ],
+  },
+  {
+    id: "h5_edu_it_2003",
+    since: 1998, until: 2008, category: "技術", scope: "domestic",
+    title: "学校にコンピュータを導入するか",
+    body: "【速報】子どもたちがITに親しむため、学校への端末やネット環境の整備が議論されています。",
+    citizen: "「これからの子はパソコンが使えないと」と保護者。",
+    effect: {},
+    historicalNote: "教育のIT化は将来の人材育成の鍵となったが、地域や家庭による情報格差も意識させた。",
+    choices: [
+      { id: "invest", label: "教育のIT化に投資する", description: "未来の人材↑・出費", effect: { technology: 4, happiness: 2, budget: -10 }, explanation: "次代を担う人材を育てますが、整備に費用がかかります。" },
+      { id: "basic", label: "基礎学力を優先する", description: "堅実・IT教育は遅れ", effect: { technology: 1, happiness: 1 }, explanation: "基礎を重んじますが、IT教育では後れを取ります。" },
+    ],
+  },
+  {
+    id: "h5_pc_home_1998",
+    since: 1994, until: 2006, category: "技術", scope: "domestic",
+    title: "家庭にパソコンが普及する",
+    body: "【速報】一家に一台のパソコンが当たり前になり、家庭から世界とつながれる時代になりました。",
+    citizen: "「子どもの方が詳しくて驚く」と親世代。",
+    effect: {},
+    historicalNote: "家庭へのパソコン普及は、情報の受け手だった市民を発信者へと変える土台になった。",
+    choices: [
+      { id: "promote", label: "普及を後押しする", description: "技術と暮らし↑・出費", effect: { technology: 4, gdp: 3, happiness: 2, budget: -6 }, explanation: "国民のITリテラシーが上がりますが、支援に費用がかかります。" },
+      { id: "market", label: "市場に任せる", description: "自然普及・格差", effect: { technology: 2, gdp: 2 }, explanation: "自然に広がりますが、家庭による格差が残ります。" },
+    ],
+  },
+  {
+    id: "h5_itgiant_2004",
+    since: 2000, until: 2008, category: "市場", scope: "market",
+    title: "巨大IT企業が世界を席巻",
+    body: "【速報】検索やネット通販の巨大企業が世界規模で影響力を持ち、暮らしの基盤になりつつあります。",
+    citizen: "「もうこのサービスなしでは生活できない」と利用者。",
+    effect: {},
+    historicalNote: "巨大IT企業の台頭は利便性を生む一方、独占やデータの集中という新たな課題を生んだ。",
+    choices: [
+      { id: "nurture", label: "国産のIT企業を育てる", description: "自立↑・投資", effect: { technology: 5, gdp: 4, budget: -10 }, explanation: "海外巨大企業への依存を減らしますが、育成に投資が要ります。" },
+      { id: "use", label: "便利なサービスを活用する", description: "効率↑・依存も", effect: { gdp: 4, happiness: 2, technology: 1 }, explanation: "すぐ便利になりますが、海外企業への依存が深まります。" },
+    ],
+  },
+  {
+    id: "h5_digitaldivide_2002",
+    since: 1998, until: 2008, category: "政治", scope: "citizen",
+    title: "ITについていけない人々（情報格差）",
+    body: "【速報】便利になる一方で、高齢者やお金のない家庭がデジタルから取り残される問題が出ています。",
+    citizen: "「パソコンは難しくて」と戸惑うお年寄り。",
+    effect: {},
+    historicalNote: "情報格差（デジタルデバイド）は、IT社会の便益を受けられる人とそうでない人の差を生んだ。",
+    choices: [
+      { id: "bridge", label: "誰もが使える支援を行う", description: "包摂↑・出費", effect: { happiness: 4, approval: 3, technology: 1, budget: -8 }, explanation: "取り残される人を減らしますが、支援に費用がかかります。" },
+      { id: "speed", label: "先端の普及を優先する", description: "効率↑・取り残し", effect: { technology: 3, gdp: 2, happiness: -2 }, explanation: "全体の高度化は進みますが、弱者が取り残されます。" },
+    ],
+  },
+  {
+    id: "h5_asiacrisis_1997",
+    since: 1997, until: 2001, category: "市場", scope: "crisis",
+    title: "新興国を襲った通貨危機",
+    body: "【緊急速報】成長してきた新興国の通貨が急落し、危機が周辺に連鎖。世界経済に動揺が走っています。",
+    citizen: "「対岸の火事では済まないのか」と不安。",
+    effect: {},
+    historicalNote: "急成長の裏で起きた通貨危機は、グローバル化した経済のもろさと連鎖の怖さを示した。",
+    choices: [
+      { id: "stabilize", label: "国際協調で安定化に動く", description: "信用↑・負担", effect: { trust: 5, gdp: -2, budget: -8 }, explanation: "連鎖を防ぎ国際的信用を得ますが、支援の負担を負います。" },
+      { id: "defend", label: "自国の防衛を固める", description: "自衛・連鎖は放置", effect: { trust: -1, budget: -4, gdp: -1 }, explanation: "自国を守りますが、地域の混乱には関与しません。" },
+    ],
+  },
+  {
+    id: "h5_wto_2001",
+    since: 1995, until: 2008, category: "外交", scope: "world",
+    title: "新興大国が世界貿易の仲間入り",
+    body: "【速報】巨大な新興国が国際貿易の枠組みに加わり、世界の市場と競争が一気に広がっています。",
+    citizen: "「世界はますますつながっていく」と実感。",
+    effect: {},
+    historicalNote: "新興大国の世界市場への参入は、安い製品と巨大市場をもたらし、貿易の地図を塗り替えた。",
+    choices: [
+      { id: "engage", label: "巨大市場との取引を広げる", description: "輸出↑・競争激化", effect: { gdp: 7, trust: 3, unemployment: 0.3 }, explanation: "巨大市場で稼げますが、安い製品との競争も激しくなります。" },
+      { id: "cautious", label: "公正なルールを求めつつ慎重に", description: "守り・成長は緩やか", effect: { gdp: 3, trust: 2 }, explanation: "ルールを重んじますが、成長の取り込みは緩やかです。" },
+    ],
+  },
+  {
+    id: "h5_eu_enlarge_2004",
+    since: 2000, until: 2008, category: "外交", scope: "diplo",
+    title: "地域統合が東へ拡大する",
+    body: "【速報】かつての東側の国々も統合の枠組みに加わり、協力の輪が大きく広がっています。",
+    citizen: "「ヨーロッパが一つにまとまっていく」と注目。",
+    effect: {},
+    historicalNote: "地域統合の東方拡大は平和と市場を広げたが、加盟国間の経済格差という課題も抱えた。",
+    choices: [
+      { id: "deepen", label: "統合と協力を深める", description: "市場と平和↑・調整負担", effect: { gdp: 5, trust: 5, budget: -6 }, explanation: "市場と平和の輪が広がりますが、格差の調整に手間がかかります。" },
+      { id: "steady", label: "拡大より中身の充実を", description: "堅実・拡大は慎重", effect: { trust: 2, gdp: 2 }, explanation: "急ぎすぎず足元を固めますが、勢いは控えめです。" },
+    ],
+  },
+  {
+    id: "h5_kyoto_1998",
+    since: 1997, until: 2008, category: "外交", scope: "world",
+    title: "地球温暖化への国際的な取り組み",
+    body: "【速報】温室効果ガスを減らす国際的な約束が結ばれ、各国が対策を迫られています。",
+    citizen: "「未来の地球のために」と環境への関心が高まる。",
+    effect: {},
+    historicalNote: "温暖化対策の国際枠組みは、経済成長と環境保護の両立という新しい課題を世界に突きつけた。",
+    choices: [
+      { id: "lead", label: "環境対策を率先して進める", description: "環境と信用↑・コスト", effect: { environment: 6, trust: 5, gdp: -3, budget: -8 }, explanation: "環境と国際的評価を得ますが、企業のコストと成長に影響します。" },
+      { id: "growth", label: "経済への影響を抑えつつ対応", description: "成長重視・対策は限定", effect: { gdp: 2, environment: 1, trust: -2 }, explanation: "経済を優先しますが、環境対策は不十分と見られます。" },
+    ],
+  },
+  {
+    id: "h5_tourism_2003",
+    since: 1995, until: 2008, category: "経済", scope: "domestic",
+    title: "国際観光が活発になる",
+    body: "【速報】航空網と所得の向上で、国境を越えた観光が一気に広がっています。",
+    citizen: "「海外旅行が身近になった」「外国客で街がにぎわう」と双方向。",
+    effect: {},
+    historicalNote: "グローバル化は人の移動を活発にし、観光を成長産業として各国が競って誘致した。",
+    choices: [
+      { id: "promote", label: "観光立国を目指す", description: "外貨と活気↑・混雑も", effect: { gdp: 6, happiness: 3, trust: 2, environment: -2 }, explanation: "外貨と地域の活気を得ますが、混雑や環境の負荷も生まれます。" },
+      { id: "modest", label: "ほどほどに受け入れる", description: "穏当・効果も中程度", effect: { gdp: 3, happiness: 1 }, explanation: "無理なく受け入れ、そこそこの効果を得ます。" },
+    ],
+  },
+  {
+    id: "h5_immigration_2005",
+    since: 1995, until: 2008, category: "政治", scope: "citizen",
+    title: "人手不足で移民の受け入れを検討",
+    body: "【速報】少子高齢化と人手不足を背景に、外国からの働き手の受け入れ拡大が議論されています。",
+    citizen: "「人手は助かる」「地域に馴染めるか心配」と賛否。",
+    effect: {},
+    historicalNote: "グローバル化と人手不足は移民の受け入れを進めたが、社会の統合という新たな課題も生んだ。",
+    voices: [
+      { characterId: "business", stance: "support", text: "人手不足は深刻です。受け入れは産業界の願いです。" },
+      { characterId: "citizen", stance: "oppose", text: "受け入れは賛成ですが、共生の支援も必要です。" },
+    ],
+    choices: [
+      { id: "accept", label: "受け入れと共生支援を進める", description: "労働力↑・統合の費用", effect: { gdp: 7, unemployment: -0.4, budget: -8, happiness: -1 }, explanation: "労働力で経済が伸び、支援で摩擦も抑えますが、費用がかかります。" },
+      { id: "limit", label: "受け入れを慎重にする", description: "摩擦回避・人手不足続く", effect: { gdp: -2, happiness: 2, unemployment: 0.2 }, explanation: "社会の摩擦は避けますが、人手不足は続きます。" },
+    ],
+  },
+  {
+    id: "h5_pko_2000",
+    since: 1992, until: 2008, category: "外交", scope: "diplo",
+    title: "国際平和協力への参加",
+    body: "【速報】紛争後の地域の復興や平和維持に、国際社会から協力を求められています。",
+    citizen: "「世界の平和に貢献するのは誇らしい」との声。",
+    effect: {},
+    historicalNote: "冷戦後の国際平和協力は、各国に新しい国際貢献のあり方と国内議論をもたらした。",
+    choices: [
+      { id: "participate", label: "平和維持・復興支援に参加", description: "信用↑・費用とリスク", effect: { trust: 6, military: 1, budget: -8 }, explanation: "国際的な信用と存在感を得ますが、費用とリスクを伴います。" },
+      { id: "financial", label: "資金協力に絞る", description: "安全・存在感は限定", effect: { trust: 3, budget: -6 }, explanation: "人的リスクを避けますが、関与の存在感は限られます。" },
+    ],
+  },
+];
