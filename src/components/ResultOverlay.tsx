@@ -40,6 +40,14 @@ export function ResultOverlay({ result, year, month, onClose }: ResultOverlayPro
           <p className="ro-body">{result.body}</p>
         </div>
 
+        {/* 場面描写（その行動が実際に行われている情景） */}
+        {result.scene && (
+          <div className="ro-scene">
+            <span className="ro-scene-tag">▶ その時、現場では</span>
+            <p className="ro-scene-text">{result.scene}</p>
+          </div>
+        )}
+
         {/* いま国で起きていること（出来事として体感） */}
         {result.deltas.length > 0 && (
           <div className="ro-section">

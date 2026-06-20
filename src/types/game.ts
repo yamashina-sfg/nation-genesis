@@ -233,6 +233,8 @@ export type { RealCountry } from "../data/realCountries";
 export type ActionResult = {
   title: string;
   body: string;
+  /** その行動が実際に行われている場面描写（会談室・閣議など） */
+  scene?: string;
   affectedNation?: string;
   deltas: StatDelta[];
   benefits: string[];

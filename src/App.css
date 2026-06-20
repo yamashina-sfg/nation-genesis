@@ -2408,6 +2408,30 @@ p {
   line-height: 1.65;
 }
 
+/* 場面描写（カットシーン風の情景） */
+.ro-scene {
+  margin: 0 24px 16px;
+  padding: 12px 16px;
+  background: linear-gradient(180deg, rgba(231,185,78,0.10), rgba(0,0,0,0.18));
+  border-left: 3px solid var(--gold, #e7b94e);
+  border-radius: 6px;
+}
+.ro-scene-tag {
+  display: block;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--gold-light, #e7d6a8);
+  margin-bottom: 5px;
+}
+.ro-scene-text {
+  margin: 0;
+  font-size: 0.86rem;
+  line-height: 1.75;
+  color: #eef1f5;
+  font-style: italic;
+}
+
 /* セクション共通 */
 .ro-section {
   padding: 16px 24px;

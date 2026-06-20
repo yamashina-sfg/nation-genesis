@@ -24,6 +24,7 @@ import {
   type DiploTier,
 } from "./data/dayEngine";
 import { eraForYear, isUnlocked } from "./data/eras";
+import { policyScene, diplomacyScene, rateScene } from "./data/actionScenes";
 import { legacyScore, rankFor, rankTitle } from "./utils/score";
 import { getProfession } from "./data/professions";
 import { statLabels, statEasy } from "./data/stats";
@@ -558,6 +559,7 @@ export default function App() {
     const result: ActionResult = {
       title: policy.newsHeadline,
       body: newsBody,
+      scene: policyScene(policy, profession.label, mult > 1),
       deltas,
       benefits: deltas.filter((d) => d.amount > 0).map((d) => `${statLabels[d.key]}が改善`),
       drawbacks: deltas.filter((d) => d.amount < 0).map((d) => `${statLabels[d.key]}に負担`),
@@ -670,6 +672,7 @@ export default function App() {
     const result: ActionResult = {
       title: `${selectedNation.name}と「${action.label}」… ${tier}`,
       affectedNation: selectedNation.name,
+      scene: diplomacyScene(action.id, selectedNation.name, tier),
       body:
         `${selectedNation.name}に対して${action.label}を行いました。${tierLine} ` +
         `（成功率の目安 ${Math.round(chance * 100)}%）両国の友好度は ${prevRelation} → ${newRelation} に変化しました。`,
@@ -787,6 +790,7 @@ export default function App() {
         direction === "hike"
           ? `政策金利を引き上げ (${newRate.toFixed(1)}%)`
           : `政策金利を引き下げ (${newRate.toFixed(1)}%)`,
+      scene: rateScene(direction, newRate),
       body:
         direction === "hike"
           ? "中央銀行が利上げに踏み切りました。借入コストが上がり景気と株価には逆風ですが、物価上昇は抑えられます。銀行株は利ざや改善で買われました。"
