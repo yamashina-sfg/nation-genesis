@@ -7,6 +7,7 @@ import { historyEvents1945 } from "./historyEvents1945";
 import { historyEvents1973 } from "./historyEvents1973";
 import { historyEvents1991 } from "./historyEvents1991";
 import { historyEvents2008 } from "./historyEvents2008";
+import { historyEvents2020 } from "./historyEvents2020";
 
 /**
  * ゲームイベント一覧。
@@ -691,6 +692,7 @@ export const choiceEvents = [
   ...historyEvents1973,
   ...historyEvents1991,
   ...historyEvents2008,
+  ...historyEvents2020,
 ].filter((e) => e.choices && e.choices.length > 0);
 
 /** パッシブ型イベントのみ */

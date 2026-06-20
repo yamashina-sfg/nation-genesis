@@ -400,7 +400,7 @@ export default function App() {
       setEndState({ kind: "fail", title: "国民に見放された", body: "支持率が地に落ち、あなたは大統領の座を追われました。" });
     } else if (stats.budget <= -78) {
       setEndState({ kind: "fail", title: "財政が破綻した", body: "国庫が底をつき、政権は崩壊しました。あなたは責任を取り退陣します。" });
-    } else if (year >= 2025) {
+    } else if (year >= 2030) {
       setEndState({ kind: "clear", title: "歴史を駆け抜けた", body: "1850年から現代まで、あなたは国家を導き続けました。お疲れさまでした、大統領。" });
     }
   }, [stats.approval, stats.budget, year, selectedRealCountry, endState]);
