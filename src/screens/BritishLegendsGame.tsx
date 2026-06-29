@@ -1,10 +1,19 @@
 import type { CSSProperties } from "react";
 import { useEffect, useMemo, useState } from "react";
-import { legendWorks, metaFeatures, saveKey, type LegendId, type LegendWork } from "../data/britishLegends";
+import {
+  legendAchievements,
+  legendWorks,
+  metaFeatures,
+  saveKey,
+  type LegendId,
+  type LegendWork,
+} from "../data/britishLegends";
 import { IntroScreen } from "./IntroScreen";
 
 type View = "title" | "opening" | "lodge" | "codex" | "world";
 type TimeTone = "morning" | "evening" | "night";
+type SoundKind = "page" | "clear" | "fire" | "wind" | "battle" | "boss";
+type Toast = { title: string; body: string; tone: "chapter" | "clear" | "home" };
 
 type BritishSave = {
   activeWork: LegendId;
@@ -67,7 +76,7 @@ function timeTone(): TimeTone {
   return "night";
 }
 
-function makeTone(kind: "page" | "clear" | "fire" | "wind" | "battle") {
+function makeTone(kind: SoundKind) {
   const AudioContextClass = window.AudioContext || window.webkitAudioContext;
   if (!AudioContextClass) return;
   const audio = new AudioContextClass();
@@ -96,9 +105,14 @@ function makeTone(kind: "page" | "clear" | "fire" | "wind" | "battle") {
     osc.stop(now + 0.66);
   } else {
     osc.type = kind === "battle" ? "sawtooth" : "sine";
-    osc.frequency.setValueAtTime(kind === "fire" ? 96 : kind === "wind" ? 142 : 180, now);
+    osc.frequency.setValueAtTime(kind === "fire" ? 96 : kind === "wind" ? 142 : kind === "boss" ? 84 : 180, now);
+    if (kind === "boss") {
+      osc.frequency.setValueAtTime(84, now);
+      osc.frequency.setValueAtTime(126, now + 0.14);
+      osc.frequency.setValueAtTime(72, now + 0.28);
+    }
     gain.gain.setValueAtTime(0.0001, now);
-    gain.gain.exponentialRampToValueAtTime(kind === "battle" ? 0.055 : 0.035, now + 0.05);
+    gain.gain.exponentialRampToValueAtTime(kind === "battle" || kind === "boss" ? 0.055 : 0.035, now + 0.05);
     gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.45);
     osc.stop(now + 0.5);
   }
@@ -129,6 +143,7 @@ function BritishSound({ sound, view }: { sound: boolean; view: View }) {
       <span className={`bl-sound-chip ${view === "lodge" ? "active" : ""}`}>Hearth</span>
       <span className={`bl-sound-chip ${view === "world" ? "active" : ""}`}>Wind</span>
       <span className={`bl-sound-chip ${view === "world" ? "active" : ""}`}>Battle</span>
+      <span className={`bl-sound-chip ${view === "world" ? "active" : ""}`}>Boss</span>
       <span className="bl-sound-chip">Clear</span>
     </div>
   );
@@ -138,6 +153,8 @@ export function BritishLegendsGame() {
   const [save, setSave] = useState<BritishSave>(() => loadBritishSave());
   const [view, setView] = useState<View>("title");
   const [tone, setTone] = useState<TimeTone>(() => timeTone());
+  const [toast, setToast] = useState<Toast | null>(null);
+  const [companionMoment, setCompanionMoment] = useState<{ name: string; line: string } | null>(null);
   const hasStarted = save.titleSeen || save.openingWatched || save.restored.length > 0 || Object.values(save.chapterProgress).some((progress) => progress > 0);
   const active = workById(save.activeWork);
   const restoredSet = useMemo(() => new Set(save.restored), [save.restored]);
@@ -148,6 +165,17 @@ export function BritishLegendsGame() {
   const codexRate = Math.round((restoredChapters / totalChapters) * 100);
   const completeRate = Math.round((save.restored.length / legendWorks.length) * 100);
   const worldLevel = save.restored.length;
+  const unlockedAchievements = legendAchievements.filter((achievement) => {
+    const { requires } = achievement;
+    if (requires.complete && completeRate < 100) return false;
+    if (requires.restored !== undefined && save.restored.length < requires.restored) return false;
+    if (requires.codexRate !== undefined && codexRate < requires.codexRate) return false;
+    return true;
+  });
+  const nextAchievement = legendAchievements.find((achievement) => !unlockedAchievements.includes(achievement));
+  const activeProgress = save.chapterProgress[active.id] ?? 0;
+  const activeNextChapter = active.chapters[Math.min(activeProgress, active.chapters.length - 1)];
+  const activeNextNote = active.chapterNotes[Math.min(activeProgress, active.chapterNotes.length - 1)];
   const title =
     completeRate === 100 ? "Keeper of the Restored Shelf" :
     completeRate >= 67 ? "Lantern-Bound Reader" :
@@ -162,6 +190,12 @@ export function BritishLegendsGame() {
     const timer = window.setInterval(() => setTone(timeTone()), 60000);
     return () => window.clearInterval(timer);
   }, []);
+
+  useEffect(() => {
+    if (!toast) return;
+    const timer = window.setTimeout(() => setToast(null), 3600);
+    return () => window.clearTimeout(timer);
+  }, [toast]);
 
   useEffect(() => {
     if (!save.sound || view === "title" || view === "opening") return;
@@ -206,7 +240,12 @@ export function BritishLegendsGame() {
   }
 
   function setActiveWork(id: LegendId) {
+    const work = workById(id);
+    const progress = save.chapterProgress[id] ?? 0;
+    const restored = restoredSet.has(id);
+    const mood = restored ? work.moods[2] : progress > 0 ? work.moods[1] : work.moods[0];
     patchSave({ activeWork: id });
+    setCompanionMoment({ name: work.companion, line: mood.line });
     makeTone("page");
   }
 
@@ -235,7 +274,17 @@ export function BritishLegendsGame() {
 
   function restoreChapter(work: LegendWork) {
     const current = save.chapterProgress[work.id] ?? 0;
+    if (current >= work.chapters.length) {
+      setActiveWork(work.id);
+      setToast({
+        title: "Story Revisited",
+        body: `${work.companion} returns to the ${work.artifact}.`,
+        tone: "home",
+      });
+      return;
+    }
     const next = Math.min(current + 1, work.chapters.length);
+    const isFinalChapter = next >= work.chapters.length;
     const restored = next >= work.chapters.length && !restoredSet.has(work.id)
       ? [...save.restored, work.id]
       : save.restored;
@@ -245,7 +294,14 @@ export function BritishLegendsGame() {
       chapterProgress: { ...save.chapterProgress, [work.id]: next },
       restored,
     });
-    makeTone(next >= work.chapters.length ? "clear" : "battle");
+    setToast({
+      title: isFinalChapter ? `${work.title} Restored` : "Chapter Restored",
+      body: isFinalChapter
+        ? `${work.trophy} has appeared in the Lodge.`
+        : `${work.chapters[current]} returned to the shelf.`,
+      tone: isFinalChapter ? "clear" : "chapter",
+    });
+    makeTone(isFinalChapter ? "clear" : current === work.chapters.length - 2 ? "boss" : "battle");
   }
 
   function resetDemo() {
@@ -264,6 +320,12 @@ export function BritishLegendsGame() {
   return (
     <main className={`bl-game bl-game--${view} bl-time--${tone} bl-revival-${worldLevel}`}>
       <BritishSound sound={save.sound} view={view} />
+      {toast && (
+        <button type="button" className={`bl-toast bl-toast--${toast.tone}`} onClick={() => setToast(null)}>
+          <span>{toast.title}</span>
+          <strong>{toast.body}</strong>
+        </button>
+      )}
 
       {view === "opening" ? (
         <IntroScreen onComplete={completeOpening} />
@@ -344,10 +406,17 @@ export function BritishLegendsGame() {
                   <i />
                 </div>
                 <div className={`bl-plant bl-plant--${worldLevel}`}><i /><b /><em /></div>
+                <div className="bl-rug" aria-hidden="true" />
+                <div className="bl-candles" aria-hidden="true"><i /><b /><em /></div>
+                <div className="bl-wall-map" aria-hidden="true">
+                  <span>Routes</span>
+                  <b>{completeRate}%</b>
+                </div>
                 <div className="bl-desk">
                   <span>Now Reading</span>
                   <strong>{active.title}</strong>
                   <small>{active.subtitle}</small>
+                  <em>{active.artifact}</em>
                 </div>
 
                 {legendWorks.map((work, index) => {
@@ -369,15 +438,27 @@ export function BritishLegendsGame() {
                     </button>
                   );
                 })}
+                {companionMoment && (
+                  <button type="button" className="bl-moment" onClick={() => setCompanionMoment(null)}>
+                    <span>{companionMoment.name}</span>
+                    <strong>{companionMoment.line}</strong>
+                  </button>
+                )}
               </div>
               <aside className="bl-lodge__panel">
                 <span>Bibliotheca Lodge</span>
                 <h2>Recovered light: {worldLevel}/3</h2>
                 <p>{active.intro}</p>
                 <div className="bl-next-card">
-                  <strong>{active.chapters[Math.min(save.chapterProgress[active.id] ?? 0, active.chapters.length - 1)]}</strong>
-                  <small>{save.chapterProgress[active.id] ?? 0}/{active.chapters.length} chapters restored</small>
+                  <strong>{activeNextChapter}</strong>
+                  <p>{activeNextNote}</p>
+                  <small>{activeProgress}/{active.chapters.length} chapters restored</small>
                   <button type="button" onClick={() => { setView("world"); makeTone("wind"); }}>Open Story Map</button>
+                </div>
+                <div className="bl-home-log">
+                  <strong>Lodge Memory</strong>
+                  <span>{save.restored.length === 0 ? "The shelves are waiting for their first complete story." : `${save.restored.length} trophy pieces glow by the hearth.`}</span>
+                  <span>{nextAchievement ? `Next title: ${nextAchievement.title}` : "All current titles unlocked."}</span>
                 </div>
               </aside>
             </section>
@@ -397,6 +478,14 @@ export function BritishLegendsGame() {
                       <p>{work.intro}</p>
                       <small>{progress}/{work.chapters.length} chapters restored</small>
                       <meter min={0} max={work.chapters.length} value={progress} />
+                      <ol className="bl-chapter-list">
+                        {work.chapters.map((chapter, index) => (
+                          <li key={chapter} className={index < progress ? "done" : index === progress ? "next" : ""}>
+                            <span>{chapter}</span>
+                            <small>{work.chapterNotes[index]}</small>
+                          </li>
+                        ))}
+                      </ol>
                       <button type="button" onClick={() => restoreChapter(work)}>
                         {restored ? "Revisit" : "Restore Chapter"}
                       </button>
@@ -433,6 +522,17 @@ export function BritishLegendsGame() {
                         <dt>Unlocked</dt><dd>{unlockRate}%</dd>
                       </dl>
                     </article>
+                  );
+                })}
+              </div>
+              <div className="bl-achievements">
+                {legendAchievements.map((achievement) => {
+                  const unlocked = unlockedAchievements.includes(achievement);
+                  return (
+                    <span key={achievement.id} className={unlocked ? "unlocked" : ""}>
+                      <b>{achievement.title}</b>
+                      <small>{achievement.detail}</small>
+                    </span>
                   );
                 })}
               </div>

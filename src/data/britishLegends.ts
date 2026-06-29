@@ -18,8 +18,22 @@ export type LegendWork = {
   color: string;
   shadow: string;
   chapters: string[];
+  chapterNotes: string[];
+  trophy: string;
+  artifact: string;
   codex: string;
   moods: CompanionMood[];
+};
+
+export type LegendAchievement = {
+  id: string;
+  title: string;
+  detail: string;
+  requires: {
+    restored?: number;
+    codexRate?: number;
+    complete?: boolean;
+  };
 };
 
 export type MetaFeature = {
@@ -42,6 +56,13 @@ export const legendWorks: LegendWork[] = [
     color: "#d7b35a",
     shadow: "#4b2d17",
     chapters: ["Heorot's Silence", "Grendel's Footsteps", "The Dragon's Ash"],
+    chapterNotes: [
+      "The hall remembers laughter, but the benches are cold.",
+      "A shadow claws at the song before dawn can name it.",
+      "Old glory meets the fire that waits for every hero.",
+    ],
+    trophy: "Golden Mead-Horn",
+    artifact: "weathered sword hilt",
     codex:
       "An Old English epic of courage and doom, where glory is bright because it does not last.",
     moods: [
@@ -62,6 +83,13 @@ export const legendWorks: LegendWork[] = [
     color: "#8fb4d9",
     shadow: "#1d2d4d",
     chapters: ["Elsinore's Whisper", "The Play Within", "The Poisoned Hall"],
+    chapterNotes: [
+      "A corridor listens while a prince weighs every step.",
+      "A staged murder turns memory into evidence.",
+      "The court's polished floor reflects a poisoned truth.",
+    ],
+    trophy: "Silver Theatre Mask",
+    artifact: "annotated playbook",
     codex:
       "Shakespeare's tragedy of a mind too awake to move easily through a corrupted court.",
     moods: [
@@ -82,6 +110,13 @@ export const legendWorks: LegendWork[] = [
     color: "#b46b5b",
     shadow: "#301a25",
     chapters: ["The Heath's Prophecy", "The Sleepless Crown", "Birnam's March"],
+    chapterNotes: [
+      "Thunder opens a road that should never be trusted.",
+      "A crown sits heavily on a sleepless head.",
+      "The forest moves, and a borrowed fate comes due.",
+    ],
+    trophy: "Soot-Dark Crown",
+    artifact: "smoke-stained dagger",
     codex:
       "A tragedy of prophecy, violence, and the terrible speed with which ambition can hollow a soul.",
     moods: [
@@ -90,6 +125,14 @@ export const legendWorks: LegendWork[] = [
       { condition: "rescued", activity: "keeping distance from the brightest light", line: "戻った言葉が、罪を照らす。" },
     ],
   },
+];
+
+export const legendAchievements: LegendAchievement[] = [
+  { id: "first-page", title: "First Page Returned", detail: "Restore any chapter.", requires: { codexRate: 1 } },
+  { id: "hearth-lit", title: "Hearth Lit", detail: "Restore one complete work.", requires: { restored: 1 } },
+  { id: "shelf-sings", title: "The Shelf Sings", detail: "Restore two complete works.", requires: { restored: 2 } },
+  { id: "bibliotheca-whole", title: "Bibliotheca Restored", detail: "Restore all three works.", requires: { complete: true } },
+  { id: "codex-keeper", title: "Codex Keeper", detail: "Reach 100% codex completion.", requires: { codexRate: 100 } },
 ];
 
 export const metaFeatures: MetaFeature[] = [
